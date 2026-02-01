@@ -1,5 +1,6 @@
 "use client";
 import Button from "@/components/atoms/Button";
+import { urlBase64ToUint8Array } from "@/lib/urlBase64ToUnit8Array";
 import { useState } from "react";
 
 export default function PushTest() {
@@ -7,10 +8,28 @@ export default function PushTest() {
 
   // ステップ3の購読処理
   const handleSubscribe = async () => {
+    if (!("Notification" in window)) {
+      alert("Notification APIが未対応です");
+      return;
+    }
+    if (Notification.permission === "default") {
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") {
+        alert("通知権限が許可されていません");
+        return;
+      }
+    }
+    if (Notification.permission !== "granted") {
+      alert("通知権限が許可されていません");
+      return;
+    }
+
     const registration = await navigator.serviceWorker.ready;
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
+      applicationServerKey: urlBase64ToUint8Array(
+        process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
+      )
     });
     setSub(subscription); // 取得した情報をステートに保存
   };
@@ -21,7 +40,7 @@ export default function PushTest() {
     await fetch('/api/push', {
       method: 'POST',
       body: JSON.stringify({
-        subscription, 
+        subscription,
         title: 'イラストが届いているよ！',
         body: '確認してね！'
       }),
@@ -34,9 +53,9 @@ export default function PushTest() {
     <div className="p-4 grid grid-cols-2 gap-4">
       <Button onClick={handleSubscribe}
         value="1. 購読（Subscribe）する"
-       />
-      
-      <Button onClick={() => sendNotification(sub)} 
+      />
+
+      <Button onClick={() => sendNotification(sub)}
         value="2. テスト通知を送る"
       />
     </div>

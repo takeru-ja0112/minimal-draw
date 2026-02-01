@@ -46,12 +46,54 @@ export default function usePushControl(
      */
     const handleSubscribe =
         async () => {
+            if (
+                !(
+                    "Notification" in
+                    window
+                )
+            ) {
+                return {
+                    success: false,
+                    error: "Notification API not supported",
+                };
+            }
+
+            if (
+                Notification.permission ===
+                "default"
+            ) {
+                const permission =
+                    await Notification.requestPermission();
+                if (
+                    permission !==
+                    "granted"
+                ) {
+                    return {
+                        success: false,
+                        error: "Notification permission denied",
+                    };
+                }
+            }
+
+            if (
+                Notification.permission !==
+                "granted"
+            ) {
+                return {
+                    success: false,
+                    error: "Notification permission denied",
+                };
+            }
+
             const registration =
                 await navigator
                     .serviceWorker
                     .ready;
+            const existingSubscription =
+                await registration.pushManager.getSubscription();
             const subscription =
-                await registration.pushManager.subscribe(
+                existingSubscription ??
+                (await registration.pushManager.subscribe(
                     {
                         userVisibleOnly: true,
                         applicationServerKey:
@@ -61,7 +103,7 @@ export default function usePushControl(
                                     .NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
                             ),
                     },
-                );
+                ));
             setSub(subscription); // 取得した情報をステートに保存
             localStorage.setItem(
                 SUBSCRIBE,
