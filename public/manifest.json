@@ -23,5 +23,7 @@
     "id":"/",
     "short_name": "minidraw",
     "start_url": "/",
-    "scope": "/"
+    "scope": "/",
+    "gcm_sender_id": "103953800507",
+    "gcm_user_visible_only": true
 }

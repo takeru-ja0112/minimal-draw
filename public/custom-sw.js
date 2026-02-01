@@ -26,9 +26,8 @@ self.addEventListener('push', function (event) {
     },
   };
 
-  // ★重要：iOSで通知を出すための必須命令
+  // ★重要：通知表示（Promiseを渡す）
   event.waitUntil(
-    console.log('Showing notification:', data.title),
     self.registration.showNotification(data.title, options)
   );
 });
