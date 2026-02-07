@@ -77,6 +77,7 @@ export default function useDraw(roomId: string) {
     index: number;
   } | null>(null);
   const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
+  const movedDuringMoveRef = useRef(false);
 
   const distanceToSegment = (px: number, py: number, x1: number, y1: number, x2: number, y2: number) => {
     const dx = x2 - x1;
@@ -281,6 +282,7 @@ export default function useDraw(roomId: string) {
       lastPointerRef.current = { x: point.x, y: point.y };
       setSelectedShape(nearest);
       isDrawing.current = !!nearest;
+      movedDuringMoveRef.current = false;
     }
   };
 
@@ -297,6 +299,7 @@ export default function useDraw(roomId: string) {
       const dx = point.x - last.x;
       const dy = point.y - last.y;
       if (dx === 0 && dy === 0) return;
+      movedDuringMoveRef.current = true;
 
       if (selected.type === 'line') {
         setLines((prev) =>
@@ -370,18 +373,21 @@ export default function useDraw(roomId: string) {
       lastPointerRef.current = null;
       isDrawing.current = false;
 
-      const newLinesHistory = linesHistory.current.slice(0, historyStep.current + 1);
-      const newCirclesHistory = circlesHistory.current.slice(0, historyStep.current + 1);
-      const newRectsHistory = rectsHistory.current.slice(0, historyStep.current + 1);
+      if (movedDuringMoveRef.current) {
+        const newLinesHistory = linesHistory.current.slice(0, historyStep.current + 1);
+        const newCirclesHistory = circlesHistory.current.slice(0, historyStep.current + 1);
+        const newRectsHistory = rectsHistory.current.slice(0, historyStep.current + 1);
 
-      newLinesHistory.push([...lines]);
-      newCirclesHistory.push([...circles]);
-      newRectsHistory.push([...rects]);
+        newLinesHistory.push([...lines]);
+        newCirclesHistory.push([...circles]);
+        newRectsHistory.push([...rects]);
 
-      linesHistory.current = newLinesHistory;
-      circlesHistory.current = newCirclesHistory;
-      rectsHistory.current = newRectsHistory;
-      historyStep.current = newLinesHistory.length - 1;
+        linesHistory.current = newLinesHistory;
+        circlesHistory.current = newCirclesHistory;
+        rectsHistory.current = newRectsHistory;
+        historyStep.current = newLinesHistory.length - 1;
+      }
+      movedDuringMoveRef.current = false;
       return;
     }
 
