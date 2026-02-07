@@ -12,12 +12,12 @@ export default function Loading() {
       </Link>
       <div className="max-w-lg mx-auto">
         <div className="mb-6 text-center">
-          <h2 className="text-lg text-gray-500 font-semibold mb-2">ルーム名</h2>
-          <p className="bg-gray-300 w-20 h-6 mx-auto rounded animate-pulse"></p>
-          <p className="bg-gray-300 w-30 h-6 mx-auto rounded animate-pulse"></p>
+          <h2 className="text-md text-gray-500 font-semibold mb-1">ルーム名</h2>
+          <div className="bg-gray-300 w-32 h-6 mx-auto rounded animate-pulse" />
+          <div className="bg-gray-300 w-24 h-5 mx-auto rounded mt-2 animate-pulse" />
         </div>
         <div className='w-full h-10 bg-gray-300 rounded-full animate-pulse mb-3'></div>
-        <Card className="mb-4 pb-1 bg-gray-100 rounded-3xl animate-pulse">
+        <Card className="mb-4 pb-1 bg-gray-100 rounded-3xl">
           <Button
             value='お題を変更する'
             className='mb-4 w-full'
@@ -46,7 +46,7 @@ export default function Loading() {
                 className={`absolute right-3 px-4 py-2 rounded-full font-bold text-sm font-bold
                                         bg-gray-200 text-gray-600`}
               >
-                '未決定'
+                未決定
               </div>
               <div className='mt-2  h-25 relative'>
                 <Human
@@ -63,6 +63,18 @@ export default function Loading() {
             </Card>
           </div>
         </Card>
+
+        <section>
+          <h2 className='text-lg font-bold mb-4 text-center'>参加者のスコア</h2>
+          <div className='space-y-2'>
+            {Array.from({ length: 3 }).map((_, idx) => (
+              <div key={idx} className='flex items-center justify-between p-3 bg-white rounded-xl shadow'>
+                <div className='h-4 w-24 bg-gray-200 rounded animate-pulse' />
+                <div className='h-4 w-12 bg-gray-200 rounded animate-pulse' />
+              </div>
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   )

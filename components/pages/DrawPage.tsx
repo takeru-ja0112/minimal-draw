@@ -87,19 +87,21 @@ export default function DrawPage({ roomId, theme, furigana, mode }: DrawPageProp
           <label className="block mb-1 font-semibold text-gray-600">
             お題
           </label>
-          <h2 className="text-md font-bold text-gray-500">{isThemeOpen ? '' : furigana}</h2>
-          <div className="flex items-center justify-center mb-2">
-            <h1 className="text-xl font-bold">{isThemeOpen ? '' : theme}</h1>
+          <div className="mb-6 h-21">
+            <h2 className="text-md font-bold text-gray-500">{isThemeOpen ? '' : furigana}</h2>
+            <div className="flex items-center justify-center mb-2">
+              <h1 className="text-xl font-bold">{isThemeOpen ? '' : theme}</h1>
+            </div>
+            {!isThemeOpen && theme && (
+              <button
+                type="button"
+                onClick={handleSearchTheme}
+                className="text-xs font-semibold text-gray-600 bg-white/60 border border-gray-300 rounded-full px-3 py-1 hover:bg-gray-100 transition flex items-center gap-1 mx-auto"
+              >
+                <TbSearch />これを調べる
+              </button>
+            )}
           </div>
-          {!isThemeOpen && theme && (
-            <button
-              type="button"
-              onClick={handleSearchTheme}
-              className="text-xs font-semibold text-gray-600 bg-white/60 border border-gray-300 rounded-full px-3 py-1 hover:bg-gray-100 transition mb-4 flex items-center gap-1 mx-auto"
-            >
-              <TbSearch />これを調べる
-            </button>
-          )}
 
           <div className="backdrop-blur bg-white/30 border border-white p-4 rounded-2xl shadow-md">
             {/*  描画エリア*/}
