@@ -11,7 +11,7 @@ import { motion } from "motion/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { IconContext } from "react-icons";
-import { TbArrowBackUp, TbArrowForwardUp, TbArrowLeft, TbArrowsMove, TbEraser, TbTrash } from 'react-icons/tb';
+import { TbArrowBackUp, TbArrowForwardUp, TbArrowLeft, TbArrowsMove, TbEraser, TbSearch, TbTrash } from 'react-icons/tb';
 import { Circle, Rect as KonvaRect, Layer, Line, Stage } from "react-konva";
 
 type DrawPageProps = {
@@ -65,6 +65,12 @@ export default function DrawPage({ roomId, theme, furigana, mode }: DrawPageProp
     }
   }, [currentTheme]);
 
+  const handleSearchTheme = () => {
+    if (!theme) return;
+    const url = `https://www.google.com/search?q=${encodeURIComponent(theme)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <>
       {/* <BgObject /> */}
@@ -82,17 +88,20 @@ export default function DrawPage({ roomId, theme, furigana, mode }: DrawPageProp
             お題
           </label>
           <h2 className="text-md font-bold text-gray-500">{isThemeOpen ? '' : furigana}</h2>
-          <h1 className="text-xl font-bold">{isThemeOpen ? '' : theme}</h1>
-          <motion.h1
-            key={count}
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-4xl font-bold mb-4 "
-          >
-            {count}
-          </motion.h1>
+          <div className="flex items-center justify-center mb-2">
+            <h1 className="text-xl font-bold">{isThemeOpen ? '' : theme}</h1>
+          </div>
+          {!isThemeOpen && theme && (
+            <button
+              type="button"
+              onClick={handleSearchTheme}
+              className="text-xs font-semibold text-gray-600 bg-white/60 border border-gray-300 rounded-full px-3 py-1 hover:bg-gray-100 transition mb-4 flex items-center gap-1 mx-auto"
+            >
+              <TbSearch />これを調べる
+            </button>
+          )}
 
-          <div className="backdrop-blur bg-white/30 p-4 rounded-2xl shadow-md">
+          <div className="backdrop-blur bg-white/30 border border-white p-4 rounded-2xl shadow-md">
             {/*  描画エリア*/}
             <div className="mb-4 flex gap-2 justify-center items-center">
               <IconContext.Provider value={{ size: '1.5em' }}>
@@ -150,58 +159,69 @@ export default function DrawPage({ roomId, theme, furigana, mode }: DrawPageProp
                 </div>
               ))}
             </div>
-
-            <div className={`mx-auto mt-4 border bg-white border-4 border-gray-400 w-[300px] h-[300px] touch-none rounded overflow-hidden`}>
-              <Stage
-                width={w}
-                height={h}
-                {...isMobile ? {
-                  onTouchStart: (e: KonvaEventObject<TouchEvent>) => handleMouseDown(e),
-                  onTouchMove: (e: KonvaEventObject<TouchEvent>) => handleMouseMove(e),
-                  onTouchEnd: (e: KonvaEventObject<TouchEvent>) => handleMouseUp(e),
-                } : {
-                  onMouseDown: handleMouseDown,
-                  onMouseMove: handleMouseMove,
-                  onMouseUp: handleMouseUp,
-                }}
-              >
-                <Layer
-                  tension={0.5}
-                  lineCap="round"
-                  lineJoin="round"
+            <div className="relative w-[300px] h-[300px] mx-auto">
+              <div className="w-fit h-fit p-1 px-4 flex items-center justify-center absolute -top-5 -right-7 z-5 bg-yellow-400 border border-white border-2 rounded-full">
+                <motion.h1
+                  key={count}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-3xl font-bold "
                 >
-                  {lines.map((line, i) => (
-                    <Line
-                      key={i}
-                      points={line}
-                      stroke={selectedShape?.type === 'line' && selectedShape.index === i ? '#e9c10e' : 'black'}
-                      strokeWidth={selectedShape?.type === 'line' && selectedShape.index === i ? 4 : 3}
-                    />
-                  ))}
-                  {circles.map((circle, i) => (
-                    <Circle
-                      key={i}
-                      x={circle.x}
-                      y={circle.y}
-                      radius={circle.radius}
-                      stroke={selectedShape?.type === 'circle' && selectedShape.index === i ? '#e9c10e' : 'black'}
-                      strokeWidth={selectedShape?.type === 'circle' && selectedShape.index === i ? 4 : 3}
-                    />
-                  ))}
-                  {rects.map((rect, i) => (
-                    <KonvaRect
-                      key={i}
-                      x={rect.x}
-                      y={rect.y}
-                      width={rect.width}
-                      height={rect.height}
-                      stroke={selectedShape?.type === 'rect' && selectedShape.index === i ? '#e9c10e' : 'black'}
-                      strokeWidth={selectedShape?.type === 'rect' && selectedShape.index === i ? 4 : 3}
-                      rotation={rect.rotation}
-                    />
-                  ))}
-                </Layer>
-              </Stage>
+                  {count}
+                </motion.h1>
+              </div>
+              <div className={`relative mx-auto mt-4 border bg-white border-4 border-gray-400 w-[300px] h-[300px] touch-none rounded overflow-hidden relative`}>
+                <Stage
+                  width={w}
+                  height={h}
+                  {...isMobile ? {
+                    onTouchStart: (e: KonvaEventObject<TouchEvent>) => handleMouseDown(e),
+                    onTouchMove: (e: KonvaEventObject<TouchEvent>) => handleMouseMove(e),
+                    onTouchEnd: (e: KonvaEventObject<TouchEvent>) => handleMouseUp(e),
+                  } : {
+                    onMouseDown: handleMouseDown,
+                    onMouseMove: handleMouseMove,
+                    onMouseUp: handleMouseUp,
+                  }}
+                >
+                  <Layer
+                    tension={0.5}
+                    lineCap="round"
+                    lineJoin="round"
+                  >
+                    {lines.map((line, i) => (
+                      <Line
+                        key={i}
+                        points={line}
+                        stroke={selectedShape?.type === 'line' && selectedShape.index === i ? '#e9c10e' : 'black'}
+                        strokeWidth={selectedShape?.type === 'line' && selectedShape.index === i ? 4 : 3}
+                      />
+                    ))}
+                    {circles.map((circle, i) => (
+                      <Circle
+                        key={i}
+                        x={circle.x}
+                        y={circle.y}
+                        radius={circle.radius}
+                        stroke={selectedShape?.type === 'circle' && selectedShape.index === i ? '#e9c10e' : 'black'}
+                        strokeWidth={selectedShape?.type === 'circle' && selectedShape.index === i ? 4 : 3}
+                      />
+                    ))}
+                    {rects.map((rect, i) => (
+                      <KonvaRect
+                        key={i}
+                        x={rect.x}
+                        y={rect.y}
+                        width={rect.width}
+                        height={rect.height}
+                        stroke={selectedShape?.type === 'rect' && selectedShape.index === i ? '#e9c10e' : 'black'}
+                        strokeWidth={selectedShape?.type === 'rect' && selectedShape.index === i ? 4 : 3}
+                        rotation={rect.rotation}
+                      />
+                    ))}
+                  </Layer>
+                </Stage>
+              </div>
             </div>
           </div>
         </div>
