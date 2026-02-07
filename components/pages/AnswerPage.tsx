@@ -2,10 +2,11 @@
 
 import { setStatusRoom } from "@/app/room/[id]/action";
 import {
+  addPointsToUser,
   checkAnswerRole,
   getThemePatternByRoomId,
   setdbAnswerInput,
-  setdbAnswerResult
+  setdbAnswerResult,
 } from "@/app/room/[id]/answer/action";
 import Button from "@/components/atoms/Button";
 import Card from "@/components/atoms/Card";
@@ -128,8 +129,10 @@ export default function AnswerPage({
     }
   };
 
-  const handleAnswer = () => {
-    if (!isAnswerRole || !themePattern.theme) return;
+  const handleAnswer = async () => {
+    const answerId = localStorage.getItem("drawing_app_user_id");
+    const indexUserId = data[currentIndex]?.user_id;
+    if (!isAnswerRole || !themePattern.theme || !answerId) return;
 
     if (status !== "ANSWERING" && status !== "FINISHED") {
       open("pleaseClose");
@@ -143,6 +146,9 @@ export default function AnswerPage({
       setIsOpen(false);
       fire();
       setdbAnswerResult(roomId, "CORRECT");
+      // ポイントを加算
+      await addPointsToUser(roomId, answerId, 10);
+      await addPointsToUser(roomId, indexUserId, 10); // 回答者にもポイントを加算
     } else {
       // 不正解時の処理
       if (mistake + 1 >= data.length) {
