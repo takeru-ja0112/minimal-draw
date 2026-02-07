@@ -160,7 +160,7 @@ export default function DrawPage({ roomId, theme, furigana, mode }: DrawPageProp
               ))}
             </div>
             <div className="relative w-[300px] h-[300px] mx-auto">
-              <div className="w-fit h-fit p-1 px-4 flex items-center justify-center absolute -top-5 -right-7 z-5 bg-yellow-400 border border-white border-2 rounded-full">
+              <div className="w-fit h-fit p-1 px-4 flex items-center justify-center absolute -top-5 -left-7 z-5 bg-yellow-400 border border-white border-2 rounded-full">
                 <motion.h1
                   key={count}
                   initial={{ opacity: 0, y: -10 }}

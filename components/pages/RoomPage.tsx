@@ -1,6 +1,6 @@
 "use client";
 
-import { changeRoomTheme, resetDrawingData, setStatusRoom } from '@/app/room/[id]/action';
+import { changeRoomTheme, registerParticipantScore, resetDrawingData, setStatusRoom } from '@/app/room/[id]/action';
 import { isCheckAnswer, setdbAnswer, setdbAnswerInput, setdbAnswerResult } from '@/app/room/[id]/answer/action';
 import Human from '@/components/atoms//Human';
 import Button from '@/components/atoms/Button';
@@ -13,13 +13,13 @@ import type { RoomSettingType } from '@/type/roomType';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { IconContext } from 'react-icons';
 import { TbArrowLeft, TbBallBowling, TbCheck, TbCopy, TbPencil } from 'react-icons/tb';
 import AccessUser from '../organisms/AccessUser';
 import RoomSetting from '../organisms/RoomSetting';
 
-export default function RoomPage({ title, shortId }: { title: string, shortId: string }) {
+export default function RoomPage({ title, shortId, scores }: { title: string, shortId: string, scores: any[] }) {
   const params = useParams();
   const roomId = params.id as string;
   const router = useRouter();
@@ -70,6 +70,14 @@ export default function RoomPage({ title, shortId }: { title: string, shortId: s
       setIsCopy(false);
     }, 2000);
   }
+
+  useEffect(() => {
+    const userId = localStorage.getItem('drawing_app_user_id');
+    const userName = localStorage.getItem('drawing_app_username');
+    if (!userId || !userName) return;
+
+    registerParticipantScore(roomId, userId, userName);
+  }, [roomId]);
 
   return (
     <div>
@@ -168,6 +176,24 @@ export default function RoomPage({ title, shortId }: { title: string, shortId: s
               </IconContext.Provider>
             </div>
           </Card>
+          <section>
+            <h2 className='text-lg font-bold mb-4 text-center'>参加者のスコア</h2>
+            {scores.length === 0 ? (
+              <p className='text-center text-gray-500'>まだ参加者がいません</p>
+            ) : (
+              <div className='space-y-2'>
+                {scores.map((score) => (
+                  <div key={score.user_id} className='flex items-center justify-between p-3 bg-white rounded-xl shadow'>
+                    <p className='font-bold'>{score.user_name}</p>
+                    <div className='flex items-center gap-2'>
+                      <span className='font-bold'>{score.point} 点</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
         </div>
       </div>
       {isAnswerModalOpen && <Modal
