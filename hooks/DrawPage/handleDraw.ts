@@ -1,229 +1,495 @@
 "use client";
 
-import { getInfoRoom } from '@/app/room/[id]/action';
-import { saveDrawing } from '@/app/room/[id]/drawing/action';
-import { getOrCreateUser, getUsername } from '@/lib/user';
-import { KonvaEventObject } from 'konva/lib/Node';
-import { useRouter } from 'next/navigation';
-import { useRef, useState } from 'react';
+import { getInfoRoom } from "@/app/room/[id]/action";
+import { saveDrawing } from "@/app/room/[id]/drawing/action";
+import {
+    getOrCreateUser,
+    getUsername,
+} from "@/lib/user";
+import { KonvaEventObject } from "konva/lib/Node";
+import { useRouter } from "next/navigation";
+import {
+    useRef,
+    useState,
+} from "react";
 
-export default function useDraw(roomId: string) {
-    const canvasData = typeof window !== 'undefined' ? JSON.parse(sessionStorage.getItem(`drawing_${roomId}`) || 'null') : null;
-    const [count, setCount] = useState<number>(canvasData ? canvasData.element : 0);
-    const [isSaving, setIsSaving] = useState(false);
-    const [saveMessage, setSaveMessage] = useState<string>('');
-    const [ userName ] = useState<string>(getUsername() || getOrCreateUser().username);
+export default function useDraw(
+    roomId: string,
+) {
+    const canvasData =
+        typeof window !== "undefined"
+            ? JSON.parse(
+                  sessionStorage.getItem(
+                      `drawing_${roomId}`,
+                  ) || "null",
+              )
+            : null;
+    const [count, setCount] =
+        useState<number>(
+            canvasData
+                ? canvasData.element
+                : 0,
+        );
+    const [isSaving, setIsSaving] =
+        useState(false);
+    const [
+        saveMessage,
+        setSaveMessage,
+    ] = useState<string>("");
+    const [userName] = useState<string>(
+        getUsername() ||
+            getOrCreateUser().username,
+    );
     const historyStep = useRef(0);
     const isDrawing = useRef(false);
-    const [lines, setLines] = useState<number[][]>(canvasData?.lines || []);
-    const [circles, setCircles] = useState<
-    Array<{
-        x: number;
-        y: number;
-        radius: number;
-    }>
-    >(canvasData?.circles || []);
+    const [lines, setLines] = useState<
+        number[][]
+    >(canvasData?.lines || []);
+    const [circles, setCircles] =
+        useState<
+            Array<{
+                x: number;
+                y: number;
+                radius: number;
+            }>
+        >(canvasData?.circles || []);
     const [rects, setRects] = useState<
-    Array<{
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-        rotation: number;
-    }>
+        Array<{
+            x: number;
+            y: number;
+            width: number;
+            height: number;
+            rotation: number;
+        }>
     >(canvasData?.rects || []);
-    const linesHistory = useRef<Array<number[][]>>([[...lines]]);
-    const circlesHistory = useRef<Array<Array<{ x: number; y: number; radius: number }>>>([[...circles]]);
-    const rectsHistory = useRef<Array<Array<{ x: number; y: number; width: number; height: number; rotation: number }>>>([[...rects]]);
+    const linesHistory = useRef<
+        Array<number[][]>
+    >([[...lines]]);
+    const circlesHistory = useRef<
+        Array<
+            Array<{
+                x: number;
+                y: number;
+                radius: number;
+            }>
+        >
+    >([[...circles]]);
+    const rectsHistory = useRef<
+        Array<
+            Array<{
+                x: number;
+                y: number;
+                width: number;
+                height: number;
+                rotation: number;
+            }>
+        >
+    >([[...rects]]);
     const router = useRouter();
-    const lastEventType = useRef<string | null>(null);
-    
+    const lastEventType = useRef<
+        string | null
+    >(null);
+
     // デバウンス用タイマーref
-    const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-    const [tool, setTool] = useState<'line' | 'circle' | 'rect'>('line');
+    const saveTimeoutRef =
+        useRef<NodeJS.Timeout | null>(
+            null,
+        );
+    const [tool, setTool] = useState<
+        "line" | "circle" | "rect"
+    >("line");
 
     const w = 300;
     const h = 300;
 
-    const handleMouseDown = (e: KonvaEventObject<MouseEvent | TouchEvent>) => {
-        if( lastEventType.current === e.evt.type ) return;
-        lastEventType.current = e.evt.type;
+    const handleMouseDown = (
+        e: KonvaEventObject<
+            MouseEvent | TouchEvent
+        >,
+    ) => {
+        if (
+            lastEventType.current ===
+            e.evt.type
+        )
+            return;
+        lastEventType.current =
+            e.evt.type;
 
-        const point = e.target.getStage()?.getPointerPosition();
+        const point = e.target
+            .getStage()
+            ?.getPointerPosition();
         isDrawing.current = true;
         if (!point) return;
 
-        if (tool === 'line') {
+        if (tool === "line") {
             // 直線の開始点と終了点（最初は同じ点）
-            setLines((prev) => [...prev, [point.x, point.y, point.x, point.y]]);
-        } else if (tool === 'circle') {
-            setCircles((prev) => [...prev, { x: point.x, y: point.y, radius: 0 }]);
-        } else if (tool === 'rect') {
-            setRects((prev) => [...prev, { x: point.x, y: point.y, width: 0, height: 0, rotation: 0 }]);
+            setLines((prev) => [
+                ...prev,
+                [
+                    point.x,
+                    point.y,
+                    point.x,
+                    point.y,
+                ],
+            ]);
+        } else if (tool === "circle") {
+            setCircles((prev) => [
+                ...prev,
+                {
+                    x: point.x,
+                    y: point.y,
+                    radius: 0,
+                },
+            ]);
+        } else if (tool === "rect") {
+            setRects((prev) => [
+                ...prev,
+                {
+                    x: point.x,
+                    y: point.y,
+                    width: 0,
+                    height: 0,
+                    rotation: 0,
+                },
+            ]);
         }
-    }
+    };
 
-    const handleMouseMove = (e: KonvaEventObject<MouseEvent | TouchEvent>) => {
+    const handleMouseMove = (
+        e: KonvaEventObject<
+            MouseEvent | TouchEvent
+        >,
+    ) => {
+        if (isDrawing.current === false)
+            return;
 
-        if (isDrawing.current === false) return;
-
-        const point = e.target.getStage()?.getPointerPosition();
+        const point = e.target
+            .getStage()
+            ?.getPointerPosition();
         if (!point) return;
 
-        if (tool === 'line') {
-            const lastIdx = lines.length - 1;
+        if (tool === "line") {
+            const lastIdx =
+                lines.length - 1;
             // 直線の終了点のみを更新（開始点はそのまま）
-            const startX = lines[lastIdx][0];
-            const startY = lines[lastIdx][1];
+            const startX =
+                lines[lastIdx][0];
+            const startY =
+                lines[lastIdx][1];
             setLines((prev) => [
-                ...prev.slice(0, lastIdx),
-                [startX, startY, point.x, point.y]
+                ...prev.slice(
+                    0,
+                    lastIdx,
+                ),
+                [
+                    startX,
+                    startY,
+                    point.x,
+                    point.y,
+                ],
             ]);
-        } else if (tool === 'circle') {
-            const lastCircleIdx = circles.length - 1;
-            const radius = Math.hypot(point.x - circles[lastCircleIdx].x, point.y - circles[lastCircleIdx].y);
+        } else if (tool === "circle") {
+            const lastCircleIdx =
+                circles.length - 1;
+            const radius = Math.hypot(
+                point.x -
+                    circles[
+                        lastCircleIdx
+                    ].x,
+                point.y -
+                    circles[
+                        lastCircleIdx
+                    ].y,
+            );
             setCircles((prev) => [
-                ...prev.slice(0, lastCircleIdx),
-                { ...circles[lastCircleIdx], radius }
+                ...prev.slice(
+                    0,
+                    lastCircleIdx,
+                ),
+                {
+                    ...circles[
+                        lastCircleIdx
+                    ],
+                    radius,
+                },
             ]);
-        } else if (tool === 'rect') {
-            const lastRectIdx = rects.length - 1;
-            const rect = rects[lastRectIdx];
+        } else if (tool === "rect") {
+            const lastRectIdx =
+                rects.length - 1;
+            const rect =
+                rects[lastRectIdx];
             const dx = point.x - rect.x;
             const dy = point.y - rect.y;
             const width = dx;
             const height = dy;
             // const rotation = Math.atan2(dy, dx) * (180 / Math.PI);
             setRects((prev) => [
-                ...prev.slice(0, lastRectIdx),
-                { ...rect, width, height, rotation: 0 }
+                ...prev.slice(
+                    0,
+                    lastRectIdx,
+                ),
+                {
+                    ...rect,
+                    width,
+                    height,
+                    rotation: 0,
+                },
             ]);
         }
     };
 
-    const handleMouseUp = (e: KonvaEventObject<MouseEvent | TouchEvent>) => {
-        if( lastEventType.current === e.evt.type ) return;
-        lastEventType.current = e.evt.type;
+    const handleMouseUp = (
+        e: KonvaEventObject<
+            MouseEvent | TouchEvent
+        >,
+    ) => {
+        if (
+            lastEventType.current ===
+            e.evt.type
+        )
+            return;
+        lastEventType.current =
+            e.evt.type;
 
         setCount((prev) => prev + 1);
         isDrawing.current = false;
 
-        const newLinesHistory = linesHistory.current.slice(0, historyStep.current + 1);
-        const newCirclesHistory = circlesHistory.current.slice(0, historyStep.current + 1);
-        const newRectsHistory = rectsHistory.current.slice(0, historyStep.current + 1);
+        const newLinesHistory =
+            linesHistory.current.slice(
+                0,
+                historyStep.current + 1,
+            );
+        const newCirclesHistory =
+            circlesHistory.current.slice(
+                0,
+                historyStep.current + 1,
+            );
+        const newRectsHistory =
+            rectsHistory.current.slice(
+                0,
+                historyStep.current + 1,
+            );
 
-        newLinesHistory.push([...lines]);
-        newCirclesHistory.push([...circles]);
-        newRectsHistory.push([...rects]);
+        newLinesHistory.push([
+            ...lines,
+        ]);
+        newCirclesHistory.push([
+            ...circles,
+        ]);
+        newRectsHistory.push([
+            ...rects,
+        ]);
 
-        linesHistory.current = newLinesHistory;
-        circlesHistory.current = newCirclesHistory;
-        rectsHistory.current = newRectsHistory;
-        historyStep.current = newLinesHistory.length - 1;
-    }
+        linesHistory.current =
+            newLinesHistory;
+        circlesHistory.current =
+            newCirclesHistory;
+        rectsHistory.current =
+            newRectsHistory;
+        historyStep.current =
+            newLinesHistory.length - 1;
+    };
     // デバウンス保存処理
     if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
+        clearTimeout(
+            saveTimeoutRef.current,
+        );
     }
-    saveTimeoutRef.current = setTimeout(() => {
-        saveToSessionStorage();
-    }, 500); // 0.5秒後に保存
-    
+    saveTimeoutRef.current = setTimeout(
+        () => {
+            saveToSessionStorage();
+        },
+        500,
+    ); // 0.5秒後に保存
+
     // 初期読み込みしてから履歴も更新する
-    const handleInitializeHistory = () => {
-        linesHistory.current = [[...lines]];
-        circlesHistory.current = [[...circles]];
-        rectsHistory.current = [[...rects]];
-        historyStep.current = 0;
-    }
+    const handleInitializeHistory =
+        () => {
+            linesHistory.current = [
+                [...lines],
+            ];
+            circlesHistory.current = [
+                [...circles],
+            ];
+            rectsHistory.current = [
+                [...rects],
+            ];
+            historyStep.current = 0;
+        };
 
     const handleUndo = () => {
         // if (historyStep.current === 0) return;
-        if ( historyStep.current === 0 ) return;
+        if (historyStep.current === 0)
+            return;
         // setCount((prev) => prev - 1);
 
         historyStep.current -= 1;
-        const previousLines = linesHistory.current[historyStep.current];
-        const previousCircles = circlesHistory.current[historyStep.current];
-        const previousRects = rectsHistory.current[historyStep.current];
+        const previousLines =
+            linesHistory.current[
+                historyStep.current
+            ];
+        const previousCircles =
+            circlesHistory.current[
+                historyStep.current
+            ];
+        const previousRects =
+            rectsHistory.current[
+                historyStep.current
+            ];
         setLines(previousLines);
         setCircles(previousCircles);
         setRects(previousRects);
-        setCount(previousCircles.length + previousLines.length + previousRects.length);
-    }
+        setCount(
+            previousCircles.length +
+                previousLines.length +
+                previousRects.length,
+        );
+    };
 
     const handleRedo = () => {
-        if (historyStep.current === linesHistory.current.length - 1) return;
+        if (
+            historyStep.current ===
+            linesHistory.current
+                .length -
+                1
+        )
+            return;
         setCount((prev) => prev + 1);
 
         historyStep.current += 1;
-        const nextLines = linesHistory.current[historyStep.current];
-        const nextCircles = circlesHistory.current[historyStep.current];
-        const nextRects = rectsHistory.current[historyStep.current];
+        const nextLines =
+            linesHistory.current[
+                historyStep.current
+            ];
+        const nextCircles =
+            circlesHistory.current[
+                historyStep.current
+            ];
+        const nextRects =
+            rectsHistory.current[
+                historyStep.current
+            ];
         setLines(nextLines);
         setCircles(nextCircles);
         setRects(nextRects);
-        setCount(nextCircles.length + nextLines.length + nextRects.length);
-    }
+        setCount(
+            nextCircles.length +
+                nextLines.length +
+                nextRects.length,
+        );
+    };
 
     const handleReset = () => {
-        if(count === 0) return;
+        if (count === 0) return;
         setCount(0);
         historyStep.current += 1;
-        const resetLines : any = [];
-        const resetCircles  : any = [];
-        const resetRects  : any = [];
-        linesHistory.current.push(resetLines);
-        circlesHistory.current.push(resetCircles);
-        rectsHistory.current.push(resetRects);
+        const resetLines: any = [];
+        const resetCircles: any = [];
+        const resetRects: any = [];
+        linesHistory.current.push(
+            resetLines,
+        );
+        circlesHistory.current.push(
+            resetCircles,
+        );
+        rectsHistory.current.push(
+            resetRects,
+        );
         setLines(resetLines);
         setCircles(resetCircles);
         setRects(resetRects);
-    }
+    };
 
+    /**
+     * 描画データをDBに保存する
+     *
+     * @returns
+     */
     const handleSave = async () => {
-        const info = await getInfoRoom(roomId);
-        if(!info.success)return  setSaveMessage('データの保存に失敗しました'); 
-        const theme = info.data?.current_theme || '';
+        const info =
+            await getInfoRoom(roomId);
+        if (!info.success)
+            return setSaveMessage(
+                "データの保存に失敗しました",
+            );
+        const theme =
+            info.data?.current_theme ||
+            "";
         setIsSaving(true);
-        setSaveMessage('');
+        setSaveMessage("");
 
         try {
             // ユーザー情報を取得
-            const user = getOrCreateUser();
+            const user =
+                getOrCreateUser();
 
             const canvasData = {
                 lines,
                 circles,
-                rects
+                rects,
             };
 
-            const result = await saveDrawing(roomId, user.id, canvasData, userName , theme);
+            const result =
+                await saveDrawing(
+                    roomId,
+                    user.id,
+                    canvasData,
+                    userName,
+                    theme,
+                );
 
             if (result.success) {
-                router.push(`/room/${roomId}/answer`);
+                router.push(
+                    `/room/${roomId}/answer`,
+                );
             } else {
-                setSaveMessage(`保存失敗: ${result.error}`);
+                setSaveMessage(
+                    `保存失敗: ${result.error}`,
+                );
             }
         } catch (error) {
-            setSaveMessage(`エラー: ${error}`);
+            setSaveMessage(
+                `エラー: ${error}`,
+            );
         } finally {
             setIsSaving(false);
         }
     };
 
-    // セッションストレージに一時データを保存する処理
+    /**
+     * セッションストレージに描画データを保存する
+     */
     const saveToSessionStorage = () => {
         const canvasData = {
-            lines: linesHistory.current[historyStep.current],
-            circles: circlesHistory.current[historyStep.current],
-            rects: rectsHistory.current[historyStep.current],
-            element: lines.length + circles.length + rects.length,
+            lines: linesHistory.current[
+                historyStep.current
+            ],
+            circles:
+                circlesHistory.current[
+                    historyStep.current
+                ],
+            rects: rectsHistory.current[
+                historyStep.current
+            ],
+            element:
+                lines.length +
+                circles.length +
+                rects.length,
         };
-        if (typeof window !== "undefined" && typeof sessionStorage !== "undefined") {
-            sessionStorage.setItem(`drawing_${roomId}`, JSON.stringify(canvasData));
+        if (
+            typeof window !==
+                "undefined" &&
+            typeof sessionStorage !==
+                "undefined"
+        ) {
+            sessionStorage.setItem(
+                `drawing_${roomId}`,
+                JSON.stringify(
+                    canvasData,
+                ),
+            );
         }
-    }
+    };
 
     return {
         count,
