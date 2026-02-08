@@ -91,7 +91,7 @@ export default function RoomPage({ title, shortId, scores }: { title: string, sh
       return acc;
     }
 
-    acc.push(index + 1);
+    acc.push(acc[index - 1] + 1);
     return acc;
   }, []);
 
