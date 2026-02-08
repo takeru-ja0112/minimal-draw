@@ -15,7 +15,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { IconContext } from 'react-icons';
-import { TbArrowLeft, TbBallBowling, TbCheck, TbCopy, TbPencil } from 'react-icons/tb';
+import { TbArrowLeft, TbBallBowling, TbCheck, TbCopy, TbCrown, TbPencil } from 'react-icons/tb';
 import AccessUser from '../organisms/AccessUser';
 import RoomSetting from '../organisms/RoomSetting';
 
@@ -147,7 +147,7 @@ export default function RoomPage({ title, shortId, scores }: { title: string, sh
                 </Card>
 
                 {/* 回答者用の説明 */}
-                <Card className="mb-4">
+                <Card className="mb-4 perspective-1000">
                   <h2 className='text-lg font-bold'>お題を<span className='text-amber-600'>答える人</span>はこちら</h2>
                   <motion.div
                     className={`absolute right-3 px-4 py-2 rounded-full font-bold text-sm font-bold
@@ -176,26 +176,44 @@ export default function RoomPage({ title, shortId, scores }: { title: string, sh
               </IconContext.Provider>
             </div>
           </Card>
-          <section>
-            <h2 className='text-lg font-bold mb-4 text-center'>参加者のスコア</h2>
-            {scores.length === 0 ? (
-              <p className='text-center text-gray-500'>まだ参加者がいません</p>
-            ) : (
-              <div className='space-y-2'>
-                {scores.map((score) => (
-                  <div key={score.user_id} className='flex items-center justify-between p-3 bg-white rounded-xl shadow'>
-                    <p className='font-bold'>{score.user_name}</p>
-                    <div className='flex items-center gap-2'>
-                      <span className='font-bold'>{score.point} 点</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-
         </div>
       </div>
+      <section className="p-4 pb-7 bg-white/70 ">
+        <h2 className='text-3xl font-bold mb-4 text-center'>Score</h2>
+        {scores.length === 0 ? (
+          <p className='text-center text-gray-500'>まだ参加者がいません</p>
+        ) : (
+          <div className=''>
+            {scores.map((score, index) => (
+              <motion.div
+                key={score.user_id}
+                initial={{ opacity: 0, x: 40 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 25, delay: index * 0.2 }}
+                className={`relative flex items-center justify-between p-2 shadow mb-2 transform skew-x-[-10deg] rounded-xl ${index === 0 || scores[index - 1] && scores[index - 1].point === score.point ? 'bg-yellow-400' : 'bg-yellow-400/50'}`}
+              >
+                {index === 0 || scores[index - 1] && scores[index - 1].point === score.point ? (
+                  <>
+                    <div className='absolute top-0 left-12'>
+                      <TbCrown size='1.3em' className='text-white drop-shadow-lg' />
+                    </div>
+                  </>
+                ) : (
+                  <></>
+                )}
+                <div className='w-30 flex items-center justify-center '>
+                  <p className='font-bold text-xl'>{scores[index - 1] && scores[index - 1].point === score.point ? index : index + 1}<span className='text-sm ml-1'>位</span></p>
+                </div>
+                <div className='bg-white shadow-[inset_8px_0_0_rgba(250,204,21,0.6)] p-2 px-4 w-full flex justify-between items-center rounded-sm'>
+                  <p className='font-bold'>{score.user_name}</p>
+                  <p className='font-bold text-md text-xl'>{score.point}<span className='text-sm'>点</span></p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </section>
       {isAnswerModalOpen && <Modal
         isOpen={isAnswerModalOpen}
         onClose={() => setIsAnswerModalOpen(false)}
