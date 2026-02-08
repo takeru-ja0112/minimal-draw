@@ -79,6 +79,22 @@ export default function RoomPage({ title, shortId, scores }: { title: string, sh
     registerParticipantScore(roomId, userId, userName);
   }, [roomId]);
 
+  const ranks = scores.reduce<number[]>((acc, score, index) => {
+    if (index === 0) {
+      acc.push(1);
+      return acc;
+    }
+
+    const prevScore = scores[index - 1];
+    if (prevScore && prevScore.point === score.point) {
+      acc.push(acc[index - 1]);
+      return acc;
+    }
+
+    acc.push(index + 1);
+    return acc;
+  }, []);
+
   return (
     <div>
       {/* <BgObject /> */}
@@ -203,7 +219,7 @@ export default function RoomPage({ title, shortId, scores }: { title: string, sh
                   <></>
                 )}
                 <div className='w-30 flex items-center justify-center '>
-                  <p className='font-bold text-xl'>{scores[index - 1] && scores[index - 1].point === score.point ? index : index + 1}<span className='text-sm ml-1'>位</span></p>
+                  <p className='font-bold text-xl'>{ranks[index]}<span className='text-sm ml-1'>位</span></p>
                 </div>
                 <div className='bg-white shadow-[inset_8px_0_0_rgba(250,204,21,0.6)] p-2 px-4 w-full flex justify-between items-center rounded-sm'>
                   <p className='font-bold'>{score.user_name}</p>
