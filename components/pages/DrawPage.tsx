@@ -108,7 +108,7 @@ export default function DrawPage({ roomId, theme, furigana, mode }: DrawPageProp
           </>
         }
 
-        <div className="backdrop-blur bg-white/30 border border-white p-4 rounded-2xl shadow-md">
+        <div className="max-w-xl mx-auto backdrop-blur bg-white/30 border border-white p-4 rounded-2xl shadow-md">
           {/*  描画エリア*/}
           <div className="mb-4 flex gap-2 justify-center items-center">
             <IconContext.Provider value={{ size: '1.5em' }}>

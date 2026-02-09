@@ -271,7 +271,6 @@ export async function registerParticipantScore(roomId: string, userId: string, u
       return { success: false, error: fetchError.message, data: null };
     }
 
-    console.log('Participant score already registered:', existing);
     if (existing && existing.length > 0) {
       return { success: true, error: null, data: existing, isSkipped: true };
     }
@@ -281,8 +280,6 @@ export async function registerParticipantScore(roomId: string, userId: string, u
       .insert([{ room_id: roomId, user_id: userId, user_name: userName, point: 0 }])
       .select()
       .single();
-
-    console.log('Registered participant score:', data);
 
     if (error) {
       console.error('Failed to register participant score:', error);
