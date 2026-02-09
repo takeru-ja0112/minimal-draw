@@ -28,7 +28,7 @@ export default function LobbyPage() {
   const [myRooms, setMyRooms] = useState<Room[]>([]);
   const router = useRouter();
   const [user, setUser] = useState(username || "");
-  const [userId, setUserId] = useState(getUserId() || "");
+  const userId = getUserId() || "";
   const [nameError, setNameError] = useState<string>("");
   const { setLocalRoom, getLocalRoom } = historyLocalRoom();
   const [roomName, setRoomName] = useState<string>("");

@@ -64,13 +64,18 @@ export default function Loading() {
           </div>
         </Card>
 
-        <section>
-          <h2 className='text-lg font-bold mb-4 text-center'>参加者のスコア</h2>
-          <div className='space-y-2'>
+        <section className="p-4 pb-7 bg-white/70 ">
+          <h2 className='text-3xl font-bold mb-4 text-center'>Score</h2>
+          <div className=''>
             {Array.from({ length: 3 }).map((_, idx) => (
-              <div key={idx} className='flex items-center justify-between p-3 bg-white rounded-xl shadow'>
-                <div className='h-4 w-24 bg-gray-200 rounded animate-pulse' />
-                <div className='h-4 w-12 bg-gray-200 rounded animate-pulse' />
+              <div key={idx} className='relative flex items-center justify-between p-2 shadow mb-2 transform skew-x-[-10deg] rounded-xl bg-yellow-400/50'>
+                <div className='w-30 flex items-center justify-center '>
+                  <div className='h-5 w-8 bg-yellow-200/80 rounded animate-pulse' />
+                </div>
+                <div className='bg-white shadow-[inset_8px_0_8px_rgba(250,204,21,0.4)] p-2 px-4 w-full flex justify-between items-center rounded-sm'>
+                  <div className='h-4 w-24 bg-gray-200 rounded animate-pulse' />
+                  <div className='h-4 w-12 bg-gray-200 rounded animate-pulse' />
+                </div>
               </div>
             ))}
           </div>

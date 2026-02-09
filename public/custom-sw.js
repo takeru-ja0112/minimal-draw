@@ -2,7 +2,6 @@
 
 // プッシュイベントを受け取った時の処理
 self.addEventListener('push', function (event) {
-  console.log('Pushイベントを受信しました');
 
   let data = { title: '通知です', body: '新着メッセージがあります' };
 
