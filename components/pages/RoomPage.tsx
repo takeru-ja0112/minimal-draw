@@ -1,15 +1,16 @@
 "use client";
 
-import { changeRoomTheme, registerParticipantScore, resetDrawingData, setStatusRoom } from '@/app/room/[id]/action';
+import { getThreeThemes, registerParticipantScore, resetDrawingData, setRoomTheme, setStatusRoom } from '@/app/room/[id]/action';
 import { isCheckAnswer, setdbAnswer, setdbAnswerInput, setdbAnswerResult } from '@/app/room/[id]/answer/action';
 import Human from '@/components/atoms//Human';
 import Button from '@/components/atoms/Button';
 import Card from '@/components/atoms/Card';
+import { showToast } from '@/components/common/toast';
 import Modal from '@/components/organisms/Modal';
 import StatusBar from '@/components/organisms/StatusBat';
 import { useModalContext } from '@/hooks/useModalContext';
 import useStatus from '@/hooks/useStatus';
-import type { RoomSettingType } from '@/type/roomType';
+import type { RoomSettingType, Theme } from '@/type/roomType';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
@@ -27,6 +28,7 @@ export default function RoomPage({ title, shortId, scores }: { title: string, sh
   const [roomSetting, setRoomSetting] = useState<RoomSettingType>({ level: "normal", genre: "ランダム" });
   const { open, modalType, close } = useModalContext();
   const [isCopy, setIsCopy] = useState(false);
+  const [threeThemes, setThreeThemes] = useState<Theme[]>([]);
 
   const { status, answerId } = useStatus(roomId);
 
@@ -52,23 +54,21 @@ export default function RoomPage({ title, shortId, scores }: { title: string, sh
   }
 
   const handleChangeRoomTheme = async () => {
-    const result = await changeRoomTheme({
-      roomId,
-      roomSetting
-    });
-    if (!result.success) {
-      console.error('Failed to change room theme:', result.error);
-      return;
-    }
-    close();
+    const threeThemesData = await getThreeThemes({ level: roomSetting.level, genre: roomSetting.genre });
+    setThreeThemes(threeThemesData.data || []);
   }
 
-  const handleIdCopy = () => {
-    navigator.clipboard.writeText(shortId);
-    setIsCopy(true);
-    setTimeout(() => {
-      setIsCopy(false);
-    }, 2000);
+  const handleIdCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(shortId);
+      setIsCopy(true);
+      setTimeout(() => {
+        setIsCopy(false);
+      }, 2000);
+      showToast('ルームIDをコピーしました', { variant: 'success' });
+    } catch {
+      showToast('コピーに失敗しました', { variant: 'error' });
+    }
   }
 
   useEffect(() => {
@@ -257,6 +257,33 @@ export default function RoomPage({ title, shortId, scores }: { title: string, sh
         <Modal isOpen={true} onClose={close} className='w-full'>
           <div className="p-4">
             <h2 className="text-2xl font-bold mb-4 text-center">ルーム設定</h2>
+            {threeThemes.length > 0 && (
+              <div className='mt-6 rounded-lg'>
+                <h3 className='text-lg font-bold mb-2 text-gray-700'>お題候補</h3>
+                <p className='text-sm text-gray-500 mb-2'>以下の候補からお題を選んでください</p>
+                {threeThemes.map((theme) => (
+                  <motion.button
+                    initial={{ x: 20, opacity: 0 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 15, delay: 0.1 * threeThemes.findIndex(t => t.id === theme.id) }}
+                    animate={{ x: 0, opacity: 1 }}
+                    key={theme.id}
+                    className='w-full bg-amber-400 rounded-full font-bold p-2 pl-4 mb-2 flex items-center justify-center gap-2'
+                    onClick={async () => {
+                      const result = await setRoomTheme(roomId, roomSetting, theme.id);
+                      if (!result.success) {
+                        console.error('Failed to set room theme:', result.error);
+                        showToast('お題の変更に失敗しました', { variant: 'error' });
+                        return;
+                      }
+                      showToast('お題を変更しました', { variant: 'success' });
+                      close();
+                    }}
+                  >
+                    <span>{theme.theme}</span>
+                  </motion.button>
+                ))}
+              </div>
+            )}
             <RoomSetting setRoomData={setRoomSetting} />
             <div className='grid grid-cols-2 gap-3 mt-2'>
               <Button
@@ -268,7 +295,7 @@ export default function RoomPage({ title, shortId, scores }: { title: string, sh
               />
               <Button
                 onClick={handleChangeRoomTheme}
-                value="変更する"
+                value="お題を選ぶ"
                 className="w-full mt-4"
               />
             </div>
