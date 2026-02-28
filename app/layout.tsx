@@ -1,9 +1,11 @@
 // "use client";
 // import { useEffect } from "react";
 
+import Toaster from "@/components/common/toast";
 import BgObject from "@/components/organisms/BgObject";
 import Header from "@/components/organisms/Header";
 import type { Metadata } from "next";
+import { ViewTransitions } from 'next-view-transitions';
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -38,29 +40,32 @@ export default function RootLayout({
   // }, []);
 
   return (
-    <html lang="en">
-      <head>
-        <link rel="icon" href="/minimalDrawIcon.svg" />
-        <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#fbbf24" />
-        <link rel="apple-touch-icon" href="/minimalDrawIcon.svg" />
-        <meta property="og:title" content="Minimal Draw" />
-        <meta property="og:description" content="お題を線と丸と長方形で表現するボードゲーム！" />
-        <meta property="og:image" content="/minimalDrawIcon.svg" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-      </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen`}
-      >
-        <BgObject />
+    <ViewTransitions>
+      <html lang="en">
+        <head>
+          <link rel="icon" href="/minimalDrawIcon.svg" />
+          <link rel="manifest" href="/manifest.json" />
+          <meta name="theme-color" content="#fbbf24" />
+          <link rel="apple-touch-icon" href="/minimalDrawIcon.svg" />
+          <meta property="og:title" content="Minimal Draw" />
+          <meta property="og:description" content="お題を線と丸と長方形で表現するボードゲーム！" />
+          <meta property="og:image" content="/minimalDrawIcon.svg" />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+        </head>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen`}
+        >
+          <BgObject />
           {/* ヘッダーの高さ分全体をさげる */}
           <Header />
+          <Toaster maxVisible={3} />
           <div className="pt-14">{children}</div>
           <footer className="text-center p-4 text-gray-500 text-sm">
             &copy; 2026, Takeru
           </footer>
-      </body>
-    </html>
+        </body>
+      </html>
+    </ViewTransitions>
   );
 }

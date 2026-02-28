@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import type { RoomSettingType } from '@/type/roomType';
+import type { RoomSettingType, Theme } from '@/type/roomType';
 
 /**  ルームのステータスを変更
  *
@@ -214,6 +214,81 @@ export async function changeRoomTheme({ roomId, roomSetting }: { roomId: string;
   } catch (error) {
     console.error('Unexpected error during theme change:', error);
     return { success: false, error: 'Failed to change room theme', data: null };
+  }
+}
+
+/**
+ * 指定のお題をルームに設定する関数
+ */
+export async function setRoomTheme(roomId: string, roomSetting: RoomSettingType, themeId: string) {
+  try {
+    const { data: themeData, error: themeError } = await supabase
+      .from('theme')
+      .select('id, theme')
+      .eq('id', themeId)
+      .single();
+
+    if (themeError) {
+      console.error('Failed to fetch theme for setting:', themeError);
+      return { success: false, error: themeError.message, data: null };
+    }
+
+    if (!themeData) {
+      return { success: false, error: 'Theme not found', data: null };
+    }
+
+    const { data: updateData, error: updateError } = await supabase
+      .from('rooms')
+      .update({
+        current_theme: themeData.theme,
+        current_theme_id: themeData.id,
+        level: roomSetting.level,
+        genre: roomSetting.genre,
+      })
+      .eq('id', roomId)
+      .select()
+      .single();
+
+    if (updateError) {
+      console.error('Failed to set room theme:', updateError);
+      return { success: false, error: updateError.message, data: null };
+    }
+
+    return { success: true, error: null, data: updateData };
+  } catch (error) {
+    console.error('Unexpected error during theme setting:', error);
+    return { success: false, error: 'Failed to set room theme', data: null };
+  }
+}
+
+const shuffle = (array: Theme[]) => {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1)); // 0からiの範囲でランダムな索引を選択
+    [array[i], array[j]] = [array[j], array[i]]; // 要素を入れ替え
+  }
+  return array;
+};
+
+/**
+ * お題を３個取得する関数
+ */
+export async function getThreeThemes({ level, genre }: { level: string; genre: string }) {
+  try {
+    const { data, error } = await supabase.from('theme').select('id, theme').eq('level', level).eq('genre', genre);
+
+    if (error) {
+      console.error('Failed to fetch three themes:', error);
+      return { success: false, error: error.message, data: null };
+    }
+
+    const shuffledData = shuffle(data);
+
+    const threeThemes = shuffledData.slice(0, 3);
+
+    return { success: true, error: null, data: threeThemes };
+  } catch (error) {
+    console.error('Unexpected error during fetching three themes:', error);
+    return { success: false, error: 'Failed to fetch three themes', data: null };
   }
 }
 

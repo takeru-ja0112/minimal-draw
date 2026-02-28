@@ -19,7 +19,7 @@ export default function RoomSetting<T>({
     <div className={className}>
       {/* 難易度タブ */}
       <p className="font-semibold mb-2 text-gray-700">難易度</p>
-      <div className="grid grid-cols-3 gap-2 mb-2 border border-2 border-yellow-400/70 rounded-full p-2">
+      <div className="grid grid-cols-3 gap-2 mb-2 border border-2 border-amber-400 rounded-full p-2">
         {levels.map((level) => (
           <div key={level} className="relative flex justify-center">
             {selectedLevel === level && (
