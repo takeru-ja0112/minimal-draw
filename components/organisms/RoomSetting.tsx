@@ -12,7 +12,7 @@ export default function RoomSetting<T>({
   setRoomData,
 }: RoomSettingProps<T>) {
   const levels = ['easy', 'normal', 'hard'];
-  const genres = ['ランダム', '動物', '料理', '雑貨'];
+  const genres = ['動物', '料理', '雑貨', 'ランダム', '食べ物', '自然', '施設', '乗り物', '道具', '遊び', 'スポーツ', '学校', '楽器', '家電', 'ファッション', '武器', '文化', '文房具', '家具', '果物', '野菜', '植物', '宇宙', 'キャラクター', 'イベント', '建物', '人間', '職業', '伝説', '動作', '図形', 'ダンス', '鳥', '虫', '魚', '宝石', '抽象', '科学', 'メディア', 'お金', '芸術', 'SF', '行事', 'ゲーム', '大阪', '東京', '任天堂', 'カプコン', '化粧品ブランド'];
   const [selectedLevel, setSelectedLevel] = useState<string>('normal');
 
   return (
