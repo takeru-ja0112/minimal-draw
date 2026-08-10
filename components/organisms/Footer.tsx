@@ -1,13 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { IconContext } from "react-icons";
 import { MdOutlineMuseum } from "react-icons/md";
 import { TbHome, TbPencil, TbUsersGroup } from "react-icons/tb";
+import { motion } from 'motion/react';
+
 
 export default function Footer() {
   const [isMobile, setIsMobile] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
@@ -15,22 +19,43 @@ export default function Footer() {
 
   if (!isMobile) return null;
 
+  const navItems = [
+    { href: '/', icon: <TbHome />, label: 'Home' },
+    { href: '/lobby', icon: <TbUsersGroup />, label: 'Lobby' },
+    { href: '/drawing', icon: <TbPencil />, label: 'Drawing' },
+    { href: '/museum', icon: <MdOutlineMuseum />, label: 'Museum' },
+  ];
+
   return (
-    <footer className="h-17 fixed bottom-4 border border-2 border-white rounded-full w-[85%] min-w-[300px] left-1/2 -translate-x-1/2 z-40 shadow-md bg-white/50 backdrop-blur-xs px-7">
+    <footer className="h-17 fixed bottom-4 border border-2 border-white rounded-full w-[85%] min-w-[300px] left-1/2 -translate-x-1/2 z-40 shadow-md bg-white/50 backdrop-blur-xs px-2 py-1">
       <nav className="h-full flex justify-around items-center">
         <IconContext.Provider value={{ size: "1.8em" }}>
-          <Link href="/" aria-label="Home" className="hover:text-gray-600 transition-colors">
-            <TbHome />
-          </Link>
-          <Link href="/lobby" aria-label="Lobby" className="hover:text-gray-600 transition-colors">
-            <TbUsersGroup />
-          </Link>
-          <Link href="/drawing" aria-label="Drawing" className="hover:text-gray-600 transition-colors">
-            <TbPencil />
-          </Link>
-          <Link href="/museum" aria-label="Museum" className="hover:text-gray-600 transition-colors">
-            <MdOutlineMuseum />
-          </Link>
+          {navItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-label={item.label}
+                className="relative flex items-center justify-center w-20 h-11"
+              >
+                {isActive && (
+                  <motion.span
+                    layoutId="footerHighlight"
+                    className="absolute inset-0 bg-amber-400 rounded-full z-0"
+                    transition={{
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 30,
+                    }}
+                  />
+                )}
+                <div className={`z-10 transition-colors text-gray-800 hover:text-gray-600`}>
+                  {item.icon}
+                </div>
+              </Link>
+            );
+          })}
         </IconContext.Provider>
       </nav>
     </footer>
