@@ -1,21 +1,17 @@
-import { supabase } from "@/lib/supabase";
+import { prisma } from "@/lib/prisma";
 
 export async function getArts() {
-    const { data, error } =
-        await supabase
-            .from("history_drawings")
-            .select("*")
-            .order("created_at", {
-                ascending: false,
-            });
+    try {
+        const data = await prisma.historyDrawing.findMany({
+            orderBy: { created_at: "desc" },
+        });
 
-    if (error) {
+        return data;
+    } catch (error) {
         console.error(
             "Error fetching arts:",
             error,
         );
         return [];
     }
-
-    return data;
 }

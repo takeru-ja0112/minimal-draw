@@ -8,9 +8,24 @@ import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useInView } from "react-intersection-observer";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Input from "@/components/atoms/Input";
+import SetUserModal from "@/components/organisms/lobby/SetUserModal";
+import RoomCreateSection from "@/components/organisms/top/RoomCreateSection";
+import RoomSearchSection from "@/components/organisms/top/RoomSearchSection";
+import { getUsername, getUserId, setUsernameSchema } from "@/lib/user";
+import historyLocalRoom from "@/lib/hitoryLocalRoom";
 
 export default function Top() {
     const title = "Minimal Drawer";
+
+    const username = getUsername();
+    const [user, setUser] = useState(username || "");
+    const [nameError, setNameError] = useState("");
+    const [isSetUserModal, setIsSetUserModal] = useState(!username);
+    const userId = getUserId() || "";
+    const router = useRouter();
 
     // スクロール出現用ref
     const [ref1, inView1] = useInView({ triggerOnce: true, threshold: 0.2 });
@@ -45,9 +60,46 @@ export default function Top() {
                         </motion.h1>
                     </motion.div>
 
+                    {/* ユーザー名の管理 */}
+                    <Card className="mb-6">
+                        <div className="mb-2">
+                            <label htmlFor="username" className="font-semibold text-gray-700">
+                                ユーザー名
+                            </label>
+                        </div>
+                        <div className="my-2">
+                            <Input
+                                name="username"
+                                value={user}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                    setUsernameSchema({
+                                        name: e.target.value,
+                                        setNameError,
+                                        setUser,
+                                    });
+                                }}
+                                onBlur={() => {
+                                    setNameError("");
+                                    if (!user) {
+                                        setNameError("ユーザー名は必須です");
+                                    }
+                                }}
+                                placeholder="ユーザー名を入力してください"
+                                className={`w-full ${nameError ? "border-red-500 border-2" : ""}`}
+                            />
+                        </div>
+                        {nameError && (
+                            <div className="mb-2">
+                                <p className="text-red-500 font-semibold text-sm">
+                                    {nameError}
+                                </p>
+                            </div>
+                        )}
+                    </Card>
+
                     {/* ボタンエリア */}
                     <motion.div
-                        className="space-y-4"
+                        className="space-y-4 mb-6"
                     >
                         <div className="mb-2">
                             {/* メインボタン */}
@@ -63,6 +115,12 @@ export default function Top() {
                             </Link>
                         </div>
                     </motion.div>
+
+                    {/* ルーム作成セクション */}
+                    <RoomCreateSection user={user} userId={userId} setNameError={setNameError} />
+
+                    {/* ルーム検索セクション */}
+                    <RoomSearchSection user={user} setNameError={setNameError} />
 
                     <div className="mt-30 text-center text-2xl mb-6">
                         <h2 className="font-bold">{title}ってなに？</h2>
@@ -125,6 +183,19 @@ export default function Top() {
                     </div>
                 </div>
             </div>
+
+            {isSetUserModal && (
+                <SetUserModal
+                    isSetUserModal={isSetUserModal}
+                    user={user}
+                    nameError={nameError}
+                    loading={false}
+                    setUser={setUser}
+                    setNameError={setNameError}
+                    setIsSetUserModal={setIsSetUserModal}
+                    className="w-full"
+                />
+            )}
         </>
     );
 }

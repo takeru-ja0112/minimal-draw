@@ -1,6 +1,6 @@
 "use server";
 
-import { supabase } from '@/lib/supabase';
+import { prisma } from '@/lib/prisma';
 
 export type CanvasData = {
   lines: number[][];
@@ -14,16 +14,12 @@ export type CanvasData = {
  */
 export async function getDrawingByRoomAndUser(roomId: string , userId : string){
   try {
-    const { data, error } = await supabase
-      .from('drawings')
-      .select('*')
-      .eq('room_id', roomId)
-      .eq('user_id', userId)
-      .single();
-      
-    if (error) {
-      console.error('Failed to fetch drawing:', error);
-      return { success: false, error: error.message, data: null };
+    const data = await prisma.drawing.findFirst({
+      where: { room_id: roomId, user_id: userId },
+    });
+
+    if (!data) {
+      return { success: false, error: 'Failed to fetch drawing', data: null };
     }
 
     return { success: true, error: null, data };
@@ -46,58 +42,36 @@ export async function saveDrawing(
     const elementCount = canvasData.lines.length + canvasData.circles.length + canvasData.rects.length;
 
     // 既存のデータをチェック（room_idとuser_nameで検索）
-    const { data: existing, error: fetchError } = await supabase
-      .from('drawings')
-      .select('id')
-      .eq('room_id', roomId)
-      .eq('user_name', userName)
-      .maybeSingle();
+    const existing = await prisma.drawing.findFirst({
+      where: { room_id: roomId, user_name: userName },
+      select: { id: true },
+    });
 
-    if (fetchError && fetchError.code !== 'PGRST116') {
-      console.error('Failed to check existing drawing:', fetchError);
-      return { success: false, error: fetchError.message, data: null };
-    }
-
-    let data, error;
+    let data;
 
     if (existing) {
       // 既存データがあれば更新
-      const result = await supabase
-        .from('drawings')
-        .update({
+      data = await prisma.drawing.update({
+        where: { id: existing.id },
+        data: {
           user_id: userId,
           canvas_data: canvasData,
           element_count: elementCount,
           theme: theme,
-        })
-        .eq('id', existing.id)
-        .select()
-        .single();
-      
-      data = result.data;
-      error = result.error;
+        },
+      });
     } else {
       // 既存データがなければ新規挿入
-      const result = await supabase
-        .from('drawings')
-        .insert({
+      data = await prisma.drawing.create({
+        data: {
           room_id: roomId,
           user_id: userId,
           user_name: userName,
           canvas_data: canvasData,
           element_count: elementCount,
           theme: theme,
-        })
-        .select()
-        .single();
-      
-      data = result.data;
-      error = result.error;
-    }
-
-    if (error) {
-      console.error('Failed to save drawing:', error);
-      return { success: false, error: error.message, data: null };
+        },
+      });
     }
 
     return { success: true, error: null, data, isUpdate: !!existing };
@@ -112,18 +86,12 @@ export async function saveDrawing(
 // ルームのお題を取得
 export async function getTheme(roomId: string) {
   try{
-    const { data , error } = await supabase
-      .from('rooms')
-      .select('current_theme')
-      .eq('id', roomId)
-      .single();
+    const data = await prisma.room.findUnique({
+      where: { id: roomId },
+      select: { current_theme: true },
+    });
 
-    if(error){
-      console.error('Failed to fetch theme:', error);
-      return { success: false, error: error.message, data: null };
-    }
-
-    return { success: true, error: null, data: data?.current_theme }; 
+    return { success: true, error: null, data: data?.current_theme };
   } catch (error) {
     console.error('Unexpected error:', error);
     return { success: false, error: 'Failed to fetch theme', data: null };
@@ -131,35 +99,28 @@ export async function getTheme(roomId: string) {
 }
 
 export async function getFurigana(roomId: string) {
-  let current_theme_id = '';
+  let current_theme_id: number | null = null;
   try{
-    const { data , error } = await supabase
-      .from('rooms')
-      .select('current_theme_id')
-      .eq('id', roomId)
-      .single();
-    if(error){
-      console.error('Failed to fetch current_theme_id:', error);
-      return { success: false, error: error.message, data: null };
-    }
+    const data = await prisma.room.findUnique({
+      where: { id: roomId },
+      select: { current_theme_id: true },
+    });
 
-    current_theme_id = data?.current_theme_id;
+    current_theme_id = data?.current_theme_id ?? null;
   } catch (error) {
     console.error('Unexpected error:', error);
     return { success: false, error: 'Failed to fetch current_theme_id', data: null };
   }
-  
-  try{
-    const { data , error } = await supabase
-      .from('theme')
-      .select('furigana')
-      .eq('id', current_theme_id)
-      .single();
 
-    if(error){
-      console.error('Failed to fetch furigana:', error);
-      return { success: false, error: error.message, data: null };
-    }
+  if (current_theme_id === null) {
+    return { success: false, error: 'No current theme id found', data: null };
+  }
+
+  try{
+    const data = await prisma.theme.findUnique({
+      where: { id: current_theme_id },
+      select: { furigana: true },
+    });
 
     return { success: true, error: null, data: data?.furigana };
   } catch (error) {

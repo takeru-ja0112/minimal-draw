@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Room {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  short_id          String
+  status            String   @default("WAITING")
+  current_theme     String?
+  current_theme_id  Int?
+  answer_id         String?  @db.Uuid
+  created_by_name   String?
+  created_by_userId String?  @db.Uuid
+  room_name         String?
+  level             String?
+  genre             String?
+  created_at        DateTime @default(now()) @db.Timestamptz(6)
+
+  @@map("rooms")
+}
+
+model Drawing {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  room_id       String   @db.Uuid
+  user_id       String   @db.Uuid
+  user_name     String
+  canvas_data   Json
+  element_count Int
+  theme         String?
+  created_at    DateTime @default(now()) @db.Timestamptz(6)
+
+  @@map("drawings")
+}
+
+model Theme {
+  id       Int    @id @default(autoincrement())
+  theme    String
+  level    String
+  genre    String
+  kanji    String
+  katakana String
+  furigana String
+
+  @@map("theme")
+}
+
+model Point {
+  id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  room_id   String @db.Uuid
+  user_id   String @db.Uuid
+  user_name String
+  point     Int    @default(0)
+
+  @@map("points")
+}
+
+model AnswerInput {
+  room_id    String   @id @db.Uuid
+  text       String?
+  result     String?
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+
+  @@map("answer_inputs")
+}
+
+model Subscription {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id      String   @unique @db.Uuid
+  room_id      String   @db.Uuid
+  subscription Json
+  created_at   DateTime @default(now()) @db.Timestamptz(6)
+
+  @@map("subscriptions")
+}
+
+model HistoryDrawing {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  room_id       String   @db.Uuid
+  user_id       String   @db.Uuid
+  user_name     String
+  canvas_data   Json
+  element_count Int
+  theme         String?
+  created_at    DateTime @default(now()) @db.Timestamptz(6)
+
+  @@map("history_drawings")
+}

@@ -1,18 +1,30 @@
-import { supabase } from '@/lib/supabase';
+'use server';
+
+import { prisma } from '@/lib/prisma';
+
+// 回答内容の取得（回答者の入力・正誤結果）
+export async function getAnswerInput(roomId: string) {
+  try {
+    const data = await prisma.answerInput.findUnique({ where: { room_id: roomId } });
+
+    if (!data) {
+      return { success: false, error: 'Failed to fetch answer input', data: null };
+    }
+
+    return { success: true, error: null, data };
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return { success: false, error: 'Failed to fetch answer input', data: null };
+  }
+}
 
 // 回答者が決定しているか確認
 export async function isCheckAnswer(roomId: string) {
   try {
-    const { data, error } = await supabase.from('rooms').select('answer_id').eq('id', roomId).single();
-
-    if (error) {
-      console.error('Failed to fetch answerer:', error);
-      return {
-        success: false,
-        error: error.message,
-        data: null,
-      };
-    }
+    const data = await prisma.room.findUnique({
+      where: { id: roomId },
+      select: { answer_id: true },
+    });
 
     const isAnswered = data?.answer_id ? true : false;
     return {
@@ -34,20 +46,10 @@ export async function isCheckAnswer(roomId: string) {
 export async function setdbAnswer(roomId: string, userId: string) {
   try {
     // 既に回答者が設定されているか確認
-    const { data: roomData, error: roomError } = await supabase
-      .from('rooms')
-      .select('answer_id')
-      .eq('id', roomId)
-      .single();
-
-    if (roomError) {
-      console.error('Failed to fetch room data:', roomError);
-      return {
-        success: false,
-        error: roomError.message,
-        data: null,
-      };
-    }
+    const roomData = await prisma.room.findUnique({
+      where: { id: roomId },
+      select: { answer_id: true },
+    });
 
     if (roomData?.answer_id) {
       return {
@@ -58,23 +60,11 @@ export async function setdbAnswer(roomId: string, userId: string) {
     }
 
     // 回答者を設定
-    const { data, error } = await supabase
-      .from('rooms')
-      .update({
-        answer_id: userId,
-      })
-      .eq('id', roomId)
-      .select()
-      .single();
+    const data = await prisma.room.update({
+      where: { id: roomId },
+      data: { answer_id: userId },
+    });
 
-    if (error) {
-      console.error('Failed to set answerer:', error);
-      return {
-        success: false,
-        error: error.message,
-        data: null,
-      };
-    }
     return {
       success: true,
       error: null,
@@ -93,20 +83,10 @@ export async function setdbAnswer(roomId: string, userId: string) {
 // 特定ルームの描画データを取得（要素数昇順）
 export async function getDrawingsByRoom(roomId: string) {
   try {
-    const { data, error } = await supabase
-      .from('drawings')
-      .select('*')
-      .eq('room_id', roomId)
-      .order('element_count', { ascending: true });
-
-    if (error) {
-      console.error('Failed to fetch drawings:', error);
-      return {
-        success: false,
-        error: error.message,
-        data: null,
-      };
-    }
+    const data = await prisma.drawing.findMany({
+      where: { room_id: roomId },
+      orderBy: { element_count: 'asc' },
+    });
 
     return {
       success: true,
@@ -126,20 +106,10 @@ export async function getDrawingsByRoom(roomId: string) {
 // 画面を見ているユーザーに解答権限があるかどうか確認
 export async function checkAnswerRole(roomId: string, userId: string) {
   try {
-    const { data: roomData, error: roomError } = await supabase
-      .from('rooms')
-      .select('answer_id')
-      .eq('id', roomId)
-      .single();
-
-    if (roomError) {
-      console.error('Failed to fetch room data:', roomError);
-      return {
-        success: false,
-        error: roomError.message,
-        isAnswerRole: false,
-      };
-    }
+    const roomData = await prisma.room.findUnique({
+      where: { id: roomId },
+      select: { answer_id: true },
+    });
 
     const isAnswerRole = roomData?.answer_id === userId;
     return {
@@ -160,20 +130,10 @@ export async function checkAnswerRole(roomId: string, userId: string) {
 // お題を取得
 export async function getTheme(roomId: string) {
   try {
-    const { data: roomData, error: roomError } = await supabase
-      .from('rooms')
-      .select('current_theme')
-      .eq('id', roomId)
-      .single();
-
-    if (roomError) {
-      console.error('Failed to fetch room data:', roomError);
-      return {
-        success: false,
-        error: roomError.message,
-        data: null,
-      };
-    }
+    const roomData = await prisma.room.findUnique({
+      where: { id: roomId },
+      select: { current_theme: true },
+    });
 
     return {
       success: true,
@@ -193,20 +153,15 @@ export async function getTheme(roomId: string) {
 // お題の正誤判定のため複数パターンを取得
 export async function getThemePatternByRoomId(roomId: string) {
   const id = roomId;
-  let themeId: string = '';
+  let themeId: number;
 
   try {
-    const { data, error } = await supabase.from('rooms').select('current_theme_id').eq('id', id).single();
-    if (error) {
-      console.error('Failed to fetch current theme id:', error);
-      return {
-        success: false,
-        error: error.message,
-        data: null,
-      };
-    }
+    const data = await prisma.room.findUnique({
+      where: { id },
+      select: { current_theme_id: true },
+    });
 
-    if (!data) {
+    if (!data || data.current_theme_id === null) {
       return {
         success: false,
         error: 'No current theme id found',
@@ -225,13 +180,12 @@ export async function getThemePatternByRoomId(roomId: string) {
   }
 
   try {
-    const { data, error } = await supabase.from('theme').select('*').eq('id', themeId).single();
+    const data = await prisma.theme.findUnique({ where: { id: themeId } });
 
-    if (error) {
-      console.error('Failed to fetch theme patterns:', error);
+    if (!data) {
       return {
         success: false,
-        error: error.message,
+        error: 'Theme not found',
         data: null,
       };
     }
@@ -256,24 +210,12 @@ export async function getThemePatternByRoomId(roomId: string) {
  */
 export async function setdbAnswerInput(roomId: string, answer: string) {
   try {
-    const { data, error } = await supabase
-      .from('answer_inputs')
-      .upsert({
-        text: answer,
-        room_id: roomId,
-      })
-      .eq('room_id', roomId)
-      .select()
-      .single();
+    const data = await prisma.answerInput.upsert({
+      where: { room_id: roomId },
+      create: { room_id: roomId, text: answer },
+      update: { text: answer },
+    });
 
-    if (error) {
-      console.error('Failed to set answer input:', error);
-      return {
-        success: false,
-        error: error.message,
-        data: null,
-      };
-    }
     return {
       success: true,
       error: null,
@@ -293,24 +235,12 @@ export async function setdbAnswerInput(roomId: string, answer: string) {
  */
 export async function setdbAnswerResult(roomId: string, result: string) {
   try {
-    const { data, error } = await supabase
-      .from('answer_inputs')
-      .upsert({
-        result: result,
-        room_id: roomId,
-      })
-      .eq('room_id', roomId)
-      .select()
-      .single();
+    const data = await prisma.answerInput.upsert({
+      where: { room_id: roomId },
+      create: { room_id: roomId, result },
+      update: { result },
+    });
 
-    if (error) {
-      console.error('Failed to set answer result:', error);
-      return {
-        success: false,
-        error: error.message,
-        data: null,
-      };
-    }
     return {
       success: true,
       error: null,
@@ -331,29 +261,12 @@ export async function setdbAnswerResult(roomId: string, result: string) {
  */
 export async function subscribePush(userId: string, room_id: string, subscription: any) {
   try {
-    const { data, error } = await supabase
-      .from('subscriptions')
-      .upsert(
-        {
-          user_id: userId,
-          room_id: room_id,
-          subscription: subscription,
-        },
-        {
-          onConflict: 'user_id',
-        },
-      )
-      .select()
-      .single();
+    const data = await prisma.subscription.upsert({
+      where: { user_id: userId },
+      create: { user_id: userId, room_id, subscription },
+      update: { room_id, subscription },
+    });
 
-    if (error) {
-      console.error('Failed to subscribe push:', error);
-      return {
-        success: false,
-        error: error.message,
-        data: null,
-      };
-    }
     return {
       success: true,
       error: null,
@@ -375,16 +288,8 @@ export async function subscribePush(userId: string, room_id: string, subscriptio
 export async function unsubscribePush(userId: string) {
   const cleanUserId = userId.trim();
   try {
-    const { data, error } = await supabase.from('subscriptions').delete().eq('user_id', cleanUserId);
+    const data = await prisma.subscription.deleteMany({ where: { user_id: cleanUserId } });
 
-    if (error) {
-      console.error('Failed to unsubscribe push:', error);
-      return {
-        success: false,
-        error: error.message,
-        data: null,
-      };
-    }
     return {
       success: true,
       error: null,
@@ -406,18 +311,16 @@ export async function unsubscribePush(userId: string) {
 export async function addPointsToUser(roomId: string, userId: string, pointsToAdd: number) {
   try {
     // 現在のポイントを取得
-    const { data: existingPointData, error: fetchError } = await supabase
-      .from('points')
-      .select('id, point')
-      .eq('room_id', roomId)
-      .eq('user_id', userId)
-      .single();
+    const existingPointData = await prisma.point.findFirst({
+      where: { room_id: roomId, user_id: userId },
+      select: { id: true, point: true },
+    });
 
-    if (fetchError) {
-      console.error('Failed to fetch existing points:', fetchError);
+    if (!existingPointData) {
+      console.error('Failed to fetch existing points');
       return {
         success: false,
-        error: fetchError.message,
+        error: 'Failed to fetch existing points',
         data: null,
       };
     }
@@ -425,21 +328,11 @@ export async function addPointsToUser(roomId: string, userId: string, pointsToAd
     const newPoints = (existingPointData?.point || 0) + pointsToAdd;
 
     // ポイントを更新
-    const { data: updateData, error: updateError } = await supabase
-      .from('points')
-      .update({ point: newPoints })
-      .eq('id', existingPointData?.id)
-      .select()
-      .single();
+    const updateData = await prisma.point.update({
+      where: { id: existingPointData?.id },
+      data: { point: newPoints },
+    });
 
-    if (updateError) {
-      console.error('Failed to update points:', updateError);
-      return {
-        success: false,
-        error: updateError.message,
-        data: null,
-      };
-    }
     return {
       success: true,
       error: null,

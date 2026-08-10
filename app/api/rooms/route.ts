@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
 // 短いルームIDを生成する関数
@@ -13,18 +13,11 @@ function generateShortId(length = 6): string {
 
 export async function POST() {
   try {
-    const { data, error } = await supabase
-      .from('rooms')
-      .insert({
+    const data = await prisma.room.create({
+      data: {
         short_id: generateShortId(),
-      })
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Supabase error:', error);
-      return NextResponse.json({ error: error.message, details: error }, { status: 500 });
-    }
+      },
+    });
 
     return NextResponse.json(data);
   } catch (error) {
@@ -38,14 +31,9 @@ export async function POST() {
 
 export async function GET() {
   try {
-    const { data, error } = await supabase
-      .from('rooms')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    const data = await prisma.room.findMany({
+      orderBy: { created_at: 'desc' },
+    });
 
     return NextResponse.json(data);
   } catch (error) {

@@ -1,6 +1,7 @@
 "use client"
 
 import { supabase } from "@/lib/supabase";
+import { getInfoRoom } from "@/app/room/[id]/action";
 import { useEffect, useState } from "react";
 
 interface UseStatusType {
@@ -24,19 +25,15 @@ export default function useStatus(roomId: string) {
     // ステータス変更を検知した処理
         useEffect(() => {
             const fetchRoomStatus = async () => {
-                const { data, error } = await supabase
-                    .from('rooms')
-                    .select('status , current_theme, answer_id')
-                    .eq('id', roomId)
-                    .single();
-    
+                const { data, error } = await getInfoRoom(roomId);
+
                 if (error) {
                     console.error('Failed to fetch room status:', error);
                     return;
                 }
-    
+
                 if (data) {
-                    setRoomData({ status: data.status, theme: data.current_theme, answerId: data.answer_id } );
+                    setRoomData({ status: data.status, theme: data.current_theme ?? '', answerId: data.answer_id ?? '' } );
                 }
             };
     

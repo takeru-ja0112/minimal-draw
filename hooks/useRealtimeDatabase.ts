@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { getRoom } from '@/app/lobby/action'
+import { getDrawingsByRoom } from '@/app/room/[id]/answer/action'
 
 type Room = {
   id: string
   status: string
   current_theme: string | null
-  answerer_id: string | null
+  answer_id: string | null
 }
 
 interface Drawing {
@@ -36,12 +38,8 @@ export function useRoomRealtime(roomId: string) {
 
     // 初回データ取得
     const fetchRoom = async () => {
-      const { data } = await supabase
-        .from('rooms')
-        .select('*')
-        .eq('id', roomId)
-        .single()
-      
+      const { data } = await getRoom(roomId)
+
       if (data) setRoom(data)
     }
 
@@ -86,12 +84,8 @@ export function useDrawingsRealtime(roomId: string) {
 
     // 初回データ取得
     const fetchDrawings = async () => {
-      const { data } = await supabase
-        .from('drawings')
-        .select('*')
-        .eq('room_id', roomId)
-        .order('element_count', { ascending: true })
-      if (data) setDrawings(data)
+      const { data } = await getDrawingsByRoom(roomId)
+      if (data) setDrawings(data as unknown as Drawing[])
     }
 
     fetchDrawings()

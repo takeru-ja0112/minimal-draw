@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase"
+import { getAnswerInput } from "@/app/room/[id]/answer/action"
 import { useEffect , useState } from "react"
 
 interface UseAnswerDataType {
@@ -11,18 +12,14 @@ export default function useAnswerInputs(roomId: string) {
 
     useEffect(()=>{
         const fetchAnswerInput = async () => {
-            const { data , error } = await supabase
-                .from('answer_inputs')
-                .select("*")
-                .eq('room_id' , roomId)
-                .single()
+            const { data , error } = await getAnswerInput(roomId)
 
             if(error){
                 return setAnswerData(null)
             }
 
             if(data){
-                setAnswerData({ answerInputs: data.text, result: data.result })
+                setAnswerData({ answerInputs: data.text, result: data.result as "" | "CORRECT" | "MISTAKE" })
             }
         }
         fetchAnswerInput()

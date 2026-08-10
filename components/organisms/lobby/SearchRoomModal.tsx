@@ -49,7 +49,7 @@ export default function SearchRoomModal({
         // 検索処理
         const dbResult = await getRoomByShortId(roomId);
         if (!dbResult) return;
-        if (!dbResult.success) {
+        if (!dbResult.success || !dbResult.data) {
             setError(dbResult.error || 'ルームの検索に失敗しました。');
         } else {
             // ルームが見つかった場合、ルームページへ遷移

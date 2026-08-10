@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
 export async function GET(
@@ -7,16 +7,10 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    
-    const { data, error } = await supabase
-      .from('rooms')
-      .select('*')
-      .eq('id', id)
-      .single();
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    const data = await prisma.room.findUnique({
+      where: { id },
+    });
 
     if (!data) {
       return NextResponse.json({ error: 'Room not found' }, { status: 404 });

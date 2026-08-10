@@ -8,7 +8,7 @@ interface BtnProps {
   onClick?: (e: React.MouseEvent<HTMLInputElement>) => void;
   placeholder?: string;
   disabled?: boolean;
-  type?: "text" | "password" | "email" | "number";
+  type?: "text" | "password" | "email" | "number" | "date";
   className?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;

@@ -4,6 +4,7 @@ import { setStatusRoom } from "@/app/room/[id]/action";
 import {
   addPointsToUser,
   checkAnswerRole,
+  getDrawingsByRoom,
   getThemePatternByRoomId,
   setdbAnswerInput,
   setdbAnswerResult,
@@ -223,12 +224,8 @@ export default function AnswerPage({
 
   const handleReload = () => {
     const fetchData = async () => {
-      const { data } = await supabase
-        .from("drawings")
-        .select("*")
-        .eq("room_id", roomId)
-        .order("element_count", { ascending: true });
-      setData(data || []);
+      const { data } = await getDrawingsByRoom(roomId);
+      setData((data as unknown as Drawing[]) || []);
     };
     fetchData();
   };
@@ -275,12 +272,8 @@ export default function AnswerPage({
   useEffect(() => {
     // 初回データ取得
     const fetchData = async () => {
-      const { data } = await supabase
-        .from("drawings")
-        .select("*")
-        .eq("room_id", roomId)
-        .order("element_count", { ascending: true });
-      setData(data || []);
+      const { data } = await getDrawingsByRoom(roomId);
+      setData((data as unknown as Drawing[]) || []);
     };
     fetchData();
 

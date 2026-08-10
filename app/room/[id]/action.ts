@@ -1,4 +1,6 @@
-import { supabase } from '@/lib/supabase';
+'use server';
+
+import { prisma } from '@/lib/prisma';
 import type { RoomSettingType, Theme } from '@/type/roomType';
 
 /**  ルームのステータスを変更
@@ -11,12 +13,10 @@ export async function setStatusRoom(
   status: 'WATING' | 'DRAWING' | 'ANSWERING' | 'FINISHED' | 'RESETTING',
 ) {
   try {
-    const { data, error } = await supabase.from('rooms').update({ status }).eq('id', roomId).select().single();
-
-    if (error) {
-      console.error('Failed to update room status:', error);
-      return { success: false, error: error.message, data: null };
-    }
+    const data = await prisma.room.update({
+      where: { id: roomId },
+      data: { status },
+    });
 
     return { success: true, error: null, data };
   } catch (error) {
@@ -28,11 +28,10 @@ export async function setStatusRoom(
 // ルームのを情報を取得
 export async function getInfoRoom(roomId: string) {
   try {
-    const { data, error } = await supabase.from('rooms').select('*').eq('id', roomId).single();
+    const data = await prisma.room.findUnique({ where: { id: roomId } });
 
-    if (error) {
-      console.error('Failed to fetch room status:', error);
-      return { success: false, error: error.message, data: null };
+    if (!data) {
+      return { success: false, error: 'Failed to fetch room status', data: null };
     }
 
     return { success: true, error: null, data: data };
@@ -47,17 +46,17 @@ async function getRandomTheme(roomId?: string) {
     const roomInfoResult = await getInfoRoom(roomId);
     if (roomInfoResult.success && roomInfoResult.data) {
       const roomInfo = roomInfoResult.data;
+      if (roomInfo.level === null || roomInfo.genre === null) {
+        return { success: false, error: 'No themes found for the specified settings', data: null };
+      }
       try {
-        const { data, error } = await supabase
-          .from('theme')
-          .select('id, theme')
-          .eq('level', roomInfo.level)
-          .eq('genre', roomInfo.genre);
-
-        if (error) {
-          console.error('Failed to fetch themes for specific room settings:', error);
-          return { success: false, error: error.message, data: null };
-        }
+        const data = await prisma.theme.findMany({
+          where: {
+            level: roomInfo.level,
+            genre: roomInfo.genre,
+          },
+          select: { id: true, theme: true },
+        });
 
         if (!data || data.length === 0) {
           return { success: false, error: 'No themes found for the specified settings', data: null };
@@ -75,12 +74,7 @@ async function getRandomTheme(roomId?: string) {
   // ルームIDが提供されていない場合、またはルーム情報の取得に失敗した場合は全体からランダムに取得
 
   try {
-    const { data, error } = await supabase.from('theme').select('id, theme');
-
-    if (error) {
-      console.error('Failed to fetch random theme:', error);
-      return { success: false, error: error.message, data: null };
-    }
+    const data = await prisma.theme.findMany({ select: { id: true, theme: true } });
 
     if (!data) {
       return { success: false, error: 'null', data: null };
@@ -102,34 +96,22 @@ export async function resetRoomSettings(roomId: string) {
   const newTheme = themeResult.success && themeResult.data ? themeResult.data : null;
 
   try {
-    const { error } = await supabase.from('drawings').delete().eq('room_id', roomId);
-
-    if (error) {
-      console.error('Failed to clear drawings during reset:', error);
-      return { success: false, error: error.message, data: null };
-    }
+    await prisma.drawing.deleteMany({ where: { room_id: roomId } });
   } catch (error) {
     console.error('Unexpected error during drawing clearance:', error);
     return { success: false, error: 'Failed to clear drawings during reset', data: null };
   }
 
   try {
-    const { data, error } = await supabase
-      .from('rooms')
-      .update({
+    const data = await prisma.room.update({
+      where: { id: roomId },
+      data: {
         answer_id: null,
         status: 'WAITING',
         current_theme: newTheme?.theme || null,
         current_theme_id: newTheme?.id || null,
-      })
-      .eq('id', roomId)
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Failed to reset room settings:', error);
-      return { success: false, error: error.message, data: null };
-    }
+      },
+    });
 
     return { success: true, error: null, data };
   } catch (error) {
@@ -148,17 +130,10 @@ export async function resetRoomSettings(roomId: string) {
  */
 export async function resetRoomAnswer(roomId: string) {
   try {
-    const { data, error } = await supabase
-      .from('rooms')
-      .update({ answer_id: null, status: 'FINISHED' })
-      .eq('id', roomId)
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Failed to reset room answerer:', error);
-      return { success: false, error: error.message, data: null };
-    }
+    const data = await prisma.room.update({
+      where: { id: roomId },
+      data: { answer_id: null, status: 'FINISHED' },
+    });
 
     return { success: true, error: null, data };
   } catch (error) {
@@ -175,15 +150,15 @@ export async function resetRoomAnswer(roomId: string) {
  * @returns
  */
 export async function changeRoomTheme({ roomId, roomSetting }: { roomId: string; roomSetting: RoomSettingType }) {
-  const { data, error } = await supabase
-    .from('theme')
-    .select('id, theme')
-    .eq('level', roomSetting.level)
-    .eq('genre', roomSetting.genre);
-
-  if (error) {
+  let data;
+  try {
+    data = await prisma.theme.findMany({
+      where: { level: roomSetting.level, genre: roomSetting.genre },
+      select: { id: true, theme: true },
+    });
+  } catch (error) {
     console.error('Failed to fetch themes for change:', error);
-    return { success: false, error: error.message, data: null };
+    return { success: false, error: error instanceof Error ? error.message : String(error), data: null };
   }
 
   if (!data || data.length === 0) {
@@ -193,22 +168,15 @@ export async function changeRoomTheme({ roomId, roomSetting }: { roomId: string;
   const randomTheme = data[Math.floor(Math.random() * data.length)];
 
   try {
-    const { data: updateData, error: updateError } = await supabase
-      .from('rooms')
-      .update({
+    const updateData = await prisma.room.update({
+      where: { id: roomId },
+      data: {
         current_theme: randomTheme.theme,
         current_theme_id: randomTheme.id,
         level: roomSetting.level,
         genre: roomSetting.genre,
-      })
-      .eq('id', roomId)
-      .select()
-      .single();
-
-    if (updateError) {
-      console.error('Failed to update room theme:', updateError);
-      return { success: false, error: updateError.message, data: null };
-    }
+      },
+    });
 
     return { success: true, error: null, data: updateData };
   } catch (error) {
@@ -222,37 +190,24 @@ export async function changeRoomTheme({ roomId, roomSetting }: { roomId: string;
  */
 export async function setRoomTheme(roomId: string, roomSetting: RoomSettingType, themeId: string) {
   try {
-    const { data: themeData, error: themeError } = await supabase
-      .from('theme')
-      .select('id, theme')
-      .eq('id', themeId)
-      .single();
-
-    if (themeError) {
-      console.error('Failed to fetch theme for setting:', themeError);
-      return { success: false, error: themeError.message, data: null };
-    }
+    const themeData = await prisma.theme.findUnique({
+      where: { id: Number(themeId) },
+      select: { id: true, theme: true },
+    });
 
     if (!themeData) {
       return { success: false, error: 'Theme not found', data: null };
     }
 
-    const { data: updateData, error: updateError } = await supabase
-      .from('rooms')
-      .update({
+    const updateData = await prisma.room.update({
+      where: { id: roomId },
+      data: {
         current_theme: themeData.theme,
         current_theme_id: themeData.id,
         level: roomSetting.level,
         genre: roomSetting.genre,
-      })
-      .eq('id', roomId)
-      .select()
-      .single();
-
-    if (updateError) {
-      console.error('Failed to set room theme:', updateError);
-      return { success: false, error: updateError.message, data: null };
-    }
+      },
+    });
 
     return { success: true, error: null, data: updateData };
   } catch (error) {
@@ -274,14 +229,12 @@ const shuffle = (array: Theme[]) => {
  */
 export async function getThreeThemes({ level, genre }: { level: string; genre: string }) {
   try {
-    const { data, error } = await supabase.from('theme').select('id, theme').eq('level', level).eq('genre', genre);
+    const data = await prisma.theme.findMany({
+      where: { level, genre },
+      select: { id: true, theme: true },
+    });
 
-    if (error) {
-      console.error('Failed to fetch three themes:', error);
-      return { success: false, error: error.message, data: null };
-    }
-
-    const shuffledData = shuffle(data);
+    const shuffledData = shuffle(data.map((t) => ({ id: String(t.id), theme: t.theme })));
 
     const threeThemes = shuffledData.slice(0, 3);
 
@@ -297,12 +250,7 @@ export async function getThreeThemes({ level, genre }: { level: string; genre: s
  */
 export async function resetDrawingData(roomId: string) {
   try {
-    const { error } = await supabase.from('drawings').delete().eq('room_id', roomId);
-
-    if (error) {
-      console.error('Failed to reset drawing data:', error);
-      return { success: false, error: error.message };
-    }
+    await prisma.drawing.deleteMany({ where: { room_id: roomId } });
 
     return { success: true, error: null };
   } catch (error) {
@@ -316,12 +264,7 @@ export async function resetDrawingData(roomId: string) {
  */
 export async function getRoomScores(roomId: string) {
   try {
-    const { data, error } = await supabase.from('points').select('*').eq('room_id', roomId);
-
-    if (error) {
-      console.error('Failed to fetch room scores:', error);
-      return { success: false, error: error.message, data: null };
-    }
+    const data = await prisma.point.findMany({ where: { room_id: roomId } });
 
     return { success: true, error: null, data };
   } catch (error) {
@@ -335,31 +278,18 @@ export async function getRoomScores(roomId: string) {
  */
 export async function registerParticipantScore(roomId: string, userId: string, userName: string) {
   try {
-    const { data: existing, error: fetchError } = await supabase
-      .from('points')
-      .select('id')
-      .eq('room_id', roomId)
-      .eq('user_id', userId);
-
-    if (fetchError && fetchError.code !== 'PGRST116') {
-      console.error('Failed to check participant score:', fetchError);
-      return { success: false, error: fetchError.message, data: null };
-    }
+    const existing = await prisma.point.findMany({
+      where: { room_id: roomId, user_id: userId },
+      select: { id: true },
+    });
 
     if (existing && existing.length > 0) {
       return { success: true, error: null, data: existing, isSkipped: true };
     }
 
-    const { data, error } = await supabase
-      .from('points')
-      .insert([{ room_id: roomId, user_id: userId, user_name: userName, point: 0 }])
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Failed to register participant score:', error);
-      return { success: false, error: error.message, data: null };
-    }
+    const data = await prisma.point.create({
+      data: { room_id: roomId, user_id: userId, user_name: userName, point: 0 },
+    });
 
     return { success: true, error: null, data, isSkipped: false };
   } catch (error) {
