@@ -149,7 +149,7 @@ export default function RoomSearchSection({
             value={roomName}
             onChange={(e) => setRoomName(e.target.value)}
             placeholder="部分一致"
-            className="w-full text-sm"
+            className="w-full text-sm min-w-0"
           />
         </div>
         <div>
@@ -158,7 +158,7 @@ export default function RoomSearchSection({
             value={createdByName}
             onChange={(e) => setCreatedByName(e.target.value)}
             placeholder="部分一致"
-            className="w-full text-sm"
+            className="w-full text-sm min-w-0"
           />
         </div>
         <div>
@@ -167,7 +167,7 @@ export default function RoomSearchSection({
             type="date"
             value={createdDate}
             onChange={(e) => setCreatedDate(e.target.value)}
-            className="w-full text-sm"
+            className="w-full text-sm min-w-0 !px-3"
           />
         </div>
       </div>
