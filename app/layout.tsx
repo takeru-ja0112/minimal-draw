@@ -3,6 +3,7 @@
 
 import Toaster from "@/components/common/toast";
 import BgObject from "@/components/organisms/BgObject";
+import Footer from "@/components/organisms/Footer";
 import Header from "@/components/organisms/Header";
 import type { Metadata } from "next";
 import { ViewTransitions } from 'next-view-transitions';
@@ -64,6 +65,7 @@ export default function RootLayout({
           <footer className="text-center p-4 text-gray-500 text-sm">
             &copy; 2026, Takeru
           </footer>
+          <Footer />
         </body>
       </html>
     </ViewTransitions>
