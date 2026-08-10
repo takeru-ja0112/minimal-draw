@@ -16,9 +16,9 @@ export default function Footer() {
   if (!isMobile) return null;
 
   return (
-    <footer className="h-14 fixed bottom-2 border border-2 border-white rounded-full w-[75%] min-w-[300px] left-1/2 -translate-x-1/2 z-40 shadow-md bg-white/50 backdrop-blur-xs px-7">
+    <footer className="h-17 fixed bottom-4 border border-2 border-white rounded-full w-[85%] min-w-[300px] left-1/2 -translate-x-1/2 z-40 shadow-md bg-white/50 backdrop-blur-xs px-7">
       <nav className="h-full flex justify-around items-center">
-        <IconContext.Provider value={{ size: "1.5em" }}>
+        <IconContext.Provider value={{ size: "1.8em" }}>
           <Link href="/" aria-label="Home" className="hover:text-gray-600 transition-colors">
             <TbHome />
           </Link>
