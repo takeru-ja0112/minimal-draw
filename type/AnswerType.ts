@@ -2,7 +2,7 @@ interface Drawing {
     id: string;
     room_id: string;
     user_id: string;
-    user_name: string;
+    user: { username: string | null } | null;
     canvas_data: {
         lines: number[][];
         circles: Array<{ x: number; y: number; radius: number }>;

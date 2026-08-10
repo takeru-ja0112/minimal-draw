@@ -8,9 +8,10 @@ import Loading from "@/components/atoms/Loading";
 import { getRoomByPageSearch, RoomSearchFilters } from "@/app/lobby/action";
 import historyLocalRoom from "@/lib/hitoryLocalRoom";
 import { motion } from "motion/react";
-import { TbGhost2 } from "react-icons/tb";
+import { TbGhost2, TbPlus } from "react-icons/tb";
 import { useRouter } from "next/navigation";
 import { Room } from "@/type/roomType";
+import RoomCreateModal from "@/components/organisms/top/RoomCreateModal";
 
 const getTodayString = () => {
   const d = new Date();
@@ -22,9 +23,11 @@ const getTodayString = () => {
 
 export default function RoomSearchSection({
   user,
+  userId,
   setNameError,
 }: {
   user: string;
+  userId: string;
   setNameError: React.Dispatch<React.SetStateAction<string>>;
 }) {
   const { setLocalRoom } = historyLocalRoom();
@@ -32,6 +35,7 @@ export default function RoomSearchSection({
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   // Search filter states
   const [roomName, setRoomName] = useState("");
@@ -121,7 +125,21 @@ export default function RoomSearchSection({
 
   return (
     <Card className="mb-4">
-      <h2 className="text-xl font-semibold mb-4 text-gray-700">ルームをさがす</h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-semibold text-gray-700">ルームをさがす</h2>
+        <button
+          onClick={() => {
+            if (!user) {
+              setNameError("ルームを作成するにはユーザー名が必要です。");
+              return;
+            }
+            setIsCreateModalOpen(true);
+          }}
+          className="p-2 bg-yellow-400 hover:bg-yellow-500 text-black rounded-full flex items-center justify-center transition-colors duration-200 shadow-md font-bold cursor-pointer"
+        >
+          <TbPlus size={20} />
+        </button>
+      </div>
 
       {/* Search Filters */}
       <div className="grid gap-3 sm:grid-cols-3 mb-4">
@@ -197,7 +215,7 @@ export default function RoomSearchSection({
                 </div>
                 <hr className="border-gray-200 my-2" />
                 <div className="text-gray-500 text-xs">
-                  作成者: {room.created_by_name || "不明"}
+                  作成者: {room.creator?.username || "不明"}
                   <span className="mx-2">|</span>
                   作成日時: {new Date(room.created_at).toLocaleString()}
                 </div>
@@ -233,6 +251,16 @@ export default function RoomSearchSection({
             className="text-xs px-3 py-1"
           />
         </div>
+      )}
+
+      {isCreateModalOpen && (
+        <RoomCreateModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          user={user}
+          userId={userId}
+          setNameError={setNameError}
+        />
       )}
     </Card>
   );

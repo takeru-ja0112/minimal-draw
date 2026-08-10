@@ -1,8 +1,9 @@
 import Button from '@/components/atoms/Button';
 import Input from '@/components/atoms/Input';
 import Modal from '@/components/organisms/Modal';
-import { setUsernameSchema } from '@/lib/user';
+import { setUsernameSchema, getUserId } from '@/lib/user';
 import { generateUser } from '@/lib/user';
+import { ensureUser } from '@/app/user/action';
 
 export default function SetUserModal({
     isSetUserModal,
@@ -58,6 +59,10 @@ export default function SetUserModal({
                             if (result?.success) {
                                 setIsSetUserModal(false);
                                 generateUser();
+                                const userId = getUserId();
+                                if (userId) {
+                                    void ensureUser(userId, user);
+                                }
                             }
                         }}
                         disabled={loading}

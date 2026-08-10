@@ -5,7 +5,7 @@
  * @param status ルームの状態
  * @param current_theme 現在のお題
  * @param created_at 作成日時
- * @param created_by_name 作成者の名前
+ * @param creator 作成者（m_userとのリレーション）
  * @param room_name ルーム名
  */
 export interface Room {
@@ -13,7 +13,7 @@ export interface Room {
   status: string;
   current_theme: string | null;
   created_at: Date;
-  created_by_name: string | null;
+  creator: { username: string | null } | null;
   room_name: string | null;
   short_id: string;
 }

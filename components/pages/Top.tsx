@@ -12,10 +12,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Input from "@/components/atoms/Input";
 import SetUserModal from "@/components/organisms/lobby/SetUserModal";
-import RoomCreateSection from "@/components/organisms/top/RoomCreateSection";
 import RoomSearchSection from "@/components/organisms/top/RoomSearchSection";
 import { getUsername, getUserId, setUsernameSchema } from "@/lib/user";
 import historyLocalRoom from "@/lib/hitoryLocalRoom";
+import { ensureUser } from "@/app/user/action";
 
 export default function Top() {
     const title = "Minimal Drawer";
@@ -82,6 +82,10 @@ export default function Top() {
                                     setNameError("");
                                     if (!user) {
                                         setNameError("ユーザー名は必須です");
+                                        return;
+                                    }
+                                    if (userId) {
+                                        void ensureUser(userId, user);
                                     }
                                 }}
                                 placeholder="ユーザー名を入力してください"
@@ -116,11 +120,8 @@ export default function Top() {
                         </div>
                     </motion.div>
 
-                    {/* ルーム作成セクション */}
-                    <RoomCreateSection user={user} userId={userId} setNameError={setNameError} />
-
                     {/* ルーム検索セクション */}
-                    <RoomSearchSection user={user} setNameError={setNameError} />
+                    <RoomSearchSection user={user} userId={userId} setNameError={setNameError} />
 
                     <div className="mt-30 text-center text-2xl mb-6">
                         <h2 className="font-bold">{title}ってなに？</h2>

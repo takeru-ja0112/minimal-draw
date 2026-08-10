@@ -45,7 +45,7 @@ type Drawing = {
   id: string;
   room_id: string;
   user_id: string;
-  user_name: string;
+  user: { username: string | null } | null;
   canvas_data: {
     lines: number[][];
     circles: Array<{ x: number; y: number; radius: number }>;
@@ -404,7 +404,7 @@ export default function AnswerPage({
                   要素数: {currentDrawing?.element_count}
                 </p>
                 <p className="text-sm text-gray-500 whitespace-nowrap overflow-hidden text-ellipsis">
-                  描いた人: {currentDrawing?.user_name}
+                  描いた人: {currentDrawing?.user?.username}
                 </p>
               </div>
 

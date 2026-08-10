@@ -222,7 +222,7 @@ export default function RoomPage({ title, shortId, scores }: { title: string, sh
                   <p className='font-bold text-xl'>{ranks[index]}<span className='text-sm ml-1'>位</span></p>
                 </div>
                 <div className='bg-white shadow-[inset_8px_0_0_rgba(250,204,21,0.6)] p-2 px-4 w-full flex justify-between items-center rounded-sm'>
-                  <p className='font-bold'>{score.user_name}</p>
+                  <p className='font-bold'>{score.user?.username}</p>
                   <p className='font-bold text-md text-xl'>{score.point}<span className='text-sm'>点</span></p>
                 </div>
               </motion.div>

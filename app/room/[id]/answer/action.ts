@@ -1,6 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
+import { ensureUser } from '@/app/user/action';
 
 // 回答内容の取得（回答者の入力・正誤結果）
 export async function getAnswerInput(roomId: string) {
@@ -59,6 +60,8 @@ export async function setdbAnswer(roomId: string, userId: string) {
       };
     }
 
+    await ensureUser(userId);
+
     // 回答者を設定
     const data = await prisma.room.update({
       where: { id: roomId },
@@ -85,6 +88,7 @@ export async function getDrawingsByRoom(roomId: string) {
   try {
     const data = await prisma.drawing.findMany({
       where: { room_id: roomId },
+      include: { user: true },
       orderBy: { element_count: 'asc' },
     });
 
@@ -261,6 +265,8 @@ export async function setdbAnswerResult(roomId: string, result: string) {
  */
 export async function subscribePush(userId: string, room_id: string, subscription: any) {
   try {
+    await ensureUser(userId);
+
     const data = await prisma.subscription.upsert({
       where: { user_id: userId },
       create: { user_id: userId, room_id, subscription },

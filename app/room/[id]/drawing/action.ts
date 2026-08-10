@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from '@/lib/prisma';
+import { ensureUser } from '@/app/user/action';
 
 export type CanvasData = {
   lines: number[][];
@@ -29,7 +30,7 @@ export async function getDrawingByRoomAndUser(roomId: string , userId : string){
   }
 }
 
-// 描画データを保存（room_idとuser_nameが一致する場合は更新）
+// 描画データを保存（room_idとuser_idが一致する場合は更新）
 export async function saveDrawing(
   roomId: string,
   userId: string,
@@ -41,9 +42,11 @@ export async function saveDrawing(
     // 要素数を計算
     const elementCount = canvasData.lines.length + canvasData.circles.length + canvasData.rects.length;
 
-    // 既存のデータをチェック（room_idとuser_nameで検索）
+    await ensureUser(userId, userName);
+
+    // 既存のデータをチェック（room_idとuser_idで検索）
     const existing = await prisma.drawing.findFirst({
-      where: { room_id: roomId, user_name: userName },
+      where: { room_id: roomId, user_id: userId },
       select: { id: true },
     });
 
@@ -66,7 +69,6 @@ export async function saveDrawing(
         data: {
           room_id: roomId,
           user_id: userId,
-          user_name: userName,
           canvas_data: canvasData,
           element_count: elementCount,
           theme: theme,

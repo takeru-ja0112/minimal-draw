@@ -14,6 +14,7 @@ import SetUserModal from "@/components/organisms/lobby/SetUserModal";
 import historyLocalRoom from "@/lib/hitoryLocalRoom";
 import { setRoomSchema } from "@/lib/room";
 import { getUserId, getUsername, setUsernameSchema } from "@/lib/user";
+import { ensureUser } from "@/app/user/action";
 import type { CreateRoom, Room } from "@/type/roomType";
 import { motion } from "motion/react";
 import Link from "next/link";
@@ -152,6 +153,10 @@ export default function LobbyPage() {
                   setNameError("");
                   if (!user) {
                     setNameError("ユーザー名は必須です");
+                    return;
+                  }
+                  if (userId) {
+                    void ensureUser(userId, user);
                   }
                 }}
                 placeholder="ユーザー名を入力してください"
@@ -226,7 +231,7 @@ export default function LobbyPage() {
                   </div>
                   <hr className="border-gray-300" />
                   <div className="text-gray-500 text-sm mt-2">
-                    作成者: {latestRoom.created_by_name || "不明"}
+                    作成者: {latestRoom.creator?.username || "不明"}
                     <br />
                     作成日時: {new Date(latestRoom.created_at).toLocaleString()}
                   </div>
@@ -268,7 +273,7 @@ export default function LobbyPage() {
                     </div>
                     <hr className="border-gray-300" />
                     <div className="text-gray-500 text-sm mt-2">
-                      作成者: {room.created_by_name || "不明"}
+                      作成者: {room.creator?.username || "不明"}
                       <br />
                       作成日時: {new Date(room.created_at).toLocaleString()}
                     </div>

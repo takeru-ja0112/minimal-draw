@@ -12,6 +12,22 @@ datasource db {
   provider = "postgresql"
 }
 
+model MUser {
+  id         String   @id @db.Uuid
+  username   String?
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+
+  createdRooms    Room[]           @relation("RoomCreator")
+  answeredRooms   Room[]           @relation("RoomAnswerer")
+  drawings        Drawing[]
+  points          Point[]
+  subscription    Subscription?
+  historyDrawings HistoryDrawing[]
+
+  @@map("m_user")
+}
+
 model Room {
   id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   short_id          String
@@ -19,12 +35,14 @@ model Room {
   current_theme     String?
   current_theme_id  Int?
   answer_id         String?  @db.Uuid
-  created_by_name   String?
   created_by_userId String?  @db.Uuid
   room_name         String?
   level             String?
   genre             String?
   created_at        DateTime @default(now()) @db.Timestamptz(6)
+
+  creator  MUser? @relation("RoomCreator", fields: [created_by_userId], references: [id], onDelete: SetNull)
+  answerer MUser? @relation("RoomAnswerer", fields: [answer_id], references: [id], onDelete: SetNull)
 
   @@map("rooms")
 }
@@ -33,11 +51,12 @@ model Drawing {
   id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   room_id       String   @db.Uuid
   user_id       String   @db.Uuid
-  user_name     String
   canvas_data   Json
   element_count Int
   theme         String?
   created_at    DateTime @default(now()) @db.Timestamptz(6)
+
+  user MUser @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("drawings")
 }
@@ -58,8 +77,9 @@ model Point {
   id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   room_id   String @db.Uuid
   user_id   String @db.Uuid
-  user_name String
   point     Int    @default(0)
+
+  user MUser @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("points")
 }
@@ -80,6 +100,8 @@ model Subscription {
   subscription Json
   created_at   DateTime @default(now()) @db.Timestamptz(6)
 
+  user MUser @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
   @@map("subscriptions")
 }
 
@@ -87,11 +109,12 @@ model HistoryDrawing {
   id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   room_id       String   @db.Uuid
   user_id       String   @db.Uuid
-  user_name     String
   canvas_data   Json
   element_count Int
   theme         String?
   created_at    DateTime @default(now()) @db.Timestamptz(6)
+
+  user MUser @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("history_drawings")
 }

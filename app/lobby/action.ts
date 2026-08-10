@@ -2,6 +2,7 @@
 import { prisma } from '@/lib/prisma';
 import type { CreateRoom } from '@/type/roomType';
 import { Prisma } from '@/lib/generated/prisma/client';
+import { ensureUser } from '@/app/user/action';
 
 // ルーム一覧を取得
 export async function getRooms() {
@@ -39,7 +40,9 @@ export async function getRoomByPageSearch(page: number, filters: RoomSearchFilte
 
     const where: Prisma.RoomWhereInput = {
       ...(filters.roomName ? { room_name: { contains: filters.roomName, mode: 'insensitive' } } : {}),
-      ...(filters.createdByName ? { created_by_name: { contains: filters.createdByName, mode: 'insensitive' } } : {}),
+      ...(filters.createdByName
+        ? { creator: { username: { contains: filters.createdByName, mode: 'insensitive' } } }
+        : {}),
     };
 
     if (filters.createdDate) {
@@ -54,6 +57,7 @@ export async function getRoomByPageSearch(page: number, filters: RoomSearchFilte
     const [data, count] = await prisma.$transaction([
       prisma.room.findMany({
         where,
+        include: { creator: true },
         orderBy: { created_at: 'desc' },
         skip,
         take: PAGE_SIZE,
@@ -85,7 +89,7 @@ export async function getRoomByPageSearch(page: number, filters: RoomSearchFilte
 // 特定のルームを取得
 export async function getRoom(roomId: string) {
   try {
-    const data = await prisma.room.findUnique({ where: { id: roomId } });
+    const data = await prisma.room.findUnique({ where: { id: roomId }, include: { creator: true } });
 
     if (!data) {
       return {
@@ -120,6 +124,7 @@ export async function getRoomsByUserId(userId: string) {
   try {
     const data = await prisma.room.findMany({
       where: { created_by_userId: userId },
+      include: { creator: true },
       orderBy: { created_at: 'desc' },
     });
 
@@ -175,13 +180,16 @@ export async function createRoomByUsername(createRoomData: CreateRoom) {
   }
 
   try {
+    if (userId) {
+      await ensureUser(userId, sanitizedUsername);
+    }
+
     // 短いルームIDを生成
     const shortId = generateShortId();
 
     const data = await prisma.room.create({
       data: {
         short_id: shortId,
-        created_by_name: sanitizedUsername,
         created_by_userId: userId,
         room_name: sanitizedRoomName,
         current_theme: randomTheme.theme,

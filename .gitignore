@@ -44,3 +44,21 @@ next-env.d.ts
 
 # claude code local settings
 .claude/settings.local.json
+.claude/skills/prisma-cli
+.claude/skills/prisma-client-api
+.claude/skills/prisma-compute
+.claude/skills/prisma-database-setup
+.claude/skills/prisma-driver-adapter-implementation
+.claude/skills/prisma-mongodb-upgrade
+.claude/skills/prisma-postgres
+.claude/skills/prisma-postgres-setup
+.claude/skills/prisma-upgrade-v7
+.windsurf/skills/prisma-cli
+.windsurf/skills/prisma-client-api
+.windsurf/skills/prisma-compute
+.windsurf/skills/prisma-database-setup
+.windsurf/skills/prisma-driver-adapter-implementation
+.windsurf/skills/prisma-mongodb-upgrade
+.windsurf/skills/prisma-postgres
+.windsurf/skills/prisma-postgres-setup
+.windsurf/skills/prisma-upgrade-v7

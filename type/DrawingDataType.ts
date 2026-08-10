@@ -10,5 +10,5 @@ export interface DrawingDataType {
     room_id: string;
     theme: string;
     user_id: string;
-    user_name: string;
+    user: { username: string | null } | null;
 }

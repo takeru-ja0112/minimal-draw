@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/prisma';
 import type { RoomSettingType, Theme } from '@/type/roomType';
+import { ensureUser } from '@/app/user/action';
 
 /**  ルームのステータスを変更
  *
@@ -264,7 +265,7 @@ export async function resetDrawingData(roomId: string) {
  */
 export async function getRoomScores(roomId: string) {
   try {
-    const data = await prisma.point.findMany({ where: { room_id: roomId } });
+    const data = await prisma.point.findMany({ where: { room_id: roomId }, include: { user: true } });
 
     return { success: true, error: null, data };
   } catch (error) {
@@ -287,8 +288,10 @@ export async function registerParticipantScore(roomId: string, userId: string, u
       return { success: true, error: null, data: existing, isSkipped: true };
     }
 
+    await ensureUser(userId, userName);
+
     const data = await prisma.point.create({
-      data: { room_id: roomId, user_id: userId, user_name: userName, point: 0 },
+      data: { room_id: roomId, user_id: userId, point: 0 },
     });
 
     return { success: true, error: null, data, isSkipped: false };
