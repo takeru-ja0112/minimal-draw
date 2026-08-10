@@ -37,7 +37,7 @@ export default function Top() {
             <div
                 className="min-w-[320px] flex items-center justify-center px-8 overflow-hidden"
             >
-                
+
                 <div className="max-w-2xl w-90 mt-20 mb-30 z-10">
                     {/* メインコンテンツ */}
                     <motion.div
@@ -101,27 +101,20 @@ export default function Top() {
                         )}
                     </Card>
 
+
+                    {/* ルーム検索セクション */}
+                    <RoomSearchSection user={user} userId={userId} setNameError={setNameError} />
                     {/* ボタンエリア */}
                     <motion.div
                         className="space-y-4 mb-6"
                     >
                         <div className="mb-2">
                             {/* メインボタン */}
-                            <Link href="/lobby">
-                                <Button value="みんなで遊ぶ" className="text-xl w-full"/>
-                            </Link>
-                        </div>
-
-                        {/* サブボタン */}
-                        <div className="">
                             <Link href="/drawing">
                                 <Button value="描いてみる" className="text-xl w-full" />
                             </Link>
                         </div>
                     </motion.div>
-
-                    {/* ルーム検索セクション */}
-                    <RoomSearchSection user={user} userId={userId} setNameError={setNameError} />
 
                     <div className="mt-30 text-center text-2xl mb-6">
                         <h2 className="font-bold">{title}ってなに？</h2>

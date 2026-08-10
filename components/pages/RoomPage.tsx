@@ -98,7 +98,7 @@ export default function RoomPage({ title, shortId, scores }: { title: string, sh
   return (
     <div>
       {/* <BgObject /> */}
-      <Link href={`/lobby`} className='z-50 fixed top-13 left-2 text-gray-500 hover:text-gray-700 transition duration-300 p-2 rounded-full'>
+      <Link href={`/`} className='z-50 fixed top-13 left-2 text-gray-500 hover:text-gray-700 transition duration-300 p-2 rounded-full'>
         <TbArrowLeft size='2em' />
       </Link>
       <div className="w-full p-8">
