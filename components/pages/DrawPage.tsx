@@ -12,8 +12,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { IconContext } from "react-icons";
 import { TbArrowBackUp, TbArrowForwardUp, TbArrowLeft, TbArrowsMove, TbEraser, TbSearch, TbTrash } from 'react-icons/tb';
-import { Circle, Rect as KonvaRect, Layer, Line, Stage } from "react-konva";
-
+import { Layer, Stage } from "react-konva";
+import { SketchyCircle, SketchyLine, SketchyRect } from "@/components/organisms/draw/SketchyShapes";
 type DrawPageProps = {
   roomId: string;
   theme?: string;
@@ -191,13 +191,9 @@ export default function DrawPage({ roomId, theme, furigana, mode }: DrawPageProp
                   onMouseUp: handleMouseUp,
                 }}
               >
-                <Layer
-                  tension={0.5}
-                  lineCap="round"
-                  lineJoin="round"
-                >
+                <Layer>
                   {lines.map((line, i) => (
-                    <Line
+                    <SketchyLine
                       key={i}
                       points={line}
                       stroke={selectedShape?.type === 'line' && selectedShape.index === i ? '#e9c10e' : 'black'}
@@ -205,7 +201,7 @@ export default function DrawPage({ roomId, theme, furigana, mode }: DrawPageProp
                     />
                   ))}
                   {circles.map((circle, i) => (
-                    <Circle
+                    <SketchyCircle
                       key={i}
                       x={circle.x}
                       y={circle.y}
@@ -215,7 +211,7 @@ export default function DrawPage({ roomId, theme, furigana, mode }: DrawPageProp
                     />
                   ))}
                   {rects.map((rect, i) => (
-                    <KonvaRect
+                    <SketchyRect
                       key={i}
                       x={rect.x}
                       y={rect.y}
