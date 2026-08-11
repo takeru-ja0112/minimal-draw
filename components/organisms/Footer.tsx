@@ -11,13 +11,16 @@ import { motion } from 'motion/react';
 
 export default function Footer() {
   const [isMobile, setIsMobile] = useState(false);
+  const [isBrowser, setIsBrowser] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || ('standalone' in navigator && (navigator as any).standalone);
+    setIsBrowser(!isStandalone);
     setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
   }, []);
 
-  if (!isMobile) return null;
+  if (isBrowser || !isMobile) return null;
 
   const navItems = [
     { href: '/', icon: <TbHome />, label: 'Home' },
