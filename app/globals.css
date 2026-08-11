@@ -24,3 +24,13 @@ body {
   color: var(--foreground); */
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* チュートリアルで現在アクティブ（ハイライト中）の要素をクリック不能・disabled風にする */
+.driver-active-element {
+  pointer-events: none !important;
+  /* クリックやホバーを無効化 */
+  /* opacity: 0.6 !important; */
+  /* disabled っぽい見た目にする（お好みで） */
+  cursor: not-allowed !important;
+  /* カーソルを禁止マークに */
+}

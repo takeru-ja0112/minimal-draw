@@ -22,10 +22,12 @@ const getTodayString = () => {
 };
 
 export default function RoomSearchSection({
+  id,
   user,
   userId,
   setNameError,
 }: {
+  id?: string;
   user: string;
   userId: string;
   setNameError: React.Dispatch<React.SetStateAction<string>>;
@@ -131,10 +133,11 @@ export default function RoomSearchSection({
   };
 
   return (
-    <Card className="mb-4">
+    <Card id={id} className="mb-4">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold text-gray-700">ルームをさがす</h2>
         <button
+          id="tutorial-room-created"
           onClick={() => {
             if (!user) {
               setNameError("ルームを作成するにはユーザー名が必要です。");
@@ -149,7 +152,7 @@ export default function RoomSearchSection({
       </div>
 
       {/* Search Filters */}
-      <div className="grid gap-3 sm:grid-cols-3 mb-4">
+      <div id="tutorial-room-search" className="grid gap-3 sm:grid-cols-3 mb-4">
         <div>
           <label className="block text-xs font-semibold text-gray-600 mb-1">ルーム名</label>
           <Input
@@ -202,7 +205,7 @@ export default function RoomSearchSection({
       )}
 
       {/* Search Results */}
-      <div className="max-h-[400px] overflow-y-auto pr-1">
+      <div id="tutorial-room-search-list" className="max-h-[400px] overflow-y-auto pr-1">
         {loading ? (
           <div className="flex justify-center my-8">
             <Loading />
