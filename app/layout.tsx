@@ -46,7 +46,7 @@ export default function RootLayout({
         <head>
           <link rel="icon" href="/minimalDrawIcon.svg" />
           <link rel="manifest" href="/manifest.json" />
-          <meta name="theme-color" content="#fbbf24" />
+          <meta name="theme-color" content="#ffffffff" />
           <link rel="apple-touch-icon" href="/minimalDrawIcon.svg" />
           <meta property="og:title" content="Minimal Draw" />
           <meta property="og:description" content="お題を線と丸と長方形で表現するボードゲーム！" />
