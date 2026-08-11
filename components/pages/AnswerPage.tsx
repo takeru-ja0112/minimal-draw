@@ -24,7 +24,7 @@ import { validateText } from "@/lib/validation";
 import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { IconContext } from "react-icons";
 import {
   TbArrowBadgeLeftFilled,
@@ -40,6 +40,9 @@ import CorrectModal from "../organisms/answer/CorrectModal";
 import FinishModal from "../organisms/answer/FinishModal";
 import MistakeModal from "../organisms/answer/MistakeModal";
 import StatusBar from "../organisms/StatusBat";
+import { useTutorial } from "@/hooks/tutorial/useTutorial";
+import { buildAnswerTutorialSteps } from "@/hooks/tutorial/steps/answer";
+import TutorialHelpButton from "@/components/molecules/TutorialHelpButton";
 
 type Drawing = {
   id: string;
@@ -98,6 +101,12 @@ export default function AnswerPage({
   const [mistake, setMistake] = useState<number>(0);
   const { open, close, modalType } = useModalContext();
   const [isNoti, setIsNoti] = useState<boolean>(sub ? true : false);
+
+  const tutorialSteps = useMemo(
+    () => buildAnswerTutorialSteps({ isAnswerRole }),
+    [isAnswerRole]
+  );
+  useTutorial({ key: "answer", steps: tutorialSteps });
 
   const isBrowser = typeof window !== "undefined";
 
@@ -325,6 +334,11 @@ export default function AnswerPage({
         >
           <TbArrowLeft size="2em" />
         </Link>
+        <TutorialHelpButton
+          id="tutorial-answer-reset"
+          tutorialKey="answer"
+          className="z-50 fixed top-24 left-3"
+        />
         {status !== "ANSWERING" && status !== "FINISHED" && isAnswerRole && (
           <Card className="max-w-lg w-full mt-6 mb-6 p-5 bg-yellow-50 border-dotted border-4 border-yellow-200">
             <h2 className="text-lg font-bold text-yellow-700">
@@ -344,7 +358,9 @@ export default function AnswerPage({
           </Card>
         )}
         {/* ステータスエリア */}
-        <StatusBar status={status}></StatusBar>
+        <div id="tutorial-answer-status" className="w-full max-w-lg">
+          <StatusBar status={status}></StatusBar>
+        </div>
         {/* <AccessUser roomId={roomId} /> */}
         <Card className="max-w-lg w-full">
           {/* PWA用の通知許可コンポーネントのため一旦コメントアウト */}
@@ -416,7 +432,7 @@ export default function AnswerPage({
                     <p>読み込み中...</p>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-1">
+                  <div id="tutorial-answer-nav" className="flex items-center gap-1">
                     <IconContext.Provider
                       value={{ size: "2em", color: "#808080" }}
                     >
@@ -429,7 +445,7 @@ export default function AnswerPage({
                       >
                         <TbArrowBadgeLeftFilled />
                       </motion.button>
-                      <div className="border-4 border-gray-300 w-[300px] h-[300px] relative rounded-lg overflow-hidden shadow-lg">
+                      <div id="tutorial-answer-canvas" className="border-4 border-gray-300 w-[300px] h-[300px] relative rounded-lg overflow-hidden shadow-lg">
                         {/* レースカーテンのような表現 */}
                         <button
                           onClick={() => {
@@ -533,7 +549,7 @@ export default function AnswerPage({
 
               {/* 回答入力 */}
               {isAnswerRole && (
-                <div className="mb-6">
+                <div id="tutorial-answer-input" className="mb-6">
                   <Input
                     type="text"
                     value={answer}
@@ -563,6 +579,7 @@ export default function AnswerPage({
                 {isAnswerRole && (
                   <>
                     <Button
+                      id="tutorial-answer-submit"
                       value="回答する"
                       onClick={() => open("finalAnswer")}
                       disabled={!isAnswerRole || status !== "ANSWERING"}
