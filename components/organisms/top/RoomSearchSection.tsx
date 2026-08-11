@@ -123,6 +123,13 @@ export default function RoomSearchSection({
     router.push(`/room/${roomId}`);
   };
 
+  const handleClear = () => {
+    setRoomName("");
+    setCreatedByName("");
+    setCreatedDate(getTodayString());
+    fetchRooms(1, { createdDate: getTodayString() });
+  };
+
   return (
     <Card className="mb-4">
       <div className="flex items-center justify-between mb-4">
@@ -173,6 +180,12 @@ export default function RoomSearchSection({
       </div>
 
       <div className="flex justify-end mb-6">
+        <Button
+          value="クリア"
+          onClick={handleClear}
+          disabled={loading}
+          className="w-24 mr-3"
+        />
         <Button
           value="検索"
           onClick={handleSearch}
