@@ -104,9 +104,9 @@ export default function RoomCreateModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className="w-full">
+    <Modal isOpen={isOpen} onClose={onClose} className="w-full !mx-1">
       <h2 className="text-xl font-semibold mb-4 text-gray-700 text-center">ルームをつくる</h2>
-      
+
       <div className="mb-2">
         <label htmlFor="roomName" className="font-semibold text-gray-700 text-sm">
           ルーム名
