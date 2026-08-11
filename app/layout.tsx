@@ -8,6 +8,7 @@ import Header from "@/components/organisms/Header";
 import type { Metadata } from "next";
 import { ViewTransitions } from 'next-view-transitions';
 import { Geist, Geist_Mono } from "next/font/google";
+import Image from "next/image";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -55,7 +56,7 @@ export default function RootLayout({
           <meta property="og:image:height" content="630" />
         </head>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen relative`}
         >
           <BgObject />
           {/* ヘッダーの高さ分全体をさげる */}

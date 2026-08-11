@@ -34,7 +34,8 @@ import {
   TbLock,
   TbReload
 } from "react-icons/tb";
-import { Circle, Layer, Line, Rect, Stage } from "react-konva";
+import { Layer, Stage } from "react-konva";
+import { SketchyCircle, SketchyLine, SketchyRect } from "../organisms/draw/SketchyShapes";
 import ChallengeModal from "../organisms/answer/ChallengeModal";
 import CorrectModal from "../organisms/answer/CorrectModal";
 import FinishModal from "../organisms/answer/FinishModal";
@@ -479,7 +480,7 @@ export default function AnswerPage({
                         <Stage width={300} height={300}>
                           <Layer>
                             {currentDrawing.canvas_data.lines.map((line, i) => (
-                              <Line
+                              <SketchyLine
                                 key={`line-${i}`}
                                 points={line}
                                 stroke="black"
@@ -488,7 +489,7 @@ export default function AnswerPage({
                             ))}
                             {currentDrawing.canvas_data.circles.map(
                               (circle, i) => (
-                                <Circle
+                                <SketchyCircle
                                   key={`circle-${i}`}
                                   x={circle.x}
                                   y={circle.y}
@@ -499,7 +500,7 @@ export default function AnswerPage({
                               ),
                             )}
                             {currentDrawing.canvas_data.rects.map((rect, i) => (
-                              <Rect
+                              <SketchyRect
                                 key={`rect-${i}`}
                                 x={rect.x}
                                 y={rect.y}

@@ -2,7 +2,8 @@
 
 import type { DrawingDataType } from "@/type/DrawingDataType";
 import { motion } from "framer-motion";
-import { Circle, Layer, Line, Rect, Stage, Transformer } from "react-konva";
+import { Layer, Stage, Transformer } from "react-konva";
+import { SketchyCircle, SketchyLine, SketchyRect } from "@/components/organisms/draw/SketchyShapes";
 import Card from "../atoms/Card";
 
 export default function MuseumPage({
@@ -32,7 +33,7 @@ export default function MuseumPage({
                     <Stage scale={{ x: 0.6, y: 0.6 }} width={180} height={180} key={art.id} className="">
                       <Layer>
                         {art.canvas_data.lines.map((line, i) => (
-                          <Line
+                          <SketchyLine
                             key={`line-${i}`}
                             points={line}
                             stroke="black"
@@ -41,7 +42,7 @@ export default function MuseumPage({
                         ))}
                         {art.canvas_data.circles.map(
                           (circle, i) => (
-                            <Circle
+                            <SketchyCircle
                               key={`circle-${i}`}
                               x={circle.x}
                               y={circle.y}
@@ -52,7 +53,7 @@ export default function MuseumPage({
                           ),
                         )}
                         {art.canvas_data.rects.map((rect, i) => (
-                          <Rect
+                          <SketchyRect
                             key={`rect-${i}`}
                             x={rect.x}
                             y={rect.y}
