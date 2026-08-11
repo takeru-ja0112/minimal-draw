@@ -10,6 +10,7 @@ interface BtnProps {
     type?: "button" | "submit" | "reset";
     className?: string;
     icon?: React.ReactNode;
+    id?: string;
 }
 
 export default function Btn({ value, className ,onClick, disabled, type = "button", icon, ...props }: BtnProps) {

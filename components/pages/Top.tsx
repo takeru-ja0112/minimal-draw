@@ -17,8 +17,9 @@ import { getUsername, getUserId, setUsernameSchema } from "@/lib/user";
 import historyLocalRoom from "@/lib/hitoryLocalRoom";
 import { ensureUser } from "@/app/user/action";
 import { Schoolbell } from "next/font/google";
-import { useTutorial, resetTutorial } from "@/hooks/tutorial/useTutorial";
-import { TbQuestionMark } from "react-icons/tb";
+import { useTutorial } from "@/hooks/tutorial/useTutorial";
+import { topTutorialSteps } from "@/hooks/tutorial/steps/top";
+import TutorialHelpButton from "@/components/molecules/TutorialHelpButton";
 
 const schoolbell = Schoolbell({
     subsets: ["latin"],
@@ -36,7 +37,7 @@ export default function Top() {
     // const [isSetUserModal, setIsSetUserModal] = useState(!username);
     const userId = getUserId() || "";
     const router = useRouter();
-    useTutorial();
+    useTutorial({ key: "top", steps: topTutorialSteps });
 
     // スクロール出現用ref
     const [ref1, inView1] = useInView({ triggerOnce: true, threshold: 0.2 });
@@ -49,13 +50,11 @@ export default function Top() {
                 className="min-w-[320px] flex items-center justify-center px-8 overflow-hidden"
             >
                 <div className="">
-                    <button
+                    <TutorialHelpButton
                         id="tutorial-step-reset"
-                        className="flex text-sm absolute top-20 left-5 border border-3 rounded-full p-1 hover:bg-gray-200"
-                        onClick={() => resetTutorial()}
-                    >
-                        <TbQuestionMark className="text-xl" />
-                    </button>
+                        tutorialKey="top"
+                        className="absolute top-20 left-5"
+                    />
                 </div>
                 <div className="max-w-2xl w-90 mt-20 mb-30 z-10">
                     {/* メインコンテンツ */}

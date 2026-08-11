@@ -2,91 +2,53 @@
 
 import { useEffect } from 'react';
 import { driver } from 'driver.js';
+import type { Config, DriveStep } from 'driver.js';
 import 'driver.js/dist/driver.css';
 
-export function resetTutorial() {
-    localStorage.removeItem('has_seen_tutorial');
-    window.dispatchEvent(new Event('start_tutorial'));
+export type TutorialStep = DriveStep;
+
+type UseTutorialOptions = {
+    key: string;                 // 'top' | 'room' | 'answer' など画面を識別するキー
+    steps: TutorialStep[];       // 表示するステップ（呼び出し側で組み立てる）
+    driverOptions?: Partial<Config>; // showProgress / ボタン文言など上書きしたい場合
+};
+
+export function resetTutorial(key: string) {
+    localStorage.removeItem(`has_seen_tutorial_${key}`);
+    window.dispatchEvent(new Event(`start_tutorial_${key}`));
 }
 
-export function useTutorial() {
+export function useTutorial({ key, steps, driverOptions }: UseTutorialOptions) {
     useEffect(() => {
-        // 1. driver() 内に steps を配列で定義する
+        if (steps.length === 0) return; // 対象要素が揃っていない等でステップが空なら何もしない
+
         const driverObj = driver({
             showProgress: true,
             doneBtnText: '閉じる',
             nextBtnText: '次へ',
             prevBtnText: '戻る',
+            ...driverOptions,
+            steps,
             onDestroyed: () => {
-                // チュートリアル終了時にフラグを保存
-                localStorage.setItem('has_seen_tutorial', 'true');
+                localStorage.setItem(`has_seen_tutorial_${key}`, 'true');
             },
-            steps: [
-                {
-                    popover: {
-                        title: 'Minimal Drawerへようこそ！',
-                        description: 'このゲームは、お題を線と丸と長方形で表現するボードゲームです！',
-                    },
-                },
-                {
-                    element: '#tutorial-name-setting',
-                    popover: {
-                        title: '名前の設定',
-                        description: 'まずは自分の名前を設定しましょう。',
-                    },
-                },
-                {
-                    element: '#tutorial-room-setting',
-                    popover: {
-                        title: 'ルームの説明',
-                        description: 'ルームを検索、作成することができます。',
-                    },
-                },
-                {
-                    element: '#tutorial-room-created',
-                    popover: {
-                        title: 'ルームの作成',
-                        description: 'ここをクリックしてルームを作成できます。',
-                    },
-                },
-                {
-                    element: '#tutorial-room-search',
-                    popover: {
-                        title: 'ルームの検索条件',
-                        description: '他の人がルームを作成したら、今日日付で検索してみましょう。',
-                    },
-                },
-                {
-                    element: '#tutorial-room-search-list',
-                    popover: {
-                        title: 'ルームの検索一覧',
-                        description: '一覧に対象が表示されたらタッチしましょう。',
-                    },
-                },
-                {
-                    element: '#tutorial-step-reset',
-                    popover: {
-                        title: 'チュートリアルはここをクリックするともう一度確認できます。',
-                    },
-                },
-            ],
         });
 
         const startTutorial = () => {
             driverObj.drive();
         };
 
-        window.addEventListener('start_tutorial', startTutorial);
+        const eventName = `start_tutorial_${key}`;
+        window.addEventListener(eventName, startTutorial);
 
-        const isCompleted = localStorage.getItem('has_seen_tutorial');
+        const isCompleted = localStorage.getItem(`has_seen_tutorial_${key}`);
         if (!isCompleted) {
-            // 2. ツアーを開始する（highlight() は呼ばない）
             startTutorial();
         }
 
         return () => {
-            window.removeEventListener('start_tutorial', startTutorial);
+            window.removeEventListener(eventName, startTutorial);
             driverObj.destroy();
         };
-    }, []);
-}
+    }, [key, steps, driverOptions]);
+}

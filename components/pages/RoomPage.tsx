@@ -19,6 +19,9 @@ import { IconContext } from 'react-icons';
 import { TbArrowLeft, TbBallBowling, TbCheck, TbCopy, TbCrown, TbPencil } from 'react-icons/tb';
 import AccessUser from '../organisms/AccessUser';
 import RoomSetting from '../organisms/RoomSetting';
+import { useTutorial } from '@/hooks/tutorial/useTutorial';
+import { roomTutorialSteps } from '@/hooks/tutorial/steps/room';
+import TutorialHelpButton from '@/components/molecules/TutorialHelpButton';
 
 export default function RoomPage({ title, shortId, scores }: { title: string, shortId: string, scores: any[] }) {
   const params = useParams();
@@ -31,6 +34,7 @@ export default function RoomPage({ title, shortId, scores }: { title: string, sh
   const [threeThemes, setThreeThemes] = useState<Theme[]>([]);
 
   const { status, answerId } = useStatus(roomId);
+  useTutorial({ key: 'room', steps: roomTutorialSteps });
 
   const handleCheckAnswer = async () => {
     const { success, data: isAnswerer } = await isCheckAnswer(roomId);
@@ -101,9 +105,14 @@ export default function RoomPage({ title, shortId, scores }: { title: string, sh
       <Link href={`/`} className='z-50 fixed top-13 left-2 text-gray-500 hover:text-gray-700 transition duration-300 p-2 rounded-full'>
         <TbArrowLeft size='2em' />
       </Link>
+      <TutorialHelpButton
+        id="tutorial-room-reset"
+        tutorialKey="room"
+        className="z-50 fixed top-24 left-3"
+      />
       <div className="w-full p-8">
         <div className="max-w-lg mx-auto">
-          <div className="mb-6 text-center">
+          <div id="tutorial-room-info" className="mb-6 text-center">
             <h2 className="text-md text-gray-500 font-semibold mb-1">ルーム名</h2>
             <p className="text-gray-900 font-bold break-all">{title}</p>
             <div className="flex items-center justify-center gap-1">
@@ -117,7 +126,9 @@ export default function RoomPage({ title, shortId, scores }: { title: string, sh
               </motion.button>
             </div>
           </div>
-          <StatusBar status={status}></StatusBar>
+          <div id="tutorial-room-status">
+            <StatusBar status={status}></StatusBar>
+          </div>
           <AccessUser roomId={roomId} />
           <Card className="mb-4 pb-1 bg-gray-100 rounded-3xl">
             <Button
@@ -128,7 +139,7 @@ export default function RoomPage({ title, shortId, scores }: { title: string, sh
             <div className="text-center">
               <IconContext.Provider value={{ size: '1.5em' }}>
                 {/* 書く人用の説明 */}
-                <Card className="mb-4">
+                <Card id="tutorial-room-draw" className="mb-4">
                   <h2 className='text-lg font-bold'>お題を<span className='text-amber-600'>描く人</span>はこちら</h2>
                   <div className='my-5 h-20 grid grid-cols-3 gap-0 relative'>
                     <motion.div
@@ -163,7 +174,7 @@ export default function RoomPage({ title, shortId, scores }: { title: string, sh
                 </Card>
 
                 {/* 回答者用の説明 */}
-                <Card className="mb-4 perspective-1000">
+                <Card id="tutorial-room-answer" className="mb-4 perspective-1000">
                   <h2 className='text-lg font-bold'>お題を<span className='text-amber-600'>答える人</span>はこちら</h2>
                   <motion.div
                     className={`absolute right-3 px-4 py-2 rounded-full font-bold text-sm font-bold
@@ -194,7 +205,7 @@ export default function RoomPage({ title, shortId, scores }: { title: string, sh
           </Card>
         </div>
       </div>
-      <section className="p-4 pb-7 bg-white/70 ">
+      <section id="tutorial-room-score" className="p-4 pb-7 bg-white/70 ">
         <h2 className='text-3xl font-bold mb-4 text-center'>Score</h2>
         {scores.length === 0 ? (
           <p className='text-center text-gray-500'>まだ参加者がいません</p>
