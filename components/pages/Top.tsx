@@ -16,6 +16,14 @@ import RoomSearchSection from "@/components/organisms/top/RoomSearchSection";
 import { getUsername, getUserId, setUsernameSchema } from "@/lib/user";
 import historyLocalRoom from "@/lib/hitoryLocalRoom";
 import { ensureUser } from "@/app/user/action";
+import { Schoolbell } from "next/font/google";
+
+const schoolbell = Schoolbell({
+    subsets: ["latin"],
+    weight: "400",
+    display: 'swap',
+});
+
 
 export default function Top() {
     const title = "Minimal Drawer";
@@ -54,7 +62,7 @@ export default function Top() {
                         </motion.div>
                         {/* タイトル - 3D効果 */}
                         <motion.h1
-                            className="text-6xl font-bold"
+                            className={`${schoolbell.className} text-6xl font-bold`}
                         >
                             {title}
                         </motion.h1>
@@ -64,7 +72,7 @@ export default function Top() {
                     <Card className="mb-6">
                         <div className="mb-2">
                             <label htmlFor="username" className="font-semibold text-gray-700">
-                                ユーザー名
+                                名前
                             </label>
                         </div>
                         <div className="my-2">
