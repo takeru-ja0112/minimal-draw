@@ -6,7 +6,7 @@ const forbiddenChars = /[<>&\/\\'"]/;
 const roomSchema =
   z
     .string()
-    .max(10, "ルーム名は10文字以内で入力してください。")
+    .max(30, "ルーム名は30文字以内で入力してください。")
     .refine((val) => !forbiddenChars.test(val),
       {
         message: 'ルーム名に使用できない文字が含まれています。',
@@ -29,7 +29,7 @@ export function setRoomSchema({
 }
 ) {
   setRoomError('');
-    const result = validateRoomName(roomName);
+  const result = validateRoomName(roomName);
   if (result.success && roomName) {
     setCreateRoomData(prev => ({ ...prev, roomName }));
     return { success: true, error: null };
@@ -40,7 +40,7 @@ export function setRoomSchema({
       setRoomError('ルーム名は必須です。');
       return;
     }
-    if(roomName.length > 10) {
+    if (roomName.length > 10) {
       setRoomError('ルーム名は10文字以内で入力してください。');
       return;
     }
@@ -65,16 +65,16 @@ export function validateShortId(id: string) {
 }
 
 export function searchRoomSchema(id: string) {
-    const result = validateShortId(id);
-    if (result.success) {
-      return { success: true, error: null };
-    } else {
-      // IDが空の場合処理
-      if (id.length === 0) {
-        return { success: false, error: 'IDは必須です。' };
-      }
-      if(id.length <= 6) {
-        return { success: false, error: 'IDは6文字で入力してください。' };
-      }
+  const result = validateShortId(id);
+  if (result.success) {
+    return { success: true, error: null };
+  } else {
+    // IDが空の場合処理
+    if (id.length === 0) {
+      return { success: false, error: 'IDは必須です。' };
     }
+    if (id.length <= 6) {
+      return { success: false, error: 'IDは6文字で入力してください。' };
+    }
+  }
 }

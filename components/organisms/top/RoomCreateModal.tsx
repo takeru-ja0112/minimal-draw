@@ -29,7 +29,7 @@ export default function RoomCreateModal({
   const { setLocalRoom } = historyLocalRoom();
 
   const [loading, setLoading] = useState(false);
-  const [roomName, setRoomName] = useState("");
+  const [roomName, setRoomName] = useState(`${user}のアトリエ`);
   const [roomError, setRoomError] = useState("");
 
   const [settingData, setSettingData] = useState<RoomSettingType>({

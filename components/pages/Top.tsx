@@ -17,6 +17,8 @@ import { getUsername, getUserId, setUsernameSchema } from "@/lib/user";
 import historyLocalRoom from "@/lib/hitoryLocalRoom";
 import { ensureUser } from "@/app/user/action";
 import { Schoolbell } from "next/font/google";
+import { useTutorial, resetTutorial } from "@/hooks/tutorial/useTutorial";
+import { TbQuestionMark } from "react-icons/tb";
 
 const schoolbell = Schoolbell({
     subsets: ["latin"],
@@ -31,9 +33,10 @@ export default function Top() {
     const username = getUsername();
     const [user, setUser] = useState(username || "");
     const [nameError, setNameError] = useState("");
-    const [isSetUserModal, setIsSetUserModal] = useState(!username);
+    // const [isSetUserModal, setIsSetUserModal] = useState(!username);
     const userId = getUserId() || "";
     const router = useRouter();
+    useTutorial();
 
     // スクロール出現用ref
     const [ref1, inView1] = useInView({ triggerOnce: true, threshold: 0.2 });
@@ -45,7 +48,15 @@ export default function Top() {
             <div
                 className="min-w-[320px] flex items-center justify-center px-8 overflow-hidden"
             >
-
+                <div className="">
+                    <button
+                        id="tutorial-step-reset"
+                        className="flex text-sm absolute top-20 left-5 border border-3 rounded-full p-1 hover:bg-gray-200"
+                        onClick={() => resetTutorial()}
+                    >
+                        <TbQuestionMark className="text-xl" />
+                    </button>
+                </div>
                 <div className="max-w-2xl w-90 mt-20 mb-30 z-10">
                     {/* メインコンテンツ */}
                     <motion.div
@@ -70,48 +81,50 @@ export default function Top() {
 
                     {/* ユーザー名の管理 */}
                     <Card className="mb-6">
-                        <div className="mb-2">
-                            <label htmlFor="username" className="font-semibold text-gray-700">
-                                名前
-                            </label>
-                        </div>
-                        <div className="my-2">
-                            <Input
-                                name="username"
-                                value={user}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                    setUsernameSchema({
-                                        name: e.target.value,
-                                        setNameError,
-                                        setUser,
-                                    });
-                                }}
-                                onBlur={() => {
-                                    setNameError("");
-                                    if (!user) {
-                                        setNameError("ユーザー名は必須です");
-                                        return;
-                                    }
-                                    if (userId) {
-                                        void ensureUser(userId, user);
-                                    }
-                                }}
-                                placeholder="ユーザー名を入力してください"
-                                className={`w-full ${nameError ? "border-red-500 border-2" : ""}`}
-                            />
-                        </div>
-                        {nameError && (
+                        <div id="tutorial-name-setting">
                             <div className="mb-2">
-                                <p className="text-red-500 font-semibold text-sm">
-                                    {nameError}
-                                </p>
+                                <label htmlFor="username" className="font-semibold text-gray-700">
+                                    名前
+                                </label>
                             </div>
-                        )}
+                            <div className="my-2">
+                                <Input
+                                    name="username"
+                                    value={user}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                        setUsernameSchema({
+                                            name: e.target.value,
+                                            setNameError,
+                                            setUser,
+                                        });
+                                    }}
+                                    onBlur={() => {
+                                        setNameError("");
+                                        if (!user) {
+                                            setNameError("ユーザー名は必須です");
+                                            return;
+                                        }
+                                        if (userId) {
+                                            void ensureUser(userId, user);
+                                        }
+                                    }}
+                                    placeholder="ユーザー名を入力してください"
+                                    className={`w-full ${nameError ? "border-red-500 border-2" : ""}`}
+                                />
+                            </div>
+                            {nameError && (
+                                <div className="mb-2">
+                                    <p className="text-red-500 font-semibold text-sm">
+                                        {nameError}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
                     </Card>
 
 
                     {/* ルーム検索セクション */}
-                    <RoomSearchSection user={user} userId={userId} setNameError={setNameError} />
+                    <RoomSearchSection id="tutorial-room-setting" user={user} userId={userId} setNameError={setNameError} />
                     {/* ボタンエリア */}
                     <motion.div
                         className="space-y-4 mb-6"
@@ -186,7 +199,7 @@ export default function Top() {
                 </div>
             </div>
 
-            {isSetUserModal && (
+            {/* {isSetUserModal && (
                 <SetUserModal
                     isSetUserModal={isSetUserModal}
                     user={user}
@@ -197,7 +210,7 @@ export default function Top() {
                     setIsSetUserModal={setIsSetUserModal}
                     className="w-full"
                 />
-            )}
+            )} */}
         </>
     );
 }
