@@ -4,6 +4,57 @@ import type { DrawingDataType } from "@/type/DrawingDataType";
 import { Circle, Layer, Line, Rect, Stage } from "react-konva";
 import Card from "@/components/atoms/Card";
 
+const kanaMap: Record<string, string> = {
+  'あ': 'A', 'い': 'I', 'う': 'U', 'え': 'E', 'お': 'O',
+  'ア': 'A', 'イ': 'I', 'ウ': 'U', 'エ': 'E', 'オ': 'O',
+  'か': 'K', 'き': 'K', 'く': 'K', 'け': 'K', 'こ': 'K',
+  'が': 'K', 'ぎ': 'K', 'ぐ': 'K', 'げ': 'K', 'ご': 'K',
+  'カ': 'K', 'キ': 'K', 'ク': 'K', 'ケ': 'K', 'コ': 'K',
+  'ガ': 'K', 'ギ': 'K', 'グ': 'K', 'ゲ': 'K', 'ゴ': 'K',
+  'さ': 'S', 'し': 'S', 'す': 'S', 'せ': 'S', 'そ': 'S',
+  'ざ': 'S', 'じ': 'S', 'ず': 'S', 'ぜ': 'S', 'ぞ': 'S',
+  'サ': 'S', 'シ': 'S', 'ス': 'S', 'セ': 'S', 'ソ': 'S',
+  'ザ': 'S', 'ジ': 'S', 'ズ': 'S', 'ゼ': 'S', 'ゾ': 'S',
+  'た': 'T', 'ち': 'T', 'つ': 'T', 'て': 'T', 'と': 'T',
+  'だ': 'T', 'ぢ': 'T', 'づ': 'T', 'で': 'T', 'ど': 'T',
+  'タ': 'T', 'チ': 'T', 'ツ': 'T', 'テ': 'T', 'ト': 'T',
+  'ダ': 'T', 'ヂ': 'T', 'ヅ': 'T', 'デ': 'T', 'ド': 'T',
+  'な': 'N', 'に': 'N', 'ぬ': 'N', 'ね': 'N', 'の': 'N',
+  'ナ': 'N', 'ニ': 'N', 'ヌ': 'N', 'ネ': 'N', 'ノ': 'N',
+  'は': 'H', 'ひ': 'H', 'ふ': 'F', 'へ': 'H', 'ほ': 'H',
+  'ば': 'B', 'び': 'B', 'ぶ': 'B', 'べ': 'B', 'ぼ': 'B',
+  'ぱ': 'P', 'ぴ': 'P', 'ぷ': 'P', 'ぺ': 'P', 'ぽ': 'P',
+  'ハ': 'H', 'ヒ': 'H', 'フ': 'F', 'ヘ': 'H', 'ホ': 'H',
+  'バ': 'B', 'ビ': 'B', 'ブ': 'B', 'ベ': 'B', 'ボ': 'B',
+  'パ': 'P', 'ピ': 'P', 'プ': 'P', 'ペ': 'P', 'ポ': 'P',
+  'ま': 'M', 'み': 'M', 'む': 'M', 'め': 'M', 'も': 'M',
+  'マ': 'M', 'ミ': 'M', 'ム': 'M', 'メ': 'M', 'モ': 'M',
+  'や': 'Y', 'ゆ': 'Y', 'よ': 'Y',
+  'ヤ': 'Y', 'ユ': 'Y', 'ヨ': 'Y',
+  'ら': 'R', 'り': 'R', 'る': 'R', 'れ': 'R', 'ろ': 'R',
+  'ラ': 'R', 'リ': 'R', 'ル': 'R', 'レ': 'R', 'ロ': 'R',
+  'わ': 'W', 'を': 'W', 'ん': 'N',
+  'ワ': 'W', 'ヲ': 'W', 'ン': 'N',
+};
+
+function getAlphabetInitial(username: string | null | undefined): string {
+  if (!username || username === "不明") return "U";
+  if (username === "名無し") return "N";
+  
+  const firstChar = username.trim().charAt(0);
+  
+  if (/^[A-Za-z]/.test(firstChar)) {
+    return firstChar.toUpperCase();
+  }
+  
+  if (kanaMap[firstChar]) {
+    return kanaMap[firstChar];
+  }
+  
+  // 漢字やその他の文字のフォールバック
+  return "U";
+}
+
 export default function ArtCard({
   art,
   onClick,
@@ -37,7 +88,7 @@ export default function ArtCard({
           </Stage>
         </div>
         <p className="text-center text-sm text-gray-500 mt-1">
-          作成者: {art.user?.username ?? "不明"}
+          By: {getAlphabetInitial(art.user?.username)}
         </p>
       </div>
     </Card>
