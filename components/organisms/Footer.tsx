@@ -24,7 +24,7 @@ export default function Footer() {
 
   const navItems = [
     { href: '/', icon: <TbHome />, label: 'Home' },
-    { href: '/lobby', icon: <TbUsersGroup />, label: 'Lobby' },
+    // { href: '/lobby', icon: <TbUsersGroup />, label: 'Lobby' },
     { href: '/drawing', icon: <TbPencil />, label: 'Drawing' },
     { href: '/museum', icon: <MdOutlineMuseum />, label: 'Museum' },
   ];

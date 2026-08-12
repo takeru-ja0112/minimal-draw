@@ -1,77 +1,67 @@
 "use client";
 
+import { getArtsByTheme } from "@/app/museum/action";
 import type { DrawingDataType } from "@/type/DrawingDataType";
-import { motion } from "framer-motion";
-import { Circle, Layer, Line, Rect, Stage, Transformer } from "react-konva";
-import Card from "../atoms/Card";
+import { useState } from "react";
+import ArtSection from "@/components/molecules/ArtSection";
+import ThemeSearchForm from "@/components/molecules/ThemeSearchForm";
+import ArtDetailModal from "@/components/molecules/ArtDetailModal";
+import Card from "@/components/atoms/Card"
 
 export default function MuseumPage({
-  arts
+  highCountArts,
+  lowCountArts,
+  themeList,
 }: {
-  arts: Array<DrawingDataType>;
+  highCountArts: DrawingDataType[];
+  lowCountArts: DrawingDataType[];
+  themeList: string[];
 }) {
+  const [selectedArt, setSelectedArt] = useState<DrawingDataType | null>(null);
+  const [themeResults, setThemeResults] = useState<DrawingDataType[]>([]);
+  const [searched, setSearched] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSearch(theme: string, minCount?: number) {
+    setLoading(true);
+    try {
+      const data = await getArtsByTheme(theme, minCount);
+      setThemeResults(data as unknown as DrawingDataType[]);
+      setSearched(true);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <>
       <div className="p-6">
         <h1 className="text-2xl font-bold text-gray-500">過去のイラスト</h1>
       </div>
-      <ul>
-        <div className="overflow-x-auto w-full">
-          <div className="mb-4 grid grid-cols-10 gap-4 min-w-max first:pl-6 last:pr-6">
-            {arts.map((art) => (
-              <motion.div
-                key={art.id}
-              >
-                <Card key={art.id}>
-                  <div className="p-4 bg-yellow-500 rounded-lg rounded-b-none text-center">
-                    <h2 className="text-md font-semibold text-yellow-900/70">お題</h2>
-                    <h2 className="text-xl font-semibold">{art.theme}</h2>
-                  </div>
-                  <div
-                    className="bg-white border-4 rounded-lg border-yellow-500 rounded-t-none flex justify-center items-center">
-                    <Stage scale={{ x: 0.6, y: 0.6 }} width={180} height={180} key={art.id} className="">
-                      <Layer>
-                        {art.canvas_data.lines.map((line, i) => (
-                          <Line
-                            key={`line-${i}`}
-                            points={line}
-                            stroke="black"
-                            strokeWidth={3}
-                          />
-                        ))}
-                        {art.canvas_data.circles.map(
-                          (circle, i) => (
-                            <Circle
-                              key={`circle-${i}`}
-                              x={circle.x}
-                              y={circle.y}
-                              radius={circle.radius}
-                              stroke="black"
-                              strokeWidth={3}
-                            />
-                          ),
-                        )}
-                        {art.canvas_data.rects.map((rect, i) => (
-                          <Rect
-                            key={`rect-${i}`}
-                            x={rect.x}
-                            y={rect.y}
-                            width={rect.width}
-                            height={rect.height}
-                            stroke="black"
-                            strokeWidth={3}
-                          />
-                        ))}
-                        <Transformer />
-                      </Layer>
-                    </Stage>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </ul>
+
+      <div className="mx-4 space-y-4">
+        <Card>
+          <ArtSection title="画数が多い作品" arts={highCountArts} onSelectArt={setSelectedArt} />
+        </Card>
+        <Card>
+          <ArtSection title="画数が少ない作品" arts={lowCountArts} onSelectArt={setSelectedArt} />
+        </Card>
+        <section className="mb-8">
+          <Card>
+            <h2 className="text-lg font-bold text-gray-600 px-6 mb-2">テーマで検索</h2>
+            <ThemeSearchForm themeList={themeList} onSearch={handleSearch} loading={loading} />
+            {searched && (
+              <ArtSection
+                title="検索結果"
+                arts={themeResults}
+                onSelectArt={setSelectedArt}
+                emptyMessage="条件に一致する作品がありません"
+              />
+            )}
+          </Card>
+        </section>
+        <ArtDetailModal art={selectedArt} onClose={() => setSelectedArt(null)} />
+      </div>
     </>
   );
 }
