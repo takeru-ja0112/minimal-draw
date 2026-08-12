@@ -20,6 +20,7 @@ export default function Footer() {
     setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
   }, []);
 
+  if (pathname.startsWith('/admin')) return null;
   if (isBrowser || !isMobile) return null;
 
   const navItems = [

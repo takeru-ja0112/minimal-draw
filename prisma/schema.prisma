@@ -13,10 +13,11 @@ datasource db {
 }
 
 model MUser {
-  id         String   @id @db.Uuid
+  id         String    @id @db.Uuid
   username   String?
-  created_at DateTime @default(now()) @db.Timestamptz(6)
-  updated_at DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+  deleted_at DateTime? @db.Timestamptz(6)
 
   createdRooms    Room[]           @relation("RoomCreator")
   answeredRooms   Room[]           @relation("RoomAnswerer")
@@ -25,39 +26,44 @@ model MUser {
   subscription    Subscription?
   historyDrawings HistoryDrawing[]
 
+  @@index([deleted_at])
   @@map("m_user")
 }
 
 model Room {
-  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   short_id          String
-  status            String   @default("WAITING")
+  status            String    @default("WAITING")
   current_theme     String?
   current_theme_id  Int?
-  answer_id         String?  @db.Uuid
-  created_by_userId String?  @db.Uuid
+  answer_id         String?   @db.Uuid
+  created_by_userId String?   @db.Uuid
   room_name         String?
   level             String?
   genre             String?
-  created_at        DateTime @default(now()) @db.Timestamptz(6)
+  created_at        DateTime  @default(now()) @db.Timestamptz(6)
+  deleted_at        DateTime? @db.Timestamptz(6)
 
   creator  MUser? @relation("RoomCreator", fields: [created_by_userId], references: [id], onDelete: SetNull)
   answerer MUser? @relation("RoomAnswerer", fields: [answer_id], references: [id], onDelete: SetNull)
 
+  @@index([deleted_at])
   @@map("rooms")
 }
 
 model Drawing {
-  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  room_id       String   @db.Uuid
-  user_id       String   @db.Uuid
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  room_id       String    @db.Uuid
+  user_id       String    @db.Uuid
   canvas_data   Json
   element_count Int
   theme         String?
-  created_at    DateTime @default(now()) @db.Timestamptz(6)
+  created_at    DateTime  @default(now()) @db.Timestamptz(6)
+  deleted_at    DateTime? @db.Timestamptz(6)
 
   user MUser @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
+  @@index([deleted_at])
   @@map("drawings")
 }
 
@@ -74,13 +80,15 @@ model Theme {
 }
 
 model Point {
-  id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  room_id   String @db.Uuid
-  user_id   String @db.Uuid
-  point     Int    @default(0)
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  room_id    String    @db.Uuid
+  user_id    String    @db.Uuid
+  point      Int       @default(0)
+  deleted_at DateTime? @db.Timestamptz(6)
 
   user MUser @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
+  @@index([deleted_at])
   @@map("points")
 }
 
@@ -94,27 +102,31 @@ model AnswerInput {
 }
 
 model Subscription {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id      String   @unique @db.Uuid
-  room_id      String   @db.Uuid
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id      String    @unique @db.Uuid
+  room_id      String    @db.Uuid
   subscription Json
-  created_at   DateTime @default(now()) @db.Timestamptz(6)
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  deleted_at   DateTime? @db.Timestamptz(6)
 
   user MUser @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
+  @@index([deleted_at])
   @@map("subscriptions")
 }
 
 model HistoryDrawing {
-  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  room_id       String   @db.Uuid
-  user_id       String   @db.Uuid
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  room_id       String    @db.Uuid
+  user_id       String    @db.Uuid
   canvas_data   Json
   element_count Int
   theme         String?
-  created_at    DateTime @default(now()) @db.Timestamptz(6)
+  created_at    DateTime  @default(now()) @db.Timestamptz(6)
+  deleted_at    DateTime? @db.Timestamptz(6)
 
   user MUser @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
+  @@index([deleted_at])
   @@map("history_drawings")
 }

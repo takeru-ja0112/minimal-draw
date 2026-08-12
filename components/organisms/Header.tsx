@@ -2,12 +2,16 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import HamburgerMenu from "../molecules/HamburgerMenu";
 import AccessMenu from "./AccessMenu";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const pathname = usePathname();
+
+  if (pathname.startsWith('/admin')) return null;
 
   return (
     <>

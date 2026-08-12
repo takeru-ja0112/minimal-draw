@@ -1,9 +1,11 @@
 "use client";
 
-
+import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
 
 export default function BgObject() {
+    const pathname = usePathname();
+    if (pathname.startsWith('/admin')) return null;
     return (
         <>
                                 {/* 正方形 */}

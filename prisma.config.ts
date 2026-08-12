@@ -9,6 +9,10 @@ export default defineConfig({
     path: 'prisma/migrations',
   },
   datasource: {
-    url: process.env['DATABASE_URL'],
+    // db push / migrate 等のCLI操作はDDL・アドバイザリロックを使うため、
+    // PgBouncerのトランザクションプーリング接続(DATABASE_URL)ではなく
+    // 直接接続(DIRECT_URL)を使う。アプリ実行時の接続は lib/prisma.ts が
+    // DATABASE_URL を直接参照しており、ここには影響しない。
+    url: process.env['DIRECT_URL'],
   },
 });

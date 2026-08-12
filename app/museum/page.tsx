@@ -11,6 +11,8 @@ export default async function Page() {
     getThemeList(),
   ]);
 
+  console.log("museum")
+
   return (
     <MuseumPage
       highCountArts={highCountArts as unknown as DrawingDataType[]}

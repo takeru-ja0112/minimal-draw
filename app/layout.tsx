@@ -2,9 +2,7 @@
 // import { useEffect } from "react";
 
 import Toaster from "@/components/common/toast";
-import BgObject from "@/components/organisms/BgObject";
-import Footer from "@/components/organisms/Footer";
-import Header from "@/components/organisms/Header";
+import AppLayoutWrapper from "@/components/common/AppLayoutWrapper";
 import type { Metadata } from "next";
 import { ViewTransitions } from 'next-view-transitions';
 import { Geist, Geist_Mono } from "next/font/google";
@@ -57,15 +55,8 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen`}
         >
-          <BgObject />
-          {/* ヘッダーの高さ分全体をさげる */}
-          <Header />
           <Toaster maxVisible={3} />
-          <div className="pt-14">{children}</div>
-          <footer className="text-center p-4 text-gray-500 text-sm">
-            &copy; 2026, Takeru
-          </footer>
-          <Footer />
+          <AppLayoutWrapper>{children}</AppLayoutWrapper>
         </body>
       </html>
     </ViewTransitions>
