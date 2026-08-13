@@ -2,10 +2,21 @@
 
 import { prisma } from "@/lib/prisma";
 
+const ART_SELECT = {
+    id: true,
+    room_id: true,
+    user_id: true,
+    canvas_data: true,
+    element_count: true,
+    theme: true,
+    created_at: true,
+    user: { select: { username: true } },
+};
+
 export async function getArtsByCountDesc() {
     try {
         const data = await prisma.historyDrawing.findMany({
-            include: { user: true },
+            select: ART_SELECT,
             orderBy: { element_count: "desc" },
             take: 20,
         });
@@ -23,7 +34,7 @@ export async function getArtsByCountDesc() {
 export async function getArtsByCountAsc() {
     try {
         const data = await prisma.historyDrawing.findMany({
-            include: { user: true },
+            select: ART_SELECT,
             orderBy: { element_count: "asc" },
             take: 20,
         });
@@ -62,7 +73,7 @@ export async function getArtsByTheme(
 ) {
     try {
         const data = await prisma.historyDrawing.findMany({
-            include: { user: true },
+            select: ART_SELECT,
             where: {
                 theme,
                 ...(minElementCount != null

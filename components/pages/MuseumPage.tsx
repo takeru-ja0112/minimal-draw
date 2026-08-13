@@ -3,10 +3,12 @@
 import { getArtsByTheme } from "@/app/museum/action";
 import type { DrawingDataType } from "@/type/DrawingDataType";
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import ArtSection from "@/components/molecules/ArtSection";
 import ThemeSearchForm from "@/components/molecules/ThemeSearchForm";
-import ArtDetailModal from "@/components/molecules/ArtDetailModal";
 import Card from "@/components/atoms/Card"
+
+const ArtDetailModal = dynamic(() => import("@/components/molecules/ArtDetailModal"), { ssr: false });
 
 export default function MuseumPage({
   highCountArts,

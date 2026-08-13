@@ -128,5 +128,7 @@ model HistoryDrawing {
   user MUser @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([deleted_at])
+  @@index([element_count])
+  @@index([theme])
   @@map("history_drawings")
 }

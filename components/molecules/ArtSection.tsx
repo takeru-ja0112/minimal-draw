@@ -1,7 +1,9 @@
 "use client";
 
 import type { DrawingDataType } from "@/type/DrawingDataType";
-import ArtCard from "./ArtCard";
+import dynamic from "next/dynamic";
+
+const ArtCard = dynamic(() => import("./ArtCard"), { ssr: false });
 
 export default function ArtSection({
   title,

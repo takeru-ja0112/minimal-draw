@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 import { getArtsByCountAsc, getArtsByCountDesc, getThemeList } from "@/app/museum/action";
 import MuseumPage from "@/components/pages/MuseumPage";
@@ -10,8 +10,6 @@ export default async function Page() {
     getArtsByCountAsc(),
     getThemeList(),
   ]);
-
-  console.log("museum")
 
   return (
     <MuseumPage
