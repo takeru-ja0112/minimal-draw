@@ -6,13 +6,20 @@ import { usePathname } from "next/navigation";
  */
 export const CurrentRootingCheck = () => {
     const root = [
-        "/drawing",
-    ]
+        "/room/*/drawing",
+    ];
 
     const pathname = usePathname();
 
-    if (root.includes(pathname)) {
-        return true;
-    }
-    return false;
-}
+    if (!pathname) return false;
+
+    const isCheckPage = root.some((r) => {
+        // 正規表現の特殊文字をエスケープし、* をパスセグメント一致 ([^/]+) に変換
+        const escaped = r.replace(/[.+?^${}()|[\]\\]/g, "\\$&");
+        const pattern = escaped.replace(/\*/g, "[^/]+");
+        const regex = new RegExp(`^${pattern}/?$`);
+        return regex.test(pathname);
+    });
+
+    return isCheckPage;
+};
