@@ -62,3 +62,4 @@ next-env.d.ts
 .windsurf/skills/prisma-postgres
 .windsurf/skills/prisma-postgres-setup
 .windsurf/skills/prisma-upgrade-v7
+doc/2026-08-18-drawably-migration-survey.md

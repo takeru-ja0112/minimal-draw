@@ -1,0 +1,22 @@
+export type ToolType = 'line' | 'circle' | 'rect' | 'eraser' | 'move';
+
+export type LineShape = number[];
+
+export type CircleShape = {
+  x: number;
+  y: number;
+  radius: number;
+};
+
+export type RectShape = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation: number;
+};
+
+export type SelectedShape = {
+  type: 'line' | 'circle' | 'rect';
+  index: number;
+} | null;

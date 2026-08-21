@@ -8,10 +8,11 @@ import { MdOutlineMuseum } from "react-icons/md";
 import { TbHome, TbPencil, TbUsersGroup } from "react-icons/tb";
 import { motion } from 'motion/react';
 import { CurrentRootingCheck } from "@/app/lib/RootingCheck";
+import useIsMobile from "@/hooks/useIsMobile";
 
 
 export default function Footer() {
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useIsMobile();
   const [isBrowser, setIsBrowser] = useState(false);
   const pathname = usePathname();
 
@@ -20,7 +21,6 @@ export default function Footer() {
   useEffect(() => {
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || ('standalone' in navigator && (navigator as any).standalone);
     setIsBrowser(!isStandalone);
-    setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
   }, []);
 
   if (pathname.startsWith('/admin')) return null;

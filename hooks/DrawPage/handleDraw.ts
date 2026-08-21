@@ -3,6 +3,7 @@
 import { getInfoRoom } from '@/app/room/[id]/action';
 import { saveDrawing } from '@/app/room/[id]/drawing/action';
 import { getOrCreateUser, getUsername } from '@/lib/user';
+import type { CircleShape, RectShape, SelectedShape, ToolType } from '@/type/DrawShapeType';
 import { KonvaEventObject } from 'konva/lib/Node';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
@@ -17,49 +18,17 @@ export default function useDraw(roomId: string) {
   const historyStep = useRef(0);
   const isDrawing = useRef(false);
   const [lines, setLines] = useState<number[][]>(canvasData?.lines || []);
-  const [circles, setCircles] = useState<
-    Array<{
-      x: number;
-      y: number;
-      radius: number;
-    }>
-  >(canvasData?.circles || []);
-  const [rects, setRects] = useState<
-    Array<{
-      x: number;
-      y: number;
-      width: number;
-      height: number;
-      rotation: number;
-    }>
-  >(canvasData?.rects || []);
+  const [circles, setCircles] = useState<CircleShape[]>(canvasData?.circles || []);
+  const [rects, setRects] = useState<RectShape[]>(canvasData?.rects || []);
   const linesHistory = useRef<Array<number[][]>>([[...lines]]);
-  const circlesHistory = useRef<
-    Array<
-      Array<{
-        x: number;
-        y: number;
-        radius: number;
-      }>
-    >
-  >([[...circles]]);
-  const rectsHistory = useRef<
-    Array<
-      Array<{
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-        rotation: number;
-      }>
-    >
-  >([[...rects]]);
+  const circlesHistory = useRef<Array<CircleShape[]>>([[...circles]]);
+  const rectsHistory = useRef<Array<RectShape[]>>([[...rects]]);
   const router = useRouter();
   const lastEventType = useRef<string | null>(null);
 
   // デバウンス用タイマーref
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [tool, setTool] = useState<'line' | 'circle' | 'rect' | 'eraser' | 'move'>('line');
+  const [tool, setTool] = useState<ToolType>('line');
 
   const w = 300;
   const h = 300;
@@ -68,14 +37,8 @@ export default function useDraw(roomId: string) {
   const STROKE_WIDTH = 3;
   const MOVE_SELECT_THRESHOLD = 10;
 
-  const [selectedShape, setSelectedShape] = useState<{
-    type: 'line' | 'circle' | 'rect';
-    index: number;
-  } | null>(null);
-  const selectedShapeRef = useRef<{
-    type: 'line' | 'circle' | 'rect';
-    index: number;
-  } | null>(null);
+  const [selectedShape, setSelectedShape] = useState<SelectedShape>(null);
+  const selectedShapeRef = useRef<SelectedShape>(null);
   const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
   const movedDuringMoveRef = useRef(false);
 
