@@ -1,3 +1,5 @@
+import type { Prisma } from '@/lib/generated/prisma/client';
+
 /**
  * ルーム情報の型定義
  *
@@ -35,3 +37,8 @@ export interface Theme {
   id: string;
   theme: string;
 }
+
+/**
+ * ルームのスコア一覧（参加者情報込み）の型定義
+ */
+export type ScoreEntry = Prisma.PointGetPayload<{ include: { user: true } }>;

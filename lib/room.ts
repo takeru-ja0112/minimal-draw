@@ -78,3 +78,27 @@ export function searchRoomSchema(id: string) {
     }
   }
 }
+
+/**
+ * 得点順に並んだスコア一覧から、同着を考慮した順位を計算する
+ *
+ * 事前に得点降順でソートされている前提（同着＝直前と同じ得点は同順位、
+ * それ以外は1つ前の順位+1）
+ */
+export function calculateRanks(scores: { point: number }[]): number[] {
+  return scores.reduce<number[]>((acc, score, index) => {
+    if (index === 0) {
+      acc.push(1);
+      return acc;
+    }
+
+    const prevScore = scores[index - 1];
+    if (prevScore && prevScore.point === score.point) {
+      acc.push(acc[index - 1]);
+      return acc;
+    }
+
+    acc.push(acc[index - 1] + 1);
+    return acc;
+  }, []);
+}

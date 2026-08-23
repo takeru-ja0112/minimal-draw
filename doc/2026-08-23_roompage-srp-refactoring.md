@@ -275,3 +275,24 @@ export default function RoomPage({ title, shortId, scores }: RoomPageProps) {
   スコープではないため、着手前に対応要否を確認したい。
 - `RoomIdCard` のコピー成功トースト・アニメーションの持ち時間（2秒）などの
   マジックナンバーを定数化するか（本計画では現状踏襲とし対象外とする想定）。
+
+## 7. 実装結果
+
+上記方針で実装完了。
+
+- `lib/room.ts` に `calculateRanks` を追加し、`RoomPage.tsx` の `ranks` 計算ロジックを移植
+- `type/roomType.ts` に `ScoreEntry`（`Prisma.PointGetPayload<{ include: { user: true } }>`）を
+  追加し、`scores: any[]` を型付け
+- `hooks/RoomPage/useRoom.ts` を新規作成し、参加者登録副作用・回答者確定フロー
+  （`handleCheckAnswer` / `handleSetAnswer` / `confirmAnswerer`）・お題変更フロー
+  （`handleSearchTheme` / `selectTheme`）を移植。既存の副作用の発火順序・
+  await有無（`confirmAnswerer` 内で各サーバーアクションをawaitせず並行発火する点を含む）は
+  元の実装のまま維持
+- `components/organisms/room/` 配下に `RoomIdCard`／`DrawerGuideCard`／
+  `AnswererGuideCard`／`ScoreBoard`／`AnswerConfirmModal`／`RoomSettingModal`
+  を新規作成。`RoomSettingModal` は `roomSetting` の現在値をJSX内で参照しないため
+  props設計案から `roomSetting` を除外（`setRoomSetting` のみ受け取る）
+- `components/pages/RoomPage.tsx` を上記コンポーネントの組み立てのみに書き換え
+- `npx tsc --noEmit` でエラーなしを確認。`npx eslint`（変更ファイル個別 / プロジェクト
+  全体の両方）でも新規のエラー・警告は発生せず、既存の警告（他ファイル由来）のみ
+  であることを確認済み
