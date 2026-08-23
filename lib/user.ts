@@ -1,9 +1,12 @@
 import { z } from 'zod';
+import { DEFAULT_ICON_COLOR, DEFAULT_ICON_NAME } from '@/utils/Icons';
 
 // ユーザーID（UUID）とユーザー名を管理するユーティリティ
 
 const USER_ID_KEY = 'drawing_app_user_id';
 const USERNAME_KEY = 'drawing_app_username';
+const ICON_NAME_KEY = 'drawing_app_icon_name';
+const ICON_COLOR_KEY = 'drawing_app_icon_color';
 
 const forbiddenChars = /[<>&\/\\'"]/;
 const usernameSchema =
@@ -81,6 +84,8 @@ export function clearUser(): void {
   if (typeof window === 'undefined') return;
   localStorage.removeItem(USER_ID_KEY);
   localStorage.removeItem(USERNAME_KEY);
+  localStorage.removeItem(ICON_NAME_KEY);
+  localStorage.removeItem(ICON_COLOR_KEY);
 }
 
 // ユーザーIDのみ取得
@@ -100,6 +105,28 @@ export function getUserId(): string | null {
 export function getUsername(): string | null {
   if (typeof window === 'undefined') return null;
   return localStorage.getItem(USERNAME_KEY);
+}
+
+export type UserIconInfo = {
+  iconName: string;
+  iconColor: string;
+};
+
+// アイコン設定を取得（未設定の場合はデフォルトを返す）
+export function getIcon(): UserIconInfo {
+  if (typeof window === 'undefined') {
+    return { iconName: DEFAULT_ICON_NAME, iconColor: DEFAULT_ICON_COLOR };
+  }
+  const iconName = localStorage.getItem(ICON_NAME_KEY) || DEFAULT_ICON_NAME;
+  const iconColor = localStorage.getItem(ICON_COLOR_KEY) || DEFAULT_ICON_COLOR;
+  return { iconName, iconColor };
+}
+
+// アイコン設定を保存
+export function setIcon({ iconName, iconColor }: UserIconInfo): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(ICON_NAME_KEY, iconName);
+  localStorage.setItem(ICON_COLOR_KEY, iconColor);
 }
 
 export function validateUsername(name: string) {

@@ -8,12 +8,26 @@ import { prisma } from '@/lib/prisma';
  * ユーザーIDを外部キーとして書き込む処理の直前に必ず呼び出すことで、
  * FK制約違反を防ぐ。
  */
-export async function ensureUser(userId: string, username?: string) {
+export async function ensureUser(
+  userId: string,
+  username?: string,
+  iconName?: string,
+  iconColor?: string,
+) {
   try {
     const data = await prisma.mUser.upsert({
       where: { id: userId },
-      create: { id: userId, username: username ?? null },
-      update: username !== undefined ? { username } : {},
+      create: {
+        id: userId,
+        username: username ?? null,
+        ...(iconName !== undefined ? { icon_name: iconName } : {}),
+        ...(iconColor !== undefined ? { icon_color: iconColor } : {}),
+      },
+      update: {
+        ...(username !== undefined ? { username } : {}),
+        ...(iconName !== undefined ? { icon_name: iconName } : {}),
+        ...(iconColor !== undefined ? { icon_color: iconColor } : {}),
+      },
     });
 
     return { success: true, error: null, data };

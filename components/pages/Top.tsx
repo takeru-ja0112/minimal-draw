@@ -13,7 +13,9 @@ import { useRouter } from "next/navigation";
 import Input from "@/components/atoms/Input";
 import SetUserModal from "@/components/organisms/lobby/SetUserModal";
 import RoomSearchSection from "@/components/organisms/top/RoomSearchSection";
-import { getUsername, getUserId, setUsernameSchema } from "@/lib/user";
+import IconSettingModal from "@/components/organisms/top/IconSettingModal";
+import UserIcon from "@/components/atoms/UserIcon";
+import { getUsername, getUserId, setUsernameSchema, getIcon, setIcon } from "@/lib/user";
 import historyLocalRoom from "@/lib/hitoryLocalRoom";
 import { ensureUser } from "@/app/user/action";
 import { Schoolbell } from "next/font/google";
@@ -36,6 +38,10 @@ export default function Top() {
     const [nameError, setNameError] = useState("");
     // const [isSetUserModal, setIsSetUserModal] = useState(!username);
     const userId = getUserId() || "";
+    const { iconName: initialIconName, iconColor: initialIconColor } = getIcon();
+    const [iconName, setIconName] = useState(initialIconName);
+    const [iconColor, setIconColor] = useState(initialIconColor);
+    const [isIconModalOpen, setIsIconModalOpen] = useState(false);
     const router = useRouter();
     useTutorial({ key: "top", steps: topTutorialSteps });
 
@@ -86,7 +92,16 @@ export default function Top() {
                                     名前
                                 </label>
                             </div>
-                            <div className="my-2">
+                            <div className="my-2 flex items-center gap-3">
+                                <motion.button
+                                    type="button"
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => setIsIconModalOpen(true)}
+                                    className="flex items-center justify-center w-12 h-12 shrink-0 rounded-full bg-white border border-dotted border-gray-300 border-2"
+                                >
+                                    <UserIcon iconName={iconName} iconColor={iconColor} size={26} />
+                                </motion.button>
                                 <Input
                                     name="username"
                                     value={user}
@@ -210,6 +225,22 @@ export default function Top() {
                     className="w-full"
                 />
             )} */}
+
+            <IconSettingModal
+                isOpen={isIconModalOpen}
+                currentIconName={iconName}
+                currentIconColor={iconColor}
+                onClose={() => setIsIconModalOpen(false)}
+                onSave={(newIconName, newIconColor) => {
+                    setIconName(newIconName);
+                    setIconColor(newIconColor);
+                    setIcon({ iconName: newIconName, iconColor: newIconColor });
+                    setIsIconModalOpen(false);
+                    if (userId) {
+                        void ensureUser(userId, user || undefined, newIconName, newIconColor);
+                    }
+                }}
+            />
         </>
     );
 }
