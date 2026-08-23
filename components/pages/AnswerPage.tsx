@@ -12,6 +12,7 @@ import {
 import Button from "@/components/atoms/Button";
 import Card from "@/components/atoms/Card";
 import Input from "@/components/atoms/Input";
+import { showToast } from "@/components/common/toast";
 import AnswerCloseModal from "@/components/organisms/answer/AnswerCloseModal";
 import FinalAnswerModal from "@/components/organisms/answer/FinalAnswerModal";
 import PleaseCloseModal from "@/components/organisms/answer/PleaseCloseModal";
@@ -24,7 +25,7 @@ import { validateText } from "@/lib/validation";
 import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { IconContext } from "react-icons";
 import {
   TbArrowBadgeLeftFilled,
@@ -277,6 +278,13 @@ export default function AnswerPage({
     };
     fetchAnswerRole();
   }, [roomId]);
+
+  const announcedRef = useRef(false);
+  useEffect(() => {
+    if (!isAnswerRole || announcedRef.current) return;
+    announcedRef.current = true;
+    showToast("あなたが回答者に選ばれました！", { variant: "info" });
+  }, [isAnswerRole]);
 
   useEffect(() => {
     // 初回データ取得

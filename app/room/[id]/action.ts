@@ -261,6 +261,35 @@ export async function resetDrawingData(roomId: string) {
 }
 
 /**
+ * お手軽スタート: ランダムに決定した回答者IDでゲームを開始する
+ *
+ * answer_id・statusの更新と、前回分の描画・回答データのクリアを1つのトランザクションで行う
+ */
+export async function startQuickGame(roomId: string, answererId: string) {
+  try {
+    await ensureUser(answererId);
+
+    const data = await prisma.$transaction(async (tx) => {
+      await tx.drawing.deleteMany({ where: { room_id: roomId } });
+      await tx.answerInput.upsert({
+        where: { room_id: roomId },
+        create: { room_id: roomId, text: '', result: '' },
+        update: { text: '', result: '' },
+      });
+      return tx.room.update({
+        where: { id: roomId },
+        data: { answer_id: answererId, status: 'DRAWING' },
+      });
+    });
+
+    return { success: true, error: null, data };
+  } catch (error) {
+    console.error('Unexpected error during quick start:', error);
+    return { success: false, error: 'Failed to start quick game', data: null };
+  }
+}
+
+/**
  * ルームIDでそのルームの得点を取得する関数
  */
 export async function getRoomScores(roomId: string) {

@@ -36,3 +36,24 @@ export async function ensureUser(
     return { success: false, error: 'Failed to ensure user', data: null };
   }
 }
+
+/**
+ * ユーザーIDからユーザー情報（表示名・アイコン）を取得する
+ */
+export async function getUserInfo(userId: string) {
+  try {
+    const data = await prisma.mUser.findUnique({
+      where: { id: userId },
+      select: { username: true, icon_name: true, icon_color: true },
+    });
+
+    if (!data) {
+      return { success: false, error: 'User not found', data: null };
+    }
+
+    return { success: true, error: null, data };
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return { success: false, error: 'Failed to fetch user info', data: null };
+  }
+}

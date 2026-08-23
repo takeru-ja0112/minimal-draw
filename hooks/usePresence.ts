@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 
-type PresenceUser = {
+export type PresenceUser = {
   user_id: string
   user_name: string
   joined_at: string

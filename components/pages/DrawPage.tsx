@@ -12,9 +12,12 @@ import ToolSelector from '@/components/organisms/draw/ToolSelector';
 import useDraw from '@/hooks/DrawPage/handleDraw';
 import { useBlocker } from "@/hooks/useBlocker";
 import useIsMobile from '@/hooks/useIsMobile';
+import { usePresence } from '@/hooks/usePresence';
 import useStatus from "@/hooks/useStatus";
+import { getOrCreateUser } from '@/lib/user';
+import { showToast } from '@/components/common/toast';
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { TbArrowLeft } from 'react-icons/tb';
 
 type DrawPageProps = {
@@ -32,6 +35,8 @@ export default function DrawPage({ roomId, theme, furigana, mode }: DrawPageProp
   const { status, currentTheme } = useStatus(roomId);
   const isMobile = useIsMobile();
   const [isChangeTheme, setIsChangeTheme] = useState(false);
+  const presenceUser = getOrCreateUser();
+  const { users } = usePresence(roomId, presenceUser.id, presenceUser.username);
 
   useEffect(() => {
     if (!currentTheme) return;
@@ -40,6 +45,13 @@ export default function DrawPage({ roomId, theme, furigana, mode }: DrawPageProp
       setIsChangeTheme(true);
     }
   }, [currentTheme]);
+
+  const announcedRef = useRef(false);
+  useEffect(() => {
+    if (mode === 'demo' || status !== 'DRAWING' || announcedRef.current) return;
+    announcedRef.current = true;
+    showToast('ゲームが始まりました。お題を描いてください', { variant: 'info' });
+  }, [status, mode]);
 
   const finalizeSave = () => {
     draw.handleSave();
@@ -59,7 +71,7 @@ export default function DrawPage({ roomId, theme, furigana, mode }: DrawPageProp
         </Link>
         {mode === 'demo' ? null :
           <>
-            <AccessUser roomId={roomId} />
+            <AccessUser users={users} />
             <ThemeHeader theme={theme} furigana={furigana} isThemeOpen={isThemeOpen} />
           </>
         }

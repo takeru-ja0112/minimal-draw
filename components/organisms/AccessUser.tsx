@@ -1,12 +1,9 @@
-import { usePresence } from '@/hooks/usePresence';
-import { getOrCreateUser, type UserInfo } from '@/lib/user';
+import type { PresenceUser } from '@/hooks/usePresence';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { TbArrowLeft, TbGhost2, TbUserFilled } from 'react-icons/tb';
 
-export default function AccessUser({ roomId }: { roomId: string }) {
-  const user: UserInfo = (getOrCreateUser());
-  const { users } = usePresence(roomId, user.id, user.username);
+export default function AccessUser({ users }: { users: PresenceUser[] }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isfullName, setIsFullName] = useState(false);
 

@@ -1,8 +1,9 @@
 'use client';
 
-import { getThreeThemes, registerParticipantScore, resetDrawingData, setRoomTheme, setStatusRoom } from '@/app/room/[id]/action';
+import { getThreeThemes, registerParticipantScore, resetDrawingData, setRoomTheme, startQuickGame, setStatusRoom } from '@/app/room/[id]/action';
 import { isCheckAnswer, setdbAnswer, setdbAnswerInput, setdbAnswerResult } from '@/app/room/[id]/answer/action';
 import { showToast } from '@/components/common/toast';
+import type { PresenceUser } from '@/hooks/usePresence';
 import type { RoomSettingType, Theme } from '@/type/roomType';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -15,6 +16,7 @@ export default function useRoom(roomId: string) {
   const [isAnswerModalOpen, setIsAnswerModalOpen] = useState(false);
   const [roomSetting, setRoomSetting] = useState<RoomSettingType>({ level: 'normal', genre: 'ランダム' });
   const [threeThemes, setThreeThemes] = useState<Theme[]>([]);
+  const [isStarting, setIsStarting] = useState(false);
 
   useEffect(() => {
     const userId = localStorage.getItem('drawing_app_user_id');
@@ -54,6 +56,23 @@ export default function useRoom(roomId: string) {
     setIsAnswerModalOpen(false);
   };
 
+  const handleQuickStart = async (members: PresenceUser[]) => {
+    if (isStarting) return;
+    if (members.length === 0) {
+      showToast('参加者情報を取得できませんでした', { variant: 'error' });
+      return;
+    }
+
+    setIsStarting(true);
+    const randomMember = members[Math.floor(Math.random() * members.length)];
+    const result = await startQuickGame(roomId, randomMember.user_id);
+    if (!result.success) {
+      showToast('ゲームの開始に失敗しました', { variant: 'error' });
+    }
+    setIsStarting(false);
+    // 自分自身の遷移先は RoomPage 側の status/answerId 監視 useEffect に任せる
+  };
+
   const handleSearchTheme = async () => {
     const threeThemesData = await getThreeThemes({ level: roomSetting.level, genre: roomSetting.genre });
     setThreeThemes(threeThemesData.data || []);
@@ -76,8 +95,10 @@ export default function useRoom(roomId: string) {
     roomSetting,
     setRoomSetting,
     threeThemes,
+    isStarting,
     handleCheckAnswer,
     confirmAnswerer,
+    handleQuickStart,
     handleSearchTheme,
     selectTheme,
   };
