@@ -95,7 +95,7 @@ export default function RoomPage({ title, shortId, scores, creatorId }: { title:
             <IconContext.Provider value={{ size: '1.5em' }}>
               <div className="grid grid-cols-2 sm:grid-cols-2 gap-2">
                 {/* 書く人用の説明 */}
-                <DrawerGuideCard roomId={roomId} />
+                <DrawerGuideCard roomId={roomId} isAnswerer={!!gameStartedPrompt?.isAnswerer} />
                 {/* 回答者用の説明 */}
                 <AnswererGuideCard answerId={answerId} answerer={answerer} onCheckAnswer={room.handleCheckAnswer} />
               </div>
