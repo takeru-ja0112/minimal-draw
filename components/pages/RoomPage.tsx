@@ -80,7 +80,7 @@ export default function RoomPage({ title, shortId, scores, creatorId }: { title:
       <TutorialHelpButton
         id="tutorial-room-reset"
         tutorialKey="room"
-        className="z-50 fixed top-24 left-3"
+        className="z-50 fixed bottom-4 right-3"
       />
       <div className="w-full p-8">
         <div className="max-w-lg mx-auto">

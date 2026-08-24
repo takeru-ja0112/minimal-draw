@@ -9,10 +9,10 @@ import { TbDice5 } from 'react-icons/tb';
 
 export default function AutoGuideCard({ roomId, handleQuickStart }: { roomId: string, handleQuickStart: () => void }) {
     return (
-        <Card id="tutorial-room-draw" className="mb-4 text-center relative">
-            <div className='absolute -top-4 -left-4 bg-amber-300 py-3 px-6 rounded-full font-bold text border border-2 border-white'>おすすめ！</div>
-            <h2 className='text-lg font-bold'>お手軽スタート！</h2>
-            <div className='my-12 relative text-center'>
+        <Card id="tutorial-room-auto" className="mb-4 text-center relative">
+            <div className='absolute -top-4 -left-10 bg-amber-300 py-3 px-6 rounded-full font-bold text border border-2 border-white -rotate-12'>おすすめ！</div>
+            <h2 className='text-xl font-bold mt-6'>お手軽モード</h2>
+            <div className='my-10 relative text-center'>
                 <p className='text-center text-sm text-gray-500 font-semibold'>回答者をランダムに選び、ゲームを開始します！<br />このボタンはルーム作成者のみが押せます！</p>
             </div>
 

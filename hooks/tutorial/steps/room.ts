@@ -22,6 +22,13 @@ export const roomTutorialSteps: TutorialStep[] = [
         },
     },
     {
+        element: '#tutorial-room-auto',
+        popover: {
+            title: 'お手軽モード',
+            description: 'まずはルーム作成者がここをクリックしてゲームを開始してみよう！',
+        },
+    },
+    {
         element: '#tutorial-room-draw',
         popover: {
             title: '描く人はこちら',

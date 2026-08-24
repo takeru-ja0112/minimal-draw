@@ -10,26 +10,9 @@ import { TbPencil } from 'react-icons/tb';
 export default function DrawerGuideCard({ roomId }: { roomId: string }) {
   return (
     <Card id="tutorial-room-draw" className="mb-4">
-      <h2 className='text-lg font-bold'><span className='text-amber-600'>描く人</span>はこちら</h2>
-      <div className='my-5 h-20 grid grid-cols-3 gap-0 relative'>
-        <motion.div
-          animate={{ scaleY: [0.9, 1] }}
-          transition={{ duration: 1, repeatType: "reverse", type: 'spring', bounce: 0.5, repeat: Infinity, ease: "easeOut" }}
-        >
-          <Human colorClass='bg-yellow-400' className='left-1/2' />
-        </motion.div>
-        <motion.div
-          animate={{ scaleY: [0.9, 1] }}
-          transition={{ delay: 0.2, duration: 1, repeatType: "reverse", type: 'spring', bounce: 0.5, repeat: Infinity, ease: "easeOut" }}
-        >
-          <Human colorClass='bg-yellow-400/70' className='' />
-        </motion.div>
-        <motion.div
-          animate={{ scaleY: [0.9, 1] }}
-          transition={{ delay: 0.4, duration: 1, repeatType: "reverse", type: 'spring', bounce: 0.5, repeat: Infinity, ease: "easeOut" }}
-        >
-          <Human colorClass='bg-yellow-400/50' className='-left-1/2' />
-        </motion.div>
+      <h2 className='text-sm font-bold truncate max-w-[8rem]'><span className='text-amber-600'>描く人</span>はこちら</h2>
+      <div className='my-5 w-fit mx-auto flex text-center gap-0 relative'>
+        <TbPencil size='3rem' className='text-center text-gray-500' />
       </div>
 
       <div className='flex flex-col items-center justify-between gap-2'>
@@ -38,7 +21,7 @@ export default function DrawerGuideCard({ roomId }: { roomId: string }) {
           <p className='font-bold text-lg'><span className=''>1</span>人以上</p>
         </div>
         <Link href={`/room/${roomId}/drawing`}>
-          <Button value="お題を描く" icon={<TbPencil />} />
+          <Button value="お題を描く" />
         </Link>
       </div>
     </Card>
