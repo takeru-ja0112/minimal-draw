@@ -8,7 +8,6 @@ import {
   TbCrown,
   TbDice5,
   TbPencil,
-  TbUserFilled,
 } from "react-icons/tb";
 
 export default function RoomSkelton() {
@@ -21,19 +20,6 @@ export default function RoomSkelton() {
       >
         <TbArrowLeft size="2em" />
       </Link>
-
-      {/* 参加中ユーザー (AccessUser) のスケルトン */}
-      <div className="fixed right-2 top-17 backdrop-blur-xs bg-white/60 border border-white rounded-3xl p-2 pb-2 z-10 shadow-lg">
-        <div className="mx-auto mb-2 flex items-center justify-center">
-          <TbArrowLeft className="text-gray-500 -rotate-90" size={25} />
-        </div>
-        <div className="mx-auto mb-2 flex items-center justify-center">
-          <TbUserFilled className="text-gray-500 mb-2" size={25} />
-        </div>
-        <div className="grid gap-2 rounded-2xl">
-          <div className="w-10 h-10 bg-yellow-400/60 rounded-full animate-pulse mx-auto" />
-        </div>
-      </div>
 
       <div className="w-full p-8">
         <div className="max-w-lg mx-auto">
@@ -123,31 +109,21 @@ export default function RoomSkelton() {
         </div>
       </div>
 
-      {/* スコアボード (ScoreBoard) */}
+      {/* ユーザー & スコアボード (UserScoreBoard) */}
       <section className="p-4 pb-7 bg-white/70">
         <h2 className="text-3xl font-bold mb-4 text-center">Score</h2>
-        <div>
+        <div className="flex items-center gap-3 overflow-x-auto pb-2">
           {Array.from({ length: 3 }).map((_, idx) => (
-            <div
-              key={idx}
-              className={`relative flex items-center justify-between p-2 shadow mb-2 transform skew-x-[-10deg] rounded-xl ${
-                idx === 0 ? "bg-yellow-400" : "bg-yellow-400/50"
-              }`}
-            >
-              {idx === 0 && (
-                <div className="absolute top-0 left-12">
-                  <TbCrown size="1.3em" className="text-white drop-shadow-lg" />
-                </div>
-              )}
-              <div className="w-30 flex items-center justify-center">
-                <p className="font-bold text-xl">
-                  {idx + 1}
-                  <span className="text-sm ml-1">位</span>
-                </p>
+            <div key={idx} className="relative flex items-center gap-1 shrink-0">
+              <div className="relative w-11 h-11 shrink-0 rounded-full bg-yellow-400/60 animate-pulse flex items-center justify-center">
+                {idx === 0 && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <TbCrown size="1.1em" className="text-yellow-500 drop-shadow-lg" />
+                  </div>
+                )}
               </div>
-              <div className="bg-white shadow-[inset_8px_0_0_rgba(250,204,21,0.6)] p-2 px-4 w-full flex justify-between items-center rounded-sm">
-                <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
-                <div className="h-4 w-12 bg-gray-200 rounded animate-pulse" />
+              <div className="bg-white px-3 py-1.5 rounded-full shadow">
+                <div className="h-4 w-8 bg-gray-200 rounded animate-pulse" />
               </div>
             </div>
           ))}

@@ -177,7 +177,7 @@ export default function RoomSearchSection({
             type="date"
             value={createdDate}
             onChange={(e) => setCreatedDate(e.target.value)}
-            className="w-full text-sm min-w-0 !px-3 box-border appear-none"
+            className="w-full text-sm min-w-0 !px-3 box-border appearance-none"
           />
         </div>
       </div>

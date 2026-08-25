@@ -10,7 +10,7 @@ import DrawerGuideCard from '@/components/organisms/room/DrawerGuideCard';
 import GameStartedModal from '@/components/organisms/room/GameStartedModal';
 import RoomIdCard from '@/components/organisms/room/RoomIdCard';
 import RoomSettingModal from '@/components/organisms/room/RoomSettingModal';
-import ScoreBoard from '@/components/organisms/room/ScoreBoard';
+import UserScoreBoard from '@/components/organisms/room/UserScoreBoard';
 import StatusBar from '@/components/organisms/StatusBat';
 import { useModalContext } from '@/hooks/useModalContext';
 import { usePresence } from '@/hooks/usePresence';
@@ -23,7 +23,6 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { IconContext } from 'react-icons';
 import { TbArrowLeft, TbDice5 } from 'react-icons/tb';
-import AccessUser from '../organisms/AccessUser';
 import { useTutorial } from '@/hooks/tutorial/useTutorial';
 import { roomTutorialSteps } from '@/hooks/tutorial/steps/room';
 import Link from 'next/link';
@@ -88,7 +87,6 @@ export default function RoomPage({ title, shortId, scores, creatorId }: { title:
           <div id="tutorial-room-status">
             <StatusBar status={status}></StatusBar>
           </div>
-          <AccessUser users={users} />
           {/* <Card className="mb-4 pb-1 bg-gray-100 rounded-3xl"> */}
           <AutoGuideCard roomId={roomId} handleQuickStart={handleQuickStart} />
           <div className="text-center">
@@ -109,7 +107,7 @@ export default function RoomPage({ title, shortId, scores, creatorId }: { title:
           {/* </Card> */}
         </div>
       </div>
-      <ScoreBoard scores={scores} />
+      <UserScoreBoard scores={scores} users={users} />
       <AnswerConfirmModal
         isOpen={room.isAnswerModalOpen}
         onClose={() => room.setIsAnswerModalOpen(false)}

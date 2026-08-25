@@ -1,4 +1,5 @@
-import { CreateRoom } from "@/type/roomType";
+import { CreateRoom, ScoreEntry } from "@/type/roomType";
+import type { PresenceUser } from "@/hooks/usePresence";
 import { z } from "zod";
 
 
@@ -101,4 +102,41 @@ export function calculateRanks(scores: { point: number }[]): number[] {
     acc.push(acc[index - 1] + 1);
     return acc;
   }, []);
+}
+
+export type BoardEntry = {
+  user_id: string;
+  username: string;
+  point: number;
+  isOnline: boolean;
+};
+
+/**
+ * スコア一覧（DB由来・オフラインでも残る）と現在の接続中ユーザー一覧を
+ * user_id で突合し、得点降順のボード表示用データを作る
+ */
+export function buildScoreBoardEntries(
+  scores: ScoreEntry[],
+  users: PresenceUser[],
+): BoardEntry[] {
+  const onlineIds = new Set(users.map((u) => u.user_id));
+
+  const fromScores: BoardEntry[] = scores.map((s) => ({
+    user_id: s.user_id,
+    username: s.user?.username ?? '名無し',
+    point: s.point,
+    isOnline: onlineIds.has(s.user_id),
+  }));
+
+  const scoreIds = new Set(scores.map((s) => s.user_id));
+  const fromOnlineOnly: BoardEntry[] = users
+    .filter((u) => !scoreIds.has(u.user_id))
+    .map((u) => ({
+      user_id: u.user_id,
+      username: u.user_name,
+      point: 0,
+      isOnline: true,
+    }));
+
+  return [...fromScores, ...fromOnlineOnly].sort((a, b) => b.point - a.point);
 }
