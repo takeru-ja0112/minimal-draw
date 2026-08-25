@@ -109,24 +109,34 @@ export type BoardEntry = {
   username: string;
   point: number;
   isOnline: boolean;
+  iconName?: string | null;
+  iconColor?: string | null;
 };
 
 /**
  * スコア一覧（DB由来・オフラインでも残る）と現在の接続中ユーザー一覧を
  * user_id で突合し、得点降順のボード表示用データを作る
+ *
+ * アイコンはオンライン中のプレゼンス情報（最新の設定）を優先し、
+ * オフラインの場合はDB保存済みのユーザー情報にフォールバックする
  */
 export function buildScoreBoardEntries(
   scores: ScoreEntry[],
   users: PresenceUser[],
 ): BoardEntry[] {
-  const onlineIds = new Set(users.map((u) => u.user_id));
+  const onlineUsers = new Map(users.map((u) => [u.user_id, u]));
 
-  const fromScores: BoardEntry[] = scores.map((s) => ({
-    user_id: s.user_id,
-    username: s.user?.username ?? '名無し',
-    point: s.point,
-    isOnline: onlineIds.has(s.user_id),
-  }));
+  const fromScores: BoardEntry[] = scores.map((s) => {
+    const online = onlineUsers.get(s.user_id);
+    return {
+      user_id: s.user_id,
+      username: s.user?.username ?? '名無し',
+      point: s.point,
+      isOnline: !!online,
+      iconName: online?.icon_name ?? s.user?.icon_name,
+      iconColor: online?.icon_color ?? s.user?.icon_color,
+    };
+  });
 
   const scoreIds = new Set(scores.map((s) => s.user_id));
   const fromOnlineOnly: BoardEntry[] = users
@@ -136,6 +146,8 @@ export function buildScoreBoardEntries(
       username: u.user_name,
       point: 0,
       isOnline: true,
+      iconName: u.icon_name,
+      iconColor: u.icon_color,
     }));
 
   return [...fromScores, ...fromOnlineOnly].sort((a, b) => b.point - a.point);

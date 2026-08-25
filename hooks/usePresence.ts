@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { getIcon } from '@/lib/user'
 
 export type PresenceUser = {
   user_id: string
   user_name: string
   joined_at: string
+  icon_name: string
+  icon_color: string
 }
 
 export const usePresence = (roomId: string, userId: string, userName: string) => {
@@ -42,10 +45,13 @@ export const usePresence = (roomId: string, userId: string, userName: string) =>
         if (status === 'SUBSCRIBED') {
           setIsConnected(true)
           // 3. 自分の情報をトラック（送信）
+          const { iconName, iconColor } = getIcon()
           await channel.track({
             user_id: userId,
             user_name: userName,
             joined_at: new Date().toISOString(),
+            icon_name: iconName,
+            icon_color: iconColor,
           })
         } else if (status === 'CHANNEL_ERROR') {
           console.error('チャンネル接続エラー')

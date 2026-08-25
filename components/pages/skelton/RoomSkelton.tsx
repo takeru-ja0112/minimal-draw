@@ -21,25 +21,30 @@ export default function RoomSkelton() {
         <TbArrowLeft size="2em" />
       </Link>
 
+      {/* 参加者 & スコアボード (UserScoreBoard) */}
+      <section className="p-4 pb-2 bg-white/70">
+        <h2 className="text-sm font-bold mb-4 text-center">参加者</h2>
+        <div className="flex items-end overflow-x-auto gap-3 pb-2 h-20">
+          {Array.from({ length: 3 }).map((_, idx) => (
+            <div key={idx} className="relative flex items-center gap-1 shrink-0">
+              <div className="relative w-15 h-15 shrink-0 rounded-full border border-2 border-gray-300 bg-white flex items-center justify-center font-bold shadow">
+                {idx === 0 && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <TbCrown size="1.1em" className="text-gray-500 drop-shadow-lg" />
+                  </div>
+                )}
+                <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse" />
+              </div>
+              <div className="bg-white px-3 py-1.5 rounded-full font-bold whitespace-nowrap">
+                <div className="h-4 w-6 bg-gray-200 rounded animate-pulse" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <div className="w-full p-8">
         <div className="max-w-lg mx-auto">
-          {/* ルーム情報 (RoomIdCard) */}
-          <div className="mb-6 text-center">
-            <h2 className="text-md text-gray-500 font-semibold mb-1">ルーム名</h2>
-            <div className="h-6 w-36 bg-gray-300 rounded mx-auto mb-2 animate-pulse" />
-            <div className="flex items-center justify-center gap-1">
-              <div className="h-5 w-20 bg-gray-300 rounded animate-pulse" />
-              <TbCopy className="text-gray-400" />
-            </div>
-          </div>
-
-          {/* ステータスバー (StatusBar) */}
-          <div className="mb-3 text-center bg-yellow-400 py-2 rounded-3xl w-full max-w-lg">
-            <h1 className="font-bold flex items-center justify-center">
-              <div className="h-5 w-44 bg-yellow-200/80 rounded animate-pulse" />
-            </h1>
-          </div>
-
           {/* お手軽モードカード (AutoGuideCard) */}
           <Card className="mb-4 text-center relative">
             <div className="absolute -top-4 -left-10 bg-amber-300 py-3 px-6 rounded-full font-bold text border border-2 border-white -rotate-12">
@@ -106,29 +111,25 @@ export default function RoomSkelton() {
 
           {/* お題変更ボタン */}
           <Button value="お題を変更する" className="w-full" />
+
+          {/* ルーム情報 (RoomIdCard) */}
+          <div className="my-6 text-center">
+            <h2 className="text-md text-gray-500 font-semibold mb-1">ルーム名</h2>
+            <div className="h-6 w-36 bg-gray-300 rounded mx-auto mb-2 animate-pulse" />
+            <div className="flex items-center justify-center gap-1">
+              <div className="h-5 w-20 bg-gray-300 rounded animate-pulse" />
+              <TbCopy className="text-gray-400" />
+            </div>
+          </div>
+
+          {/* ステータスバー (StatusBar) */}
+          <div className="mt-5 text-center bg-yellow-400 py-2 rounded-3xl w-full max-w-lg">
+            <h1 className="font-bold flex items-center justify-center">
+              <div className="h-5 w-44 bg-yellow-200/80 rounded animate-pulse" />
+            </h1>
+          </div>
         </div>
       </div>
-
-      {/* ユーザー & スコアボード (UserScoreBoard) */}
-      <section className="p-4 pb-7 bg-white/70">
-        <h2 className="text-3xl font-bold mb-4 text-center">Score</h2>
-        <div className="flex items-center gap-3 overflow-x-auto pb-2">
-          {Array.from({ length: 3 }).map((_, idx) => (
-            <div key={idx} className="relative flex items-center gap-1 shrink-0">
-              <div className="relative w-11 h-11 shrink-0 rounded-full bg-yellow-400/60 animate-pulse flex items-center justify-center">
-                {idx === 0 && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <TbCrown size="1.1em" className="text-yellow-500 drop-shadow-lg" />
-                  </div>
-                )}
-              </div>
-              <div className="bg-white px-3 py-1.5 rounded-full shadow">
-                <div className="h-4 w-8 bg-gray-200 rounded animate-pulse" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
     </div>
   );
 }

@@ -8,17 +8,10 @@ export const roomTutorialSteps: TutorialStep[] = [
         },
     },
     {
-        element: '#tutorial-room-info',
+        element: '#tutorial-room-score',
         popover: {
-            title: 'ルーム情報',
-            description: 'ルーム名とルームIDです。IDをタップするとコピーできます。',
-        },
-    },
-    {
-        element: '#tutorial-room-status',
-        popover: {
-            title: '進行状況',
-            description: '今どの段階か（募集中・描画中・回答中など）がわかります。',
+            title: '参加者',
+            description: '参加者とポイントを確認できます。',
         },
     },
     {
@@ -43,10 +36,17 @@ export const roomTutorialSteps: TutorialStep[] = [
         },
     },
     {
-        element: '#tutorial-room-score',
+        element: '#tutorial-room-info',
         popover: {
-            title: 'スコア',
-            description: '参加者の得点ランキングです。',
+            title: 'ルーム情報',
+            description: 'ルーム名とルームIDです。IDをタップするとコピーできます。',
+        },
+    },
+    {
+        element: '#tutorial-room-status',
+        popover: {
+            title: '進行状況',
+            description: '今どの段階か（募集中・描画中・回答中など）がわかります。',
         },
     },
     {

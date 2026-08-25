@@ -81,12 +81,9 @@ export default function RoomPage({ title, shortId, scores, creatorId }: { title:
         tutorialKey="room"
         className="z-50 fixed bottom-4 right-3"
       />
+      <UserScoreBoard scores={scores} users={users} />
       <div className="w-full p-8">
         <div className="max-w-lg mx-auto">
-          <RoomIdCard title={title} shortId={shortId} />
-          <div id="tutorial-room-status">
-            <StatusBar status={status}></StatusBar>
-          </div>
           {/* <Card className="mb-4 pb-1 bg-gray-100 rounded-3xl"> */}
           <AutoGuideCard roomId={roomId} handleQuickStart={handleQuickStart} />
           <div className="text-center">
@@ -104,10 +101,13 @@ export default function RoomPage({ title, shortId, scores, creatorId }: { title:
             value='お題を変更する'
             className='w-full'
           />
+          <RoomIdCard title={title} shortId={shortId} />
           {/* </Card> */}
+          <div id="tutorial-room-status" className='mt-5'>
+            <StatusBar status={status}></StatusBar>
+          </div>
         </div>
       </div>
-      <UserScoreBoard scores={scores} users={users} />
       <AnswerConfirmModal
         isOpen={room.isAnswerModalOpen}
         onClose={() => room.setIsAnswerModalOpen(false)}

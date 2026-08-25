@@ -22,7 +22,7 @@ export default function RoomIdCard({ title, shortId }: { title: string; shortId:
   };
 
   return (
-    <div id="tutorial-room-info" className="mb-6 text-center">
+    <div id="tutorial-room-info" className="my-6 text-center">
       <h2 className="text-md text-gray-500 font-semibold mb-1">ルーム名</h2>
       <p className="text-gray-900 font-bold break-all">{title}</p>
       <div className="flex items-center justify-center gap-1">
