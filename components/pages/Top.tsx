@@ -62,23 +62,15 @@ export default function Top() {
                         className="absolute top-20 left-5"
                     />
                 </div>
-                <div className="max-w-2xl w-90 mt-20 mb-30 z-10">
+                <div className="max-w-2xl w-90 mt-10 mb-30 z-10">
                     {/* メインコンテンツ */}
                     <motion.div
-                        className="text-center mb-12 flex flex-col items-center justify-center"
+                        className="text-center mb-5 flex flex-col items-center justify-center"
                     // style={{ perspective: "1000px" }}
                     >
-                        <motion.div
-                            className="mb-6"
-                            initial={{}}
-                            whileHover={{ rotateZ: -10 }}
-                            transition={{ duration: 0.1, ease: "easeInOut" }}
-                        >
-                            <Image src="/minimalDrawIcon.svg" alt="Logo" width={120} height={120} />
-                        </motion.div>
                         {/* タイトル - 3D効果 */}
                         <motion.h1
-                            className={`${schoolbell.className} text-6xl font-bold`}
+                            className={`${schoolbell.className} text-3xl font-bold`}
                         >
                             {title}
                         </motion.h1>
