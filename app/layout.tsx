@@ -3,7 +3,7 @@
 
 import Toaster from "@/components/common/toast";
 import AppLayoutWrapper from "@/components/common/AppLayoutWrapper";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { ViewTransitions } from 'next-view-transitions';
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -21,6 +21,15 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Minimal Draw",
   description: "Mini app",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#ffffff',
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({
@@ -51,8 +60,6 @@ export default function RootLayout({
           <meta property="og:image" content="/minimalDrawIcon.svg" />
           <meta property="og:image:width" content="1200" />
           <meta property="og:image:height" content="630" />
-          <meta name="apple-mobile-web-app-capable" content="yes" />
-          <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         </head>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen`}
