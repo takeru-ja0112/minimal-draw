@@ -21,7 +21,7 @@
 
 header {
   /* Dynamic Island やステータスバーを避けるためのパディング */
-  padding-top: env(safe-area-inset-top, 20px);
+  padding-top: env(safe-area-inset-top, 100px);
 }
 
 body {
