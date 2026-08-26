@@ -51,6 +51,7 @@ export default function RootLayout({
           <meta property="og:image" content="/minimalDrawIcon.svg" />
           <meta property="og:image:width" content="1200" />
           <meta property="og:image:height" content="630" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
         </head>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen`}
