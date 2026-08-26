@@ -24,12 +24,12 @@ export default function ToolSelector({ tool, enabledTools, onChange }: Props) {
               transition={{ type: 'spring', stiffness: 500, damping: 35 }}
             />
           )}
-          <span className={`font-semibold text-xs ${tool === key ? 'text-gray-900' : 'text-gray-400'} z-5`}>{label}</span>
+          <span className={`w-full truncate font-semibold text-xs ${tool === key ? 'text-gray-900' : 'text-gray-400'} z-5`}>{label}</span>
           <motion.label
             key={key}
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.97 }}
-            className={`w-full h-13 flex justify-center items-center text-md py-2 cursor-pointer z-5`}
+            className={`w-full  h-13 flex justify-center items-center text-md py-2 cursor-pointer z-5`}
           >
             <input
               type="radio"
