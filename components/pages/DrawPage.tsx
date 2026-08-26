@@ -9,6 +9,7 @@ import ThemeChangedModal from '@/components/organisms/draw/ThemeChangedModal';
 import ThemeHeader from '@/components/organisms/draw/ThemeHeader';
 import ThemeModal from '@/components/organisms/draw/ThemeModal';
 import ToolSelector from '@/components/organisms/draw/ToolSelector';
+import { DEFAULT_TOOLS } from '@/constants/drawTools';
 import useDraw from '@/hooks/DrawPage/handleDraw';
 import { useBlocker } from "@/hooks/useBlocker";
 import useIsMobile from '@/hooks/useIsMobile';
@@ -16,6 +17,7 @@ import { usePresence } from '@/hooks/usePresence';
 import useStatus from "@/hooks/useStatus";
 import { getOrCreateUser } from '@/lib/user';
 import { showToast } from '@/components/common/toast';
+import type { ToolType } from '@/type/DrawShapeType';
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { TbArrowLeft } from 'react-icons/tb';
@@ -25,9 +27,10 @@ type DrawPageProps = {
   theme?: string;
   furigana?: string;
   mode?: 'demo';
+  enabledTools?: ToolType[];
 };
 
-export default function DrawPage({ roomId, theme, furigana, mode }: DrawPageProps) {
+export default function DrawPage({ roomId, theme, furigana, mode, enabledTools = DEFAULT_TOOLS }: DrawPageProps) {
   const draw = useDraw(roomId);
   const [isThemeOpen, setIsThemeOpen] = useState(true);
   const [isBlocked, setIsBlocked] = useState(true);
@@ -80,12 +83,13 @@ export default function DrawPage({ roomId, theme, furigana, mode }: DrawPageProp
           {/*  描画エリア*/}
           <DrawToolbar onUndo={draw.handleUndo} onRedo={draw.handleRedo} onReset={draw.handleReset} />
           {/* Tool selection - カード風デザイン */}
-          <ToolSelector tool={draw.tool} onChange={draw.setTool} />
+          <ToolSelector tool={draw.tool} enabledTools={enabledTools} onChange={draw.setTool} />
           <DrawCanvas
             count={draw.count}
             lines={draw.lines}
             circles={draw.circles}
             rects={draw.rects}
+            strokes={draw.strokes}
             selectedShape={draw.selectedShape}
             w={draw.w}
             h={draw.h}
@@ -100,7 +104,7 @@ export default function DrawPage({ roomId, theme, furigana, mode }: DrawPageProp
         <SaveControl
           isSaving={draw.isSaving}
           saveMessage={draw.saveMessage}
-          hasShapes={draw.lines.length > 0 || draw.circles.length > 0 || draw.rects.length > 0}
+          hasShapes={draw.lines.length > 0 || draw.circles.length > 0 || draw.rects.length > 0 || draw.strokes.length > 0}
           onConfirmSave={finalizeSave}
         />
       }

@@ -6,13 +6,16 @@ import { motion } from 'motion/react';
 
 type Props = {
   tool: ToolType;
+  enabledTools: ToolType[];
   onChange: (tool: ToolType) => void;
 };
 
-export default function ToolSelector({ tool, onChange }: Props) {
+export default function ToolSelector({ tool, enabledTools, onChange }: Props) {
+  const visibleTools = drawTools.filter(({ key }) => enabledTools.includes(key));
+
   return (
     <div className="mt-4 flex gap-4 justify-center relative">
-      {drawTools.map(({ key, label, icon }) => (
+      {visibleTools.map(({ key, label, icon }) => (
         <div key={key} className="flex flex-col items-center gap-1 w-full relative">
           {tool === key && (
             <motion.span

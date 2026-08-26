@@ -1,6 +1,8 @@
-export type ToolType = 'line' | 'circle' | 'rect' | 'eraser' | 'move';
+export type ToolType = 'line' | 'circle' | 'rect' | 'eraser' | 'move' | 'pen';
 
 export type LineShape = number[];
+
+export type FreeLineShape = number[];
 
 export type CircleShape = {
   x: number;
@@ -17,6 +19,6 @@ export type RectShape = {
 };
 
 export type SelectedShape = {
-  type: 'line' | 'circle' | 'rect';
+  type: 'line' | 'circle' | 'rect' | 'pen';
   index: number;
 } | null;

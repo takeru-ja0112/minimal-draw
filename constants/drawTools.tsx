@@ -1,5 +1,5 @@
 import type { ToolType } from '@/type/DrawShapeType';
-import { TbArrowsMove, TbEraser } from 'react-icons/tb';
+import { TbArrowsMove, TbEraser, TbPencil } from 'react-icons/tb';
 
 export type DrawToolConfig = {
   key: ToolType;
@@ -31,4 +31,9 @@ export const drawTools: DrawToolConfig[] = [
   },
   { key: 'eraser', label: '消しゴム', icon: <TbEraser /> },
   { key: 'move', label: '移動', icon: <TbArrowsMove /> },
+  { key: 'pen', label: '自由曲線', icon: <TbPencil /> },
 ];
+
+// mode等を指定しない呼び出し元（既存のルーム対戦モード等）で使うデフォルトのツール一覧。
+// pen（自由曲線）は含めない = 呼び出し元が明示的に enabledTools に含めた場合のみ有効化される。
+export const DEFAULT_TOOLS: ToolType[] = ['line', 'circle', 'rect', 'eraser', 'move'];

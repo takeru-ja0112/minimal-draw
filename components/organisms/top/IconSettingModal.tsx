@@ -2,7 +2,7 @@ import { useState } from "react";
 import Button from "@/components/atoms/Button";
 import Modal from "@/components/organisms/Modal";
 import UserIcon from "@/components/atoms/UserIcon";
-import { Icons } from "@/utils/Icons";
+import { Icons, ICON_COLORS } from "@/utils/Icons";
 
 export default function IconSettingModal({
     isOpen,
@@ -53,17 +53,22 @@ export default function IconSettingModal({
                     ))}
                 </div>
 
-                <div className="flex items-center justify-between mb-6">
-                    <label htmlFor="iconColor" className="text-sm text-gray-600">
-                        カラーを選択してください
-                    </label>
-                    <input
-                        id="iconColor"
-                        type="color"
-                        value={selectedIconColor}
-                        onChange={(e) => setSelectedIconColor(e.target.value)}
-                        className="w-10 h-10 rounded-lg border border-gray-300 cursor-pointer bg-transparent"
-                    />
+                <p className="text-sm text-gray-600 mb-2">カラーを選択してください</p>
+                <div className="flex flex-wrap gap-2 mb-6">
+                    {ICON_COLORS.map((color) => (
+                        <button
+                            key={color}
+                            type="button"
+                            aria-label={color}
+                            onClick={() => setSelectedIconColor(color)}
+                            className={`w-8 h-8 rounded-full border-2 transition-transform ${
+                                selectedIconColor === color
+                                    ? "border-yellow-400 scale-110"
+                                    : "border-gray-200 hover:scale-105"
+                            }`}
+                            style={{ backgroundColor: color }}
+                        />
+                    ))}
                 </div>
 
                 <div className="flex justify-end gap-2">

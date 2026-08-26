@@ -20,9 +20,11 @@ export default function useDraw(roomId: string) {
   const [lines, setLines] = useState<number[][]>(canvasData?.lines || []);
   const [circles, setCircles] = useState<CircleShape[]>(canvasData?.circles || []);
   const [rects, setRects] = useState<RectShape[]>(canvasData?.rects || []);
+  const [strokes, setStrokes] = useState<number[][]>(canvasData?.strokes || []);
   const linesHistory = useRef<Array<number[][]>>([[...lines]]);
   const circlesHistory = useRef<Array<CircleShape[]>>([[...circles]]);
   const rectsHistory = useRef<Array<RectShape[]>>([[...rects]]);
+  const strokesHistory = useRef<Array<number[][]>>([[...strokes]]);
   const router = useRouter();
   const lastEventType = useRef<string | null>(null);
 
@@ -55,34 +57,52 @@ export default function useDraw(roomId: string) {
     return Math.hypot(px - closestX, py - closestY);
   };
 
+  // 可変長の点列（フリーハンドの1ストローク）と点との最短距離
+  const distanceToStroke = (px: number, py: number, points: number[]) => {
+    let min = Number.POSITIVE_INFINITY;
+    for (let i = 0; i + 3 < points.length; i += 2) {
+      const d = distanceToSegment(px, py, points[i], points[i + 1], points[i + 2], points[i + 3]);
+      if (d < min) min = d;
+    }
+    if (points.length === 2) {
+      min = Math.hypot(px - points[0], py - points[1]);
+    }
+    return min;
+  };
+
   const pushHistory = (
     nextLines: number[][],
     nextCircles: Array<{ x: number; y: number; radius: number }>,
     nextRects: Array<{ x: number; y: number; width: number; height: number; rotation: number }>,
+    nextStrokes: number[][],
   ) => {
     const newLinesHistory = linesHistory.current.slice(0, historyStep.current + 1);
     const newCirclesHistory = circlesHistory.current.slice(0, historyStep.current + 1);
     const newRectsHistory = rectsHistory.current.slice(0, historyStep.current + 1);
+    const newStrokesHistory = strokesHistory.current.slice(0, historyStep.current + 1);
 
     newLinesHistory.push([...nextLines]);
     newCirclesHistory.push([...nextCircles]);
     newRectsHistory.push([...nextRects]);
+    newStrokesHistory.push([...nextStrokes]);
 
     linesHistory.current = newLinesHistory;
     circlesHistory.current = newCirclesHistory;
     rectsHistory.current = newRectsHistory;
+    strokesHistory.current = newStrokesHistory;
     historyStep.current = newLinesHistory.length - 1;
 
     setLines(nextLines);
     setCircles(nextCircles);
     setRects(nextRects);
-    setCount(nextLines.length + nextCircles.length + nextRects.length);
+    setStrokes(nextStrokes);
+    setCount(nextLines.length + nextCircles.length + nextRects.length + nextStrokes.length);
   };
 
   const eraseAtPoint = (x: number, y: number) => {
     const threshold = ERASER_RADIUS + STROKE_WIDTH;
     let best: {
-      type: 'line' | 'circle' | 'rect';
+      type: 'line' | 'circle' | 'rect' | 'pen';
       index: number;
       distance: number;
     } | null = null;
@@ -128,28 +148,42 @@ export default function useDraw(roomId: string) {
       }
     }
 
+    // strokes（フリーハンド）: 距離を算出
+    for (let i = 0; i < strokes.length; i += 1) {
+      const d = distanceToStroke(x, y, strokes[i]);
+      if (d <= threshold && (!best || d < best.distance)) {
+        best = { type: 'pen', index: i, distance: d };
+      }
+    }
+
     if (!best) return false;
 
     if (best.type === 'rect') {
       const nextRects = rects.filter((_, idx) => idx !== best.index);
-      pushHistory(lines, circles, nextRects);
+      pushHistory(lines, circles, nextRects, strokes);
       return true;
     }
 
     if (best.type === 'circle') {
       const nextCircles = circles.filter((_, idx) => idx !== best.index);
-      pushHistory(lines, nextCircles, rects);
+      pushHistory(lines, nextCircles, rects, strokes);
+      return true;
+    }
+
+    if (best.type === 'pen') {
+      const nextStrokes = strokes.filter((_, idx) => idx !== best.index);
+      pushHistory(lines, circles, rects, nextStrokes);
       return true;
     }
 
     const nextLines = lines.filter((_, idx) => idx !== best.index);
-    pushHistory(nextLines, circles, rects);
+    pushHistory(nextLines, circles, rects, strokes);
     return true;
   };
 
   const getNearestShape = (x: number, y: number) => {
     let best: {
-      type: 'line' | 'circle' | 'rect';
+      type: 'line' | 'circle' | 'rect' | 'pen';
       index: number;
       distance: number;
     } | null = null;
@@ -195,6 +229,13 @@ export default function useDraw(roomId: string) {
       }
     }
 
+    for (let i = 0; i < strokes.length; i += 1) {
+      const d = distanceToStroke(x, y, strokes[i]);
+      if (!best || d < best.distance) {
+        best = { type: 'pen', index: i, distance: d };
+      }
+    }
+
     if (!best || best.distance > MOVE_SELECT_THRESHOLD + STROKE_WIDTH) {
       return null;
     }
@@ -235,6 +276,9 @@ export default function useDraw(roomId: string) {
           rotation: 0,
         },
       ]);
+    } else if (tool === 'pen') {
+      // 自由曲線: 開始点を1点持つストロークを新規追加（終点固定ではなく随時追記していく）
+      setStrokes((prev) => [...prev, [point.x, point.y, point.x, point.y]]);
     } else if (tool === 'eraser') {
       // 消しゴムは近くの図形を削除
       isDrawing.current = false;
@@ -280,6 +324,12 @@ export default function useDraw(roomId: string) {
         setRects((prev) =>
           prev.map((rect, idx) => (idx === selected.index ? { ...rect, x: rect.x + dx, y: rect.y + dy } : rect)),
         );
+      } else if (selected.type === 'pen') {
+        setStrokes((prev) =>
+          prev.map((points, idx) =>
+            idx === selected.index ? points.map((v, i) => (i % 2 === 0 ? v + dx : v + dy)) : points,
+          ),
+        );
       }
 
       lastPointerRef.current = { x: point.x, y: point.y };
@@ -319,6 +369,10 @@ export default function useDraw(roomId: string) {
           rotation: 0,
         },
       ]);
+    } else if (tool === 'pen') {
+      const lastIdx = strokes.length - 1;
+      // 末尾ストロークに現在座標を追加していく（既存ツールのような「置き換え」ではなく「追記」）
+      setStrokes((prev) => [...prev.slice(0, lastIdx), [...prev[lastIdx], point.x, point.y]]);
     }
   };
 
@@ -340,14 +394,17 @@ export default function useDraw(roomId: string) {
         const newLinesHistory = linesHistory.current.slice(0, historyStep.current + 1);
         const newCirclesHistory = circlesHistory.current.slice(0, historyStep.current + 1);
         const newRectsHistory = rectsHistory.current.slice(0, historyStep.current + 1);
+        const newStrokesHistory = strokesHistory.current.slice(0, historyStep.current + 1);
 
         newLinesHistory.push([...lines]);
         newCirclesHistory.push([...circles]);
         newRectsHistory.push([...rects]);
+        newStrokesHistory.push([...strokes]);
 
         linesHistory.current = newLinesHistory;
         circlesHistory.current = newCirclesHistory;
         rectsHistory.current = newRectsHistory;
+        strokesHistory.current = newStrokesHistory;
         historyStep.current = newLinesHistory.length - 1;
       }
       movedDuringMoveRef.current = false;
@@ -360,14 +417,17 @@ export default function useDraw(roomId: string) {
     const newLinesHistory = linesHistory.current.slice(0, historyStep.current + 1);
     const newCirclesHistory = circlesHistory.current.slice(0, historyStep.current + 1);
     const newRectsHistory = rectsHistory.current.slice(0, historyStep.current + 1);
+    const newStrokesHistory = strokesHistory.current.slice(0, historyStep.current + 1);
 
     newLinesHistory.push([...lines]);
     newCirclesHistory.push([...circles]);
     newRectsHistory.push([...rects]);
+    newStrokesHistory.push([...strokes]);
 
     linesHistory.current = newLinesHistory;
     circlesHistory.current = newCirclesHistory;
     rectsHistory.current = newRectsHistory;
+    strokesHistory.current = newStrokesHistory;
     historyStep.current = newLinesHistory.length - 1;
   };
   // デバウンス保存処理
@@ -383,6 +443,7 @@ export default function useDraw(roomId: string) {
     linesHistory.current = [[...lines]];
     circlesHistory.current = [[...circles]];
     rectsHistory.current = [[...rects]];
+    strokesHistory.current = [[...strokes]];
     historyStep.current = 0;
   };
 
@@ -395,10 +456,12 @@ export default function useDraw(roomId: string) {
     const previousLines = linesHistory.current[historyStep.current];
     const previousCircles = circlesHistory.current[historyStep.current];
     const previousRects = rectsHistory.current[historyStep.current];
+    const previousStrokes = strokesHistory.current[historyStep.current];
     setLines(previousLines);
     setCircles(previousCircles);
     setRects(previousRects);
-    setCount(previousCircles.length + previousLines.length + previousRects.length);
+    setStrokes(previousStrokes);
+    setCount(previousCircles.length + previousLines.length + previousRects.length + previousStrokes.length);
   };
 
   const handleRedo = () => {
@@ -409,25 +472,30 @@ export default function useDraw(roomId: string) {
     const nextLines = linesHistory.current[historyStep.current];
     const nextCircles = circlesHistory.current[historyStep.current];
     const nextRects = rectsHistory.current[historyStep.current];
+    const nextStrokes = strokesHistory.current[historyStep.current];
     setLines(nextLines);
     setCircles(nextCircles);
     setRects(nextRects);
-    setCount(nextCircles.length + nextLines.length + nextRects.length);
+    setStrokes(nextStrokes);
+    setCount(nextCircles.length + nextLines.length + nextRects.length + nextStrokes.length);
   };
 
   const handleReset = () => {
     if (count === 0) return;
     setCount(0);
     historyStep.current += 1;
-    const resetLines: any = [];
-    const resetCircles: any = [];
-    const resetRects: any = [];
+    const resetLines: number[][] = [];
+    const resetCircles: CircleShape[] = [];
+    const resetRects: RectShape[] = [];
+    const resetStrokes: number[][] = [];
     linesHistory.current.push(resetLines);
     circlesHistory.current.push(resetCircles);
     rectsHistory.current.push(resetRects);
+    strokesHistory.current.push(resetStrokes);
     setLines(resetLines);
     setCircles(resetCircles);
     setRects(resetRects);
+    setStrokes(resetStrokes);
   };
 
   /**
@@ -474,7 +542,8 @@ export default function useDraw(roomId: string) {
       lines: linesHistory.current[historyStep.current],
       circles: circlesHistory.current[historyStep.current],
       rects: rectsHistory.current[historyStep.current],
-      element: lines.length + circles.length + rects.length,
+      strokes: strokesHistory.current[historyStep.current],
+      element: lines.length + circles.length + rects.length + strokes.length,
     };
     if (typeof window !== 'undefined' && typeof sessionStorage !== 'undefined') {
       sessionStorage.setItem(`drawing_${roomId}`, JSON.stringify(canvasData));
@@ -489,6 +558,7 @@ export default function useDraw(roomId: string) {
     lines,
     circles,
     rects,
+    strokes,
     selectedShape,
     tool,
     setTool,

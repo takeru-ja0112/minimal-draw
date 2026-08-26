@@ -10,6 +10,7 @@ type Props = {
   lines: number[][];
   circles: CircleShape[];
   rects: RectShape[];
+  strokes: number[][];
   selectedShape: SelectedShape;
   w: number;
   h: number;
@@ -24,6 +25,7 @@ export default function DrawCanvas({
   lines,
   circles,
   rects,
+  strokes,
   selectedShape,
   w,
   h,
@@ -91,6 +93,17 @@ export default function DrawCanvas({
                 stroke={selectedShape?.type === 'rect' && selectedShape.index === i ? '#e9c10e' : 'black'}
                 strokeWidth={selectedShape?.type === 'rect' && selectedShape.index === i ? 4 : 3}
                 rotation={rect.rotation}
+              />
+            ))}
+            {strokes.map((points, i) => (
+              <Line
+                key={i}
+                points={points}
+                stroke={selectedShape?.type === 'pen' && selectedShape.index === i ? '#e9c10e' : 'black'}
+                strokeWidth={selectedShape?.type === 'pen' && selectedShape.index === i ? 4 : 3}
+                lineCap="round"
+                lineJoin="round"
+                tension={0.5}
               />
             ))}
           </Layer>
