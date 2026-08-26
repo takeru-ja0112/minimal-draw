@@ -21,10 +21,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Minimal Draw",
   description: "Mini app",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'black-translucent',
-  },
+  // appleWebApp: {
+  //   capable: true,
+  //   statusBarStyle: 'black-translucent',
+  // },
 };
 
 export const viewport: Viewport = {
@@ -60,6 +60,8 @@ export default function RootLayout({
           <meta property="og:image" content="/minimalDrawIcon.svg" />
           <meta property="og:image:width" content="1200" />
           <meta property="og:image:height" content="630" />
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         </head>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen`}
