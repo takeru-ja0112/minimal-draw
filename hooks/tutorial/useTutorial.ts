@@ -27,6 +27,7 @@ export function useTutorial({ key, steps, driverOptions }: UseTutorialOptions) {
             doneBtnText: '閉じる',
             nextBtnText: '次へ',
             prevBtnText: '戻る',
+            popoverClass: 'custom-driver-popover',
             ...driverOptions,
             steps,
             onDestroyed: () => {
@@ -51,4 +52,4 @@ export function useTutorial({ key, steps, driverOptions }: UseTutorialOptions) {
             driverObj.destroy();
         };
     }, [key, steps, driverOptions]);
-}
+}

@@ -3,6 +3,9 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --primary: #f0ab16;
+  --primary-text: #1f1001;
+  --primary-title: #e0a500;
 }
 
 @theme inline {
@@ -38,4 +41,87 @@ body {
   /* disabled っぽい見た目にする（お好みで） */
   cursor: not-allowed !important;
   /* カーソルを禁止マークに */
+}
+
+/* ポップオーバー全体のコンテナ */
+.driver-popover.custom-driver-popover {
+  color: var(--primary-text);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  padding: 16px;
+}
+
+/* タイトル */
+.driver-popover.custom-driver-popover .driver-popover-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--primary-title);
+}
+
+/* 説明文 */
+.driver-popover.custom-driver-popover .driver-popover-description {
+  font-size: 0.9rem;
+  color: var(--primary-text);
+  line-height: 1.5;
+  margin-top: 8px;
+  background-color: #fff;
+  border-radius: 4px;
+  padding: 4px;
+}
+
+/* フッター（ボタンやページネーション領域） */
+.driver-popover.custom-driver-popover .driver-popover-footer {
+  margin-top: 16px;
+}
+
+/* プログレス表示（1/5 など） */
+.driver-popover.custom-driver-popover .driver-popover-progress-text {
+  color: var(--primary-text);
+  font-size: 0.8rem;
+}
+
+/* 「次へ」「閉じる」などのボタン共通 */
+.driver-popover.custom-driver-popover button {
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+/* 「次へ」「完了」ボタン */
+.driver-popover.custom-driver-popover .driver-popover-next-btn {
+  color: var(--primary-text);
+  border: 2px dotted var(--primary-text);
+}
+
+.driver-popover.custom-driver-popover .driver-popover-next-btn:hover {
+  background-color: var(--primary);
+}
+
+/* 「戻る」ボタン */
+.driver-popover.custom-driver-popover .driver-popover-prev-btn {
+  background-color: transparent;
+  color: var(--primary-text);
+  border: 2px dotted var(--primary-text);
+}
+
+.driver-popover.custom-driver-popover .driver-popover-prev-btn:hover {
+  background-color: var(--primary);
+}
+
+/* 矢印（アロー）の色 */
+.driver-popover.custom-driver-popover .driver-popover-arrow-side-top {
+  border-bottom-color: var(--primary);
+}
+
+.driver-popover.custom-driver-popover .driver-popover-arrow-side-bottom {
+  /* border-top-color: var(--primary); */
+}
+
+.driver-popover.custom-driver-popover .driver-popover-arrow-side-left {
+  border-right-color: var(--primary);
+}
+
+.driver-popover.custom-driver-popover .driver-popover-arrow-side-right {
+  border-left-color: var(--primary);
 }
