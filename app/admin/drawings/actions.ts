@@ -7,7 +7,7 @@ export async function deleteDrawing(id: string): Promise<void> {
   if (!id) return;
 
   try {
-    await prisma.drawing.delete({
+    await prisma.historyDrawing.delete({
       where: { id },
     });
 

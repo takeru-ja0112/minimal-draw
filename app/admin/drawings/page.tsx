@@ -2,6 +2,7 @@ import { prismaAdminReadonly } from "@/lib/prisma";
 import ConfirmSubmitButton from "@/components/admin/ConfirmSubmitButton";
 import DrawingPreviewCell from "@/components/admin/DrawingPreviewCell";
 import { deleteDrawing } from "./actions";
+import { TbTrash } from "react-icons/tb";
 
 export const metadata = {
   title: "イラスト管理 | Admin Panel",
@@ -12,7 +13,7 @@ export const metadata = {
 };
 
 export default async function AdminDrawingsPage() {
-  const drawings = await prismaAdminReadonly.drawing.findMany({
+  const drawings = await prismaAdminReadonly.historyDrawing.findMany({
     orderBy: { created_at: "desc" },
   });
 
@@ -33,17 +34,37 @@ export default async function AdminDrawingsPage() {
 
       {/* Drawings Table */}
       <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <table className="w-full text-left border-collapse min-w-[1200px]">
+        {/* 表示構成の変更　*/}
+        <div className="flex flex-wrap">
+          {drawings.map(drawing => (
+            <div key={drawing.id} className="relative w-1/3 p-4">
+              <DrawingPreviewCell
+                canvasData={drawing.canvas_data}
+                theme={drawing.theme}
+                elementCount={drawing.element_count}
+                id={drawing.id}
+              />
+              <div className="absolute top-2 right-2">
+                <form action={deleteDrawing.bind(null, drawing.id)}>
+                  <ConfirmSubmitButton
+                    message={`イラスト「${drawing.theme || drawing.id}」を削除しますか？`}
+                    buttonText="削除"
+                    className="text-white font-semibold py-1 px-3 rounded-lg text-xs transition-colors duration-200 cursor-pointer shadow-sm"
+                  />
+                </form>
+              </div>
+            </div>
+          ))}
+        </div>
+
+
+        {/* <table className="w-full text-left border-collapse min-w-[1200px]">
           <thead>
             <tr className="border-b border-gray-200 bg-amber-500/10 text-gray-700 text-xs font-semibold uppercase tracking-wider">
-              <th className="px-6 py-4">イラストID (UUID)</th>
-              <th className="px-6 py-4">ルームID (UUID)</th>
-              <th className="px-6 py-4">ユーザーID (UUID)</th>
+              <th className="px-6 py-4">サムネイル</th>
               <th className="px-6 py-4">お題</th>
               <th className="px-6 py-4">要素数</th>
               <th className="px-6 py-4">作成日時</th>
-              <th className="px-6 py-4">削除日時</th>
-              <th className="px-6 py-4">描画データ (JSON)</th>
               <th className="px-6 py-4 text-right">アクション</th>
             </tr>
           </thead>
@@ -60,18 +81,25 @@ export default async function AdminDrawingsPage() {
                 return (
                   <tr
                     key={drawing.id}
-                    className={`transition-colors hover:bg-amber-50/50 ${
-                      isDeleted ? "bg-gray-50 text-gray-400" : ""
-                    }`}
+                    className={`transition-colors hover:bg-amber-50/50 ${isDeleted ? "bg-gray-50 text-gray-400" : ""
+                      }`}
                   >
-                    <td className="px-6 py-4 font-mono text-xs select-all text-gray-600">
-                      {drawing.id}
-                    </td>
-                    <td className="px-6 py-4 font-mono text-xs select-all text-gray-600">
-                      {drawing.room_id}
-                    </td>
-                    <td className="px-6 py-4 font-mono text-xs select-all text-gray-600">
-                      {drawing.user_id}
+                    <td className="w-35 group relative px-6 py-4">
+                      <DrawingPreviewCell
+                        canvasData={drawing.canvas_data}
+                        theme={drawing.theme}
+                        elementCount={drawing.element_count}
+                        id={drawing.id}
+                      />
+                      <div className="absolute right-0 top-2 -p-5 bg-amber-5500">
+                        <form action={deleteDrawing.bind(null, drawing.id)}>
+                          <ConfirmSubmitButton
+                            message={`イラスト「${drawing.theme || drawing.id}」を削除しますか？`}
+                            buttonText="削除"
+                            className="text-white font-semibold py-2 px-3 rounded-lg text-xs transition-colors duration-200 cursor-pointer shadow-sm"
+                          />
+                        </form>
+                      </div>
                     </td>
                     <td className="px-6 py-4 font-medium text-gray-900">
                       {drawing.theme || <span className="text-gray-400 italic">未設定</span>}
@@ -94,14 +122,6 @@ export default async function AdminDrawingsPage() {
                         <span className="text-gray-400">-</span>
                       )}
                     </td>
-                    <td className="px-6 py-4">
-                      <DrawingPreviewCell
-                        canvasData={drawing.canvas_data}
-                        theme={drawing.theme}
-                        elementCount={drawing.element_count}
-                        id={drawing.id}
-                      />
-                    </td>
                     <td className="px-6 py-4 text-right">
                       {!isDeleted && (
                         <form action={deleteDrawing.bind(null, drawing.id)}>
@@ -118,7 +138,7 @@ export default async function AdminDrawingsPage() {
               })
             )}
           </tbody>
-        </table>
+        </table> */}
       </div>
     </div>
   );
