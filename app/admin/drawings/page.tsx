@@ -1,8 +1,8 @@
 import { prismaAdminReadonly } from "@/lib/prisma";
 import ConfirmSubmitButton from "@/components/admin/ConfirmSubmitButton";
 import DrawingPreviewCell from "@/components/admin/DrawingPreviewCell";
+import DrawingFilterControls from "@/components/admin/DrawingFilterControls";
 import { deleteDrawing } from "./actions";
-import { TbTrash } from "react-icons/tb";
 
 export const metadata = {
   title: "イラスト管理 | Admin Panel",
@@ -12,9 +12,31 @@ export const metadata = {
   },
 };
 
-export default async function AdminDrawingsPage() {
+interface PageProps {
+  searchParams: Promise<{ filter?: string; sort?: string }>;
+}
+
+export default async function AdminDrawingsPage({ searchParams }: PageProps) {
+  const resolvedSearchParams = await searchParams;
+  const filter = resolvedSearchParams?.filter || "active";
+  const sort = resolvedSearchParams?.sort || "desc";
+
+  // Build Prisma filter clause
+  let whereClause = {};
+  if (filter === "active") {
+    whereClause = { deleted_at: null };
+  } else if (filter === "deleted") {
+    whereClause = { deleted_at: { not: null } };
+  }
+
+  // Build Prisma order clause
+  const orderByClause = {
+    created_at: sort === "asc" ? ("asc" as const) : ("desc" as const),
+  };
+
   const drawings = await prismaAdminReadonly.historyDrawing.findMany({
-    orderBy: { created_at: "desc" },
+    where: whereClause,
+    orderBy: orderByClause,
   });
 
   return (
@@ -24,7 +46,7 @@ export default async function AdminDrawingsPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">イラスト管理</h1>
           <p className="text-gray-600 text-sm mt-1">
-            ユーザーが描画したイラスト（現在対戦中・進行中のもの）の確認と削除（論理削除）が行えます。
+            ユーザーが描画したイラストの確認と削除（論理削除）が行えます。
           </p>
         </div>
         <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 self-start md:self-auto text-sm text-gray-700 shadow-sm">
@@ -32,114 +54,82 @@ export default async function AdminDrawingsPage() {
         </div>
       </div>
 
-      {/* Drawings Table */}
-      <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
-        {/* 表示構成の変更　*/}
-        <div className="flex flex-wrap">
-          {drawings.map(drawing => (
-            <div key={drawing.id} className="relative w-1/3 p-4">
-              <DrawingPreviewCell
-                canvasData={drawing.canvas_data}
-                theme={drawing.theme}
-                elementCount={drawing.element_count}
-                id={drawing.id}
-              />
-              <div className="absolute top-2 right-2">
-                <form action={deleteDrawing.bind(null, drawing.id)}>
-                  <ConfirmSubmitButton
-                    message={`イラスト「${drawing.theme || drawing.id}」を削除しますか？`}
-                    buttonText="削除"
-                    className="text-white font-semibold py-1 px-3 rounded-lg text-xs transition-colors duration-200 cursor-pointer shadow-sm"
-                  />
-                </form>
-              </div>
-            </div>
-          ))}
+      {/* Filter & Sort Controls */}
+      <DrawingFilterControls currentFilter={filter} currentSort={sort} />
+
+      {/* Drawings Grid */}
+      {drawings.length === 0 ? (
+        <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center text-gray-500 shadow-sm">
+          イラストが見つかりません。
         </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {drawings.map((drawing) => {
+            const isDeleted = drawing.deleted_at !== null;
+            return (
+              <div
+                key={drawing.id}
+                className={`relative bg-white rounded-2xl border border-gray-200 p-4 shadow-sm transition-all hover:shadow-md flex flex-col justify-between ${
+                  isDeleted ? "opacity-60 bg-gray-50/80" : ""
+                }`}
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-2 gap-2">
+                    {isDeleted ? (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700 border border-rose-200">
+                        削除済み
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
+                        アクティブ
+                      </span>
+                    )}
 
-
-        {/* <table className="w-full text-left border-collapse min-w-[1200px]">
-          <thead>
-            <tr className="border-b border-gray-200 bg-amber-500/10 text-gray-700 text-xs font-semibold uppercase tracking-wider">
-              <th className="px-6 py-4">サムネイル</th>
-              <th className="px-6 py-4">お題</th>
-              <th className="px-6 py-4">要素数</th>
-              <th className="px-6 py-4">作成日時</th>
-              <th className="px-6 py-4 text-right">アクション</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 text-sm text-gray-700">
-            {drawings.length === 0 ? (
-              <tr>
-                <td colSpan={9} className="px-6 py-10 text-center text-gray-500">
-                  イラストが見つかりません。
-                </td>
-              </tr>
-            ) : (
-              drawings.map((drawing) => {
-                const isDeleted = drawing.deleted_at !== null;
-                return (
-                  <tr
-                    key={drawing.id}
-                    className={`transition-colors hover:bg-amber-50/50 ${isDeleted ? "bg-gray-50 text-gray-400" : ""
-                      }`}
-                  >
-                    <td className="w-35 group relative px-6 py-4">
-                      <DrawingPreviewCell
-                        canvasData={drawing.canvas_data}
-                        theme={drawing.theme}
-                        elementCount={drawing.element_count}
-                        id={drawing.id}
+                    <form action={deleteDrawing.bind(null, drawing.id)}>
+                      <ConfirmSubmitButton
+                        message={
+                          isDeleted
+                            ? `イラスト「${drawing.theme || drawing.id}」の削除を取り消しますか？`
+                            : `イラスト「${drawing.theme || drawing.id}」を削除しますか？`
+                        }
+                        buttonText={isDeleted ? "復元" : "削除"}
+                        className={`${
+                          isDeleted
+                            ? "bg-emerald-600 hover:bg-emerald-700"
+                            : "bg-rose-600 hover:bg-rose-700"
+                        } text-white font-semibold py-1 px-3 rounded-lg text-xs transition-colors duration-200 cursor-pointer shadow-xs`}
                       />
-                      <div className="absolute right-0 top-2 -p-5 bg-amber-5500">
-                        <form action={deleteDrawing.bind(null, drawing.id)}>
-                          <ConfirmSubmitButton
-                            message={`イラスト「${drawing.theme || drawing.id}」を削除しますか？`}
-                            buttonText="削除"
-                            className="text-white font-semibold py-2 px-3 rounded-lg text-xs transition-colors duration-200 cursor-pointer shadow-sm"
-                          />
-                        </form>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 font-medium text-gray-900">
-                      {drawing.theme || <span className="text-gray-400 italic">未設定</span>}
-                    </td>
-                    <td className="px-6 py-4 font-bold text-gray-900">
-                      {drawing.element_count}
-                    </td>
-                    <td className="px-6 py-4 text-xs text-gray-600">
-                      {new Date(drawing.created_at).toLocaleString("ja-JP")}
-                    </td>
-                    <td className="px-6 py-4 text-xs">
-                      {isDeleted ? (
-                        <div className="flex flex-col">
-                          <span className="inline-flex items-center w-fit px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700 border border-rose-200 mb-1">
-                            削除済み
-                          </span>
-                          <span className="text-gray-500">{new Date(drawing.deleted_at!).toLocaleString("ja-JP")}</span>
-                        </div>
-                      ) : (
-                        <span className="text-gray-400">-</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      {!isDeleted && (
-                        <form action={deleteDrawing.bind(null, drawing.id)}>
-                          <ConfirmSubmitButton
-                            message={`イラスト「${drawing.theme || drawing.id}」を削除しますか？`}
-                            buttonText="削除"
-                            className="bg-rose-600 hover:bg-rose-700 text-white font-semibold py-1 px-3 rounded-lg text-xs transition-colors duration-200 cursor-pointer shadow-sm"
-                          />
-                        </form>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table> */}
-      </div>
+                    </form>
+                  </div>
+
+                  <div className="flex justify-center my-2">
+                    <DrawingPreviewCell
+                      canvasData={drawing.canvas_data}
+                      theme={drawing.theme}
+                      elementCount={drawing.element_count}
+                      id={drawing.id}
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-3 border-t border-gray-100 pt-2 space-y-1 text-xs text-gray-500">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-gray-700 truncate max-w-[120px]" title={drawing.theme || "未設定"}>
+                      お題: {drawing.theme || "未設定"}
+                    </span>
+                    <span className="font-bold text-gray-900">
+                      要素: {drawing.element_count}
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-gray-400">
+                    {new Date(drawing.created_at).toLocaleString("ja-JP")}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
