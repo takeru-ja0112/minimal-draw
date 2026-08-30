@@ -10,7 +10,7 @@ export default function AppLayoutWrapper({ children }: { children: React.ReactNo
   const isAdmin = pathname.startsWith("/admin");
 
   if (isAdmin) {
-    return <div className="bg-slate-950 min-h-screen text-slate-100 w-full">{children}</div>;
+    return <div className="min-h-screen w-full">{children}</div>;
   }
 
   return (

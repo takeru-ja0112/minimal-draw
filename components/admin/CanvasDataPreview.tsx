@@ -18,7 +18,7 @@ export default function CanvasDataPreview({ canvasData, size = 300 }: CanvasData
     return (
       <div
         style={{ width: size, height: size }}
-        className="bg-slate-950/60 border border-slate-800 rounded-xl flex items-center justify-center text-[10px] text-slate-500 font-medium"
+        className="bg-gray-100 border border-gray-200 rounded-xl flex items-center justify-center text-[10px] text-gray-400 font-medium"
       >
         No Data
       </div>
@@ -26,7 +26,7 @@ export default function CanvasDataPreview({ canvasData, size = 300 }: CanvasData
   }
 
   return (
-    <div className="bg-white rounded-xl overflow-hidden border border-slate-200" style={{ width: size, height: size }}>
+    <div className="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-inner" style={{ width: size, height: size }}>
       <Stage scale={{ x: scale, y: scale }} width={size} height={size}>
         <Layer>
           {parsedData.lines.map((line, i) => (

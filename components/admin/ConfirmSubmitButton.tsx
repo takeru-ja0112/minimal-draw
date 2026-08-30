@@ -11,7 +11,7 @@ interface ConfirmSubmitButtonProps {
 export default function ConfirmSubmitButton({
   message = "本当に削除しますか？",
   buttonText = "削除",
-  className = "bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-3 rounded text-sm transition-colors duration-200"
+  className = "bg-rose-600 hover:bg-rose-700 text-white font-bold py-1 px-3 rounded-lg text-xs transition-colors duration-200 shadow-sm cursor-pointer"
 }: ConfirmSubmitButtonProps) {
   const { pending } = useFormStatus();
 

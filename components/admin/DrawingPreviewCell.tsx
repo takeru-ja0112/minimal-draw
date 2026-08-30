@@ -41,61 +41,61 @@ export default function DrawingPreviewCell({
       <Modal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        className="!bg-slate-900 !border-slate-800 !border-solid !text-slate-100 !rounded-2xl w-full !max-w-md"
+        className="!bg-white !border-gray-200 !border-solid !text-gray-900 !rounded-2xl w-full !max-w-md shadow-2xl"
       >
         <div className="space-y-6">
           {/* Modal Header */}
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-            <h3 className="text-lg font-bold text-white">イラスト詳細</h3>
+          <div className="flex items-center justify-between border-b border-gray-200 pb-3">
+            <h3 className="text-lg font-bold text-gray-900">イラスト詳細</h3>
             <button
               onClick={() => setIsOpen(false)}
-              className="text-slate-400 hover:text-white transition-colors cursor-pointer text-sm"
+              className="text-gray-400 hover:text-gray-700 transition-colors cursor-pointer text-sm font-medium"
             >
               閉じる
             </button>
           </div>
 
           {/* Large Preview */}
-          <div className="flex justify-center bg-slate-950 p-6 rounded-2xl border border-slate-800">
+          <div className="flex justify-center bg-gray-50 p-6 rounded-2xl border border-gray-200">
             <CanvasDataPreview canvasData={canvasData} size={300} />
           </div>
 
           {/* Metadata Grid */}
-          <div className="grid grid-cols-2 gap-4 text-sm border-t border-slate-800 pt-4 text-slate-300">
+          <div className="grid grid-cols-2 gap-4 text-sm border-t border-gray-200 pt-4 text-gray-700">
             <div>
-              <span className="block text-[10px] text-slate-500 uppercase font-semibold tracking-wider">
+              <span className="block text-[10px] text-gray-500 uppercase font-semibold tracking-wider">
                 お題
               </span>
-              <span className="font-bold text-white text-base">
-                {theme || <span className="text-slate-500 italic">未設定</span>}
+              <span className="font-bold text-gray-900 text-base">
+                {theme || <span className="text-gray-400 italic">未設定</span>}
               </span>
             </div>
             <div>
-              <span className="block text-[10px] text-slate-500 uppercase font-semibold tracking-wider">
+              <span className="block text-[10px] text-gray-500 uppercase font-semibold tracking-wider">
                 要素数 (画数)
               </span>
-              <span className="font-bold text-white text-base">
+              <span className="font-bold text-gray-900 text-base">
                 {elementCount}
               </span>
             </div>
             <div className="col-span-2">
-              <span className="block text-[10px] text-slate-500 uppercase font-semibold tracking-wider">
+              <span className="block text-[10px] text-gray-500 uppercase font-semibold tracking-wider">
                 イラストID (UUID)
               </span>
-              <span className="font-mono text-xs select-all break-all text-slate-400">
+              <span className="font-mono text-xs select-all break-all text-gray-600 bg-gray-100 px-2 py-1 rounded border border-gray-200 block mt-1">
                 {id}
               </span>
             </div>
           </div>
 
           {/* Raw JSON Debug Folder */}
-          <div className="border-t border-slate-800 pt-4">
+          <div className="border-t border-gray-200 pt-4">
             <details className="group cursor-pointer select-none">
-              <summary className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold list-none flex items-center gap-1">
+              <summary className="text-xs text-amber-600 hover:text-amber-700 font-semibold list-none flex items-center gap-1">
                 <span className="transition-transform group-open:rotate-90">&rarr;</span>
                 生データ (JSON) を表示
               </summary>
-              <pre className="mt-3 text-[10px] font-mono bg-slate-950 border border-slate-800 rounded-xl p-3 overflow-auto max-h-48 select-text text-slate-450 text-left">
+              <pre className="mt-3 text-[10px] font-mono bg-gray-900 text-gray-100 border border-gray-800 rounded-xl p-3 overflow-auto max-h-48 select-text text-left">
                 {JSON.stringify(canvasData, null, 2)}
               </pre>
             </details>

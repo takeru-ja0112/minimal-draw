@@ -77,56 +77,56 @@ export default function Top() {
                     </motion.div>
 
                     {/* ユーザー名の管理 */}
-                    <Card className="mb-6">
-                        <div id="tutorial-name-setting">
-                            <div className="mb-2">
-                                <label htmlFor="username" className="font-semibold text-gray-700">
-                                    名前
-                                </label>
-                            </div>
-                            <div className="my-2 flex items-center gap-3">
-                                <motion.button
-                                    type="button"
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={() => setIsIconModalOpen(true)}
-                                    className="flex items-center justify-center w-12 h-12 shrink-0 rounded-full bg-white border border-dotted border-gray-300 border-2"
-                                >
-                                    <UserIcon iconName={iconName} iconColor={iconColor} size={26} />
-                                </motion.button>
-                                <Input
-                                    name="username"
-                                    value={user}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                        setUsernameSchema({
-                                            name: e.target.value,
-                                            setNameError,
-                                            setUser,
-                                        });
-                                    }}
-                                    onBlur={() => {
-                                        setNameError("");
-                                        if (!user) {
-                                            setNameError("ユーザー名は必須です");
-                                            return;
-                                        }
-                                        if (userId) {
-                                            void ensureUser(userId, user);
-                                        }
-                                    }}
-                                    placeholder="ユーザー名を入力してください"
-                                    className={`w-full ${nameError ? "border-red-500 border-2" : ""}`}
-                                />
-                            </div>
-                            {nameError && (
-                                <div className="mb-2">
-                                    <p className="text-red-500 font-semibold text-sm">
-                                        {nameError}
-                                    </p>
-                                </div>
-                            )}
+                    {/* <Card className="mb-6"> */}
+                    <div id="tutorial-name-setting">
+                        <div className="mb-2">
+                            <label htmlFor="username" className="font-semibold text-gray-700">
+                                名前
+                            </label>
                         </div>
-                    </Card>
+                        <div className="my-2 flex items-center gap-3">
+                            <motion.button
+                                type="button"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => setIsIconModalOpen(true)}
+                                className="flex items-center justify-center w-12 h-12 shrink-0 rounded-full bg-white border border-dotted border-gray-300 border-2"
+                            >
+                                <UserIcon iconName={iconName} iconColor={iconColor} size={26} />
+                            </motion.button>
+                            <Input
+                                name="username"
+                                value={user}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                    setUsernameSchema({
+                                        name: e.target.value,
+                                        setNameError,
+                                        setUser,
+                                    });
+                                }}
+                                onBlur={() => {
+                                    setNameError("");
+                                    if (!user) {
+                                        setNameError("ユーザー名は必須です");
+                                        return;
+                                    }
+                                    if (userId) {
+                                        void ensureUser(userId, user);
+                                    }
+                                }}
+                                placeholder="ユーザー名を入力してください"
+                                className={`w-full ${nameError ? "border-red-500 border-2" : ""}`}
+                            />
+                        </div>
+                        {nameError && (
+                            <div className="mb-2">
+                                <p className="text-red-500 font-semibold text-sm">
+                                    {nameError}
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                    {/* </Card> */}
 
 
                     {/* ルーム検索セクション */}
@@ -203,7 +203,7 @@ export default function Top() {
                         </Link>
                     </div>
                 </div>
-            </div>
+            </div >
 
             {/* {isSetUserModal && (
                 <SetUserModal
@@ -218,11 +218,12 @@ export default function Top() {
                 />
             )} */}
 
-            <IconSettingModal
+            < IconSettingModal
                 isOpen={isIconModalOpen}
                 currentIconName={iconName}
                 currentIconColor={iconColor}
-                onClose={() => setIsIconModalOpen(false)}
+                onClose={() => setIsIconModalOpen(false)
+                }
                 onSave={(newIconName, newIconColor) => {
                     setIconName(newIconName);
                     setIconColor(newIconColor);

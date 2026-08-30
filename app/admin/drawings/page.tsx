@@ -21,21 +21,21 @@ export default async function AdminDrawingsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">イラスト管理</h1>
-          <p className="text-slate-400 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-gray-900">イラスト管理</h1>
+          <p className="text-gray-600 text-sm mt-1">
             ユーザーが描画したイラスト（現在対戦中・進行中のもの）の確認と削除（論理削除）が行えます。
           </p>
         </div>
-        <div className="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 self-start md:self-auto text-sm">
-          イラスト数: <span className="text-white font-bold">{drawings.length}</span> 件
+        <div className="bg-white border border-gray-200 rounded-xl px-4 py-2 self-start md:self-auto text-sm text-gray-700 shadow-sm">
+          イラスト数: <span className="text-amber-600 font-bold">{drawings.length}</span> 件
         </div>
       </div>
 
       {/* Drawings Table */}
-      <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/40 backdrop-blur-md">
+      <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
         <table className="w-full text-left border-collapse min-w-[1200px]">
           <thead>
-            <tr className="border-b border-slate-800 bg-slate-900/60 text-slate-400 text-xs font-semibold uppercase tracking-wider">
+            <tr className="border-b border-gray-200 bg-amber-500/10 text-gray-700 text-xs font-semibold uppercase tracking-wider">
               <th className="px-6 py-4">イラストID (UUID)</th>
               <th className="px-6 py-4">ルームID (UUID)</th>
               <th className="px-6 py-4">ユーザーID (UUID)</th>
@@ -47,10 +47,10 @@ export default async function AdminDrawingsPage() {
               <th className="px-6 py-4 text-right">アクション</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60 text-sm text-slate-300">
+          <tbody className="divide-y divide-gray-200 text-sm text-gray-700">
             {drawings.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-6 py-10 text-center text-slate-500">
+                <td colSpan={9} className="px-6 py-10 text-center text-gray-500">
                   イラストが見つかりません。
                 </td>
               </tr>
@@ -60,38 +60,38 @@ export default async function AdminDrawingsPage() {
                 return (
                   <tr
                     key={drawing.id}
-                    className={`transition-colors hover:bg-slate-800/20 ${
-                      isDeleted ? "bg-slate-950/40 text-slate-500" : ""
+                    className={`transition-colors hover:bg-amber-50/50 ${
+                      isDeleted ? "bg-gray-50 text-gray-400" : ""
                     }`}
                   >
-                    <td className="px-6 py-4 font-mono text-xs select-all">
+                    <td className="px-6 py-4 font-mono text-xs select-all text-gray-600">
                       {drawing.id}
                     </td>
-                    <td className="px-6 py-4 font-mono text-xs select-all">
+                    <td className="px-6 py-4 font-mono text-xs select-all text-gray-600">
                       {drawing.room_id}
                     </td>
-                    <td className="px-6 py-4 font-mono text-xs select-all">
+                    <td className="px-6 py-4 font-mono text-xs select-all text-gray-600">
                       {drawing.user_id}
                     </td>
-                    <td className="px-6 py-4 font-medium text-slate-200">
-                      {drawing.theme || <span className="text-slate-500 italic">未設定</span>}
+                    <td className="px-6 py-4 font-medium text-gray-900">
+                      {drawing.theme || <span className="text-gray-400 italic">未設定</span>}
                     </td>
-                    <td className="px-6 py-4 font-bold text-slate-200">
+                    <td className="px-6 py-4 font-bold text-gray-900">
                       {drawing.element_count}
                     </td>
-                    <td className="px-6 py-4 text-xs">
+                    <td className="px-6 py-4 text-xs text-gray-600">
                       {new Date(drawing.created_at).toLocaleString("ja-JP")}
                     </td>
                     <td className="px-6 py-4 text-xs">
                       {isDeleted ? (
                         <div className="flex flex-col">
-                          <span className="inline-flex items-center w-fit px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20 mb-1">
+                          <span className="inline-flex items-center w-fit px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700 border border-rose-200 mb-1">
                             削除済み
                           </span>
-                          <span>{new Date(drawing.deleted_at!).toLocaleString("ja-JP")}</span>
+                          <span className="text-gray-500">{new Date(drawing.deleted_at!).toLocaleString("ja-JP")}</span>
                         </div>
                       ) : (
-                        <span className="text-slate-550">-</span>
+                        <span className="text-gray-400">-</span>
                       )}
                     </td>
                     <td className="px-6 py-4">
@@ -108,7 +108,7 @@ export default async function AdminDrawingsPage() {
                           <ConfirmSubmitButton
                             message={`イラスト「${drawing.theme || drawing.id}」を削除しますか？`}
                             buttonText="削除"
-                            className="bg-rose-600/80 hover:bg-rose-600 text-white font-semibold py-1 px-3 rounded-lg text-xs transition-colors duration-200 cursor-pointer"
+                            className="bg-rose-600 hover:bg-rose-700 text-white font-semibold py-1 px-3 rounded-lg text-xs transition-colors duration-200 cursor-pointer shadow-sm"
                           />
                         </form>
                       )}
