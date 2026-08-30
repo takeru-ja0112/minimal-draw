@@ -222,7 +222,6 @@ export default function RoomSearchSection({
               whileHover={{ scale: 1.01 }}
             >
               <div className="relative p-3 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden text-left bg-white">
-                <span className="absolute -right-8 -top-8 w-15 h-15 bg-blue-500 rotate-45"></span>
                 <div className="w-full font-bold">
                   <h3 className="text-base text-gray-800">{room.room_name}</h3>
                   <div className="text-xs text-gray-500">

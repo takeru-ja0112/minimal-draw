@@ -65,7 +65,7 @@ export default function useRoom(roomId: string) {
 
     setIsStarting(true);
     const randomMember = members[Math.floor(Math.random() * members.length)];
-    const result = await startQuickGame(roomId, randomMember.user_id);
+    const result = await startQuickGame(roomId, randomMember.user_id, roomSetting);
     if (!result.success) {
       showToast('ゲームの開始に失敗しました', { variant: 'error' });
     }

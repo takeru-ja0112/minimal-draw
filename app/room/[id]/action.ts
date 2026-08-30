@@ -150,7 +150,16 @@ export async function resetRoomAnswer(roomId: string) {
  * @param roomSetting
  * @returns
  */
-export async function changeRoomTheme({ roomId, roomSetting }: { roomId: string; roomSetting: RoomSettingType }) {
+export async function changeRoomTheme(
+  roomIdOrParams: string | { roomId: string; roomSetting: RoomSettingType },
+  roomSettingParam?: RoomSettingType,
+) {
+  const roomId = typeof roomIdOrParams === 'object' ? roomIdOrParams.roomId : roomIdOrParams;
+  const roomSetting = typeof roomIdOrParams === 'object' ? roomIdOrParams.roomSetting : roomSettingParam;
+
+  if (!roomSetting) {
+    return { success: false, error: 'roomSetting is required', data: null };
+  }
   let data;
   try {
     data = await prisma.theme.findMany({
@@ -265,9 +274,13 @@ export async function resetDrawingData(roomId: string) {
  *
  * answer_id・statusの更新と、前回分の描画・回答データのクリアを1つのトランザクションで行う
  */
-export async function startQuickGame(roomId: string, answererId: string) {
+export async function startQuickGame(roomId: string, answererId: string, roomSetting?: RoomSettingType) {
   try {
     await ensureUser(answererId);
+
+    if (roomSetting) {
+      await changeRoomTheme(roomId, roomSetting);
+    }
 
     const data = await prisma.$transaction(async (tx) => {
       await tx.drawing.deleteMany({ where: { room_id: roomId } });

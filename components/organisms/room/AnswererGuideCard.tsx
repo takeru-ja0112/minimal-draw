@@ -21,12 +21,12 @@ export default function AnswererGuideCard({
     <Card id="tutorial-room-answer" className="mb-4 perspective-1000">
       <h2 className='text-sm font-bold truncate max-w-[8rem]'><span className='text-amber-600'>答える人</span>はこちら</h2>
       <motion.div
-        className={`absolute -top-4 -right-3 rotate-12 px-3 py-2 rounded-full font-bold text-sm flex items-center gap-1 max-w-32
-                            ${answerId ? 'bg-green-200 text-green-600' : 'bg-gray-200 text-gray-600'}`}
+        className={`absolute -top-4 -right-3 rotate-10 pl-2 pr-3 py-1 rounded-full font-bold text-sm flex items-center gap-1 max-w-32
+                            ${answerId ? 'bg-white/50 text-black border border-2 border-amber-500' : 'bg-gray-200 text-gray-600'}`}
       >
         {answerId ? (
           <>
-            <UserIcon iconName={answerer?.icon_name} iconColor={answerer?.icon_color} size={16} />
+            <UserIcon iconName={answerer?.icon_name} iconColor={answerer?.icon_color} size={20} />
             <span className='truncate'>{answerer?.username || '決定済'}</span>
           </>
         ) : (
