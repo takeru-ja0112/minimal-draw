@@ -18,7 +18,6 @@ export default function AdminLayout({
     <div className="min-h-screen font-sans flex flex-col lg:flex-row antialiased w-full bg-gray-50 text-gray-900">
       {/* Sidebar Navigation */}
       <AdminSidebar />
-
       {/* Main Content Area */}
       <main className="flex-1 lg:pl-64 flex flex-col min-h-screen w-full">
         <div className="p-4 md:p-8 flex-1 w-full max-w-7xl mx-auto">
