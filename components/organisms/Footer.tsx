@@ -9,12 +9,14 @@ import { TbHome, TbPencil, TbUsersGroup } from "react-icons/tb";
 import { motion } from 'motion/react';
 import { CurrentRootingCheck } from "@/app/lib/RootingCheck";
 import useIsMobile from "@/hooks/useIsMobile";
+import { useScrollDirection } from "@/hooks/useScrollDirection";
 
 
 export default function Footer() {
   const isMobile = useIsMobile();
   const [isBrowser, setIsBrowser] = useState(false);
   const pathname = usePathname();
+  const { isDown } = useScrollDirection();
 
   const isCheckPage = CurrentRootingCheck();
 
@@ -37,7 +39,7 @@ export default function Footer() {
     <>
       {
         !isCheckPage && (
-          <footer className="h-17 fixed bottom-4 border border-2 border-white rounded-full w-[85%] min-w-[300px] left-1/2 -translate-x-1/2 z-40 shadow-md bg-white/50 backdrop-blur-xs px-2 py-1">
+          <footer className={`h-17 fixed bottom-4 border border-2 border-white rounded-full w-[85%] min-w-[300px] left-1/2 -translate-x-1/2 z-40 shadow-md bg-white/50 backdrop-blur-xs px-2 py-1 transition-transform duration-300 origin-bottom ${isDown ? "scale-85" : ""}`}>
             <nav className="h-full flex justify-around items-center">
               <IconContext.Provider value={{ size: "1.8em" }}>
                 {navItems.map((item) => {
