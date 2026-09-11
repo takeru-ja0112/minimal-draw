@@ -1,8 +1,8 @@
 // "use client";
 // import { useEffect } from "react";
 
-import Toaster from "@/components/common/toast";
 import AppLayoutWrapper from "@/components/common/AppLayoutWrapper";
+import Toaster from "@/components/common/toast";
 import type { Metadata, Viewport } from "next";
 import { ViewTransitions } from 'next-view-transitions';
 import { Geist, Geist_Mono } from "next/font/google";
@@ -49,7 +49,7 @@ export default function RootLayout({
 
   return (
     <ViewTransitions>
-      <html lang="en">
+      <html lang="ja">
         <head>
           <link rel="icon" href="/minimalDrawIcon.svg" />
           <link rel="manifest" href="/manifest.json" />
