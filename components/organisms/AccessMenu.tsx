@@ -4,9 +4,10 @@ import historyLocalRoom from "@/lib/hitoryLocalRoom";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { IconContext } from "react-icons";
 import { MdOutlineMuseum } from "react-icons/md";
-import { TbArrowBackUp, TbHome, TbPencil, TbUsersGroup } from "react-icons/tb";
+import { TbArrowBackUp, TbHome, TbPencil } from "react-icons/tb";
 
 export default function AccessMenu({
   isOpen,
@@ -17,13 +18,18 @@ export default function AccessMenu({
 }) {
   const { getLocalRoom } = historyLocalRoom();
   const router = useRouter();
+  const [latestRoom, setLatestRoom] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLatestRoom(getLocalRoom());
+  }, [getLocalRoom]);
 
   const handleGoToLastRoom = () => {
     if (typeof window === 'undefined') return;
 
-    const latestRoom = getLocalRoom();
-    if (latestRoom) {
-      router.push(`/room/${latestRoom}`);
+    const latestRoomId = getLocalRoom();
+    if (latestRoomId) {
+      router.push(`/room/${latestRoomId}`);
       onClose();
     }
   };
@@ -43,7 +49,7 @@ export default function AccessMenu({
             <Link href="/drawing" onClick={onClose}><li className="my-3 flex px-3 py-1 hover:bg-gray-200 transition duration-200 rounded-full"><TbPencil />試し書き</li></Link>
             <Link href="/museum" onClick={onClose}><li className="my-3 flex px-3 py-1 hover:bg-gray-200 transition duration-200 rounded-full"><MdOutlineMuseum />過去のイラスト</li></Link>
             {/* <Link href="/mobile" onClick={onClose}><li className="my-3 flex px-3 py-1 hover:bg-gray-200 transition duration-200 rounded-full"><TbSettings />設定</li></Link> */}
-            {getLocalRoom() && (
+            {latestRoom && (
               <>
                 <hr className="border-gray-300" />
                 <button onClick={handleGoToLastRoom} className="w-full text-left">
