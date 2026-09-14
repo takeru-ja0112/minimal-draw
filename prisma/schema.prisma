@@ -43,6 +43,7 @@ model Room {
   room_name         String?
   level             String?
   genre             String?
+  password_hash     String?
   created_at        DateTime  @default(now()) @db.Timestamptz(6)
   deleted_at        DateTime? @db.Timestamptz(6)
 
