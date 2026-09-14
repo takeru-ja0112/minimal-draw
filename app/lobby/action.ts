@@ -3,6 +3,9 @@ import { prisma } from '@/lib/prisma';
 import type { CreateRoom } from '@/type/roomType';
 import { Prisma } from '@/lib/generated/prisma/client';
 import { ensureUser } from '@/app/user/action';
+import { omitRoomPasswordHash } from '@/lib/room';
+import { hashRoomPassword, validateRoomPassword } from '@/lib/roomPassword';
+import { grantRoomAccess } from '@/lib/roomAccess';
 
 // ルーム一覧を取得
 export async function getRooms() {
@@ -14,7 +17,7 @@ export async function getRooms() {
     return {
       success: true,
       error: null,
-      data,
+      data: data.map(omitRoomPasswordHash),
     };
   } catch (error) {
     console.error('Unexpected error:', error);
@@ -68,7 +71,7 @@ export async function getRoomByPageSearch(page: number, filters: RoomSearchFilte
     return {
       success: true,
       error: null,
-      data,
+      data: data.map(omitRoomPasswordHash),
       total: count || 0,
       page,
       pageSize: PAGE_SIZE,
@@ -102,7 +105,7 @@ export async function getRoom(roomId: string) {
     return {
       success: true,
       error: null,
-      data,
+      data: omitRoomPasswordHash(data),
     };
   } catch (error) {
     console.error('Unexpected error:', error);
@@ -131,7 +134,7 @@ export async function getRoomsByUserId(userId: string) {
     return {
       success: true,
       error: null,
-      data,
+      data: data.map(omitRoomPasswordHash),
     };
   } catch (error) {
     console.error('Unexpected error:', error);
@@ -150,7 +153,16 @@ export async function createRoomByUsername(createRoomData: CreateRoom) {
   const sanitizedLevel = createRoomData.level;
   const sanitizedGenre = createRoomData.genre;
   const userId = createRoomData.userId || null;
+  const rawPassword = createRoomData.password?.trim() || '';
   let randomTheme;
+
+  if (rawPassword && !validateRoomPassword(rawPassword).success) {
+    return {
+      success: false,
+      error: 'パスワードは数字4桁で入力してください。',
+      data: null,
+    };
+  }
 
   try {
     const data = await prisma.theme.findMany({
@@ -186,6 +198,7 @@ export async function createRoomByUsername(createRoomData: CreateRoom) {
 
     // 短いルームIDを生成
     const shortId = generateShortId();
+    const passwordHash = rawPassword ? await hashRoomPassword(rawPassword) : null;
 
     const data = await prisma.room.create({
       data: {
@@ -196,13 +209,19 @@ export async function createRoomByUsername(createRoomData: CreateRoom) {
         current_theme_id: randomTheme.id,
         level: sanitizedLevel,
         genre: sanitizedGenre,
+        password_hash: passwordHash,
       },
     });
+
+    // 作成者自身はそのまま入室済み扱いにする
+    if (passwordHash) {
+      await grantRoomAccess(data.id, passwordHash);
+    }
 
     return {
       success: true,
       error: null,
-      data,
+      data: omitRoomPasswordHash(data),
     };
   } catch (error) {
     return {
@@ -309,7 +328,7 @@ export async function getRoomByShortId(shortId: string) {
     return {
       success: true,
       error: null,
-      data,
+      data: omitRoomPasswordHash(data),
     };
   } catch (error) {
     console.error('Unexpected error:', error);

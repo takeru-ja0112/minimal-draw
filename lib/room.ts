@@ -81,6 +81,18 @@ export function searchRoomSchema(id: string) {
 }
 
 /**
+ * クライアントに返す前にpassword_hashを取り除く
+ *
+ * password_hashはサーバー内部（入室検証・パスワード設定）でのみ扱い、
+ * クライアントに渡る可能性のあるレスポンスには含めない
+ */
+export function omitRoomPasswordHash<T extends Record<string, unknown>>(room: T): Omit<T, 'password_hash'> {
+  const clone: Record<string, unknown> = { ...room };
+  delete clone.password_hash;
+  return clone as Omit<T, 'password_hash'>;
+}
+
+/**
  * 得点順に並んだスコア一覧から、同着を考慮した順位を計算する
  *
  * 事前に得点降順でソートされている前提（同着＝直前と同じ得点は同順位、

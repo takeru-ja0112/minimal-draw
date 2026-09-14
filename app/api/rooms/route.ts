@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { omitRoomPasswordHash } from '@/lib/room';
 import { NextResponse } from 'next/server';
 
 // 短いルームIDを生成する関数
@@ -19,7 +20,7 @@ export async function POST() {
       },
     });
 
-    return NextResponse.json(data);
+    return NextResponse.json(omitRoomPasswordHash(data));
   } catch (error) {
     console.error('Unexpected error:', error);
     return NextResponse.json(
@@ -35,7 +36,7 @@ export async function GET() {
       orderBy: { created_at: 'desc' },
     });
 
-    return NextResponse.json(data);
+    return NextResponse.json(data.map(omitRoomPasswordHash));
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to fetch rooms' },

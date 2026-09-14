@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { omitRoomPasswordHash } from '@/lib/room';
 import { NextResponse } from 'next/server';
 
 export async function GET(
@@ -16,7 +17,7 @@ export async function GET(
       return NextResponse.json({ error: 'Room not found' }, { status: 404 });
     }
 
-    return NextResponse.json(data);
+    return NextResponse.json(omitRoomPasswordHash(data));
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Unknown error' },

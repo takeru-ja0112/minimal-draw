@@ -31,6 +31,8 @@ export default function RoomCreateModal({
   const [loading, setLoading] = useState(false);
   const [roomName, setRoomName] = useState(`${user}のアトリエ`);
   const [roomError, setRoomError] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   const [settingData, setSettingData] = useState<RoomSettingType>({
     level: "normal",
@@ -67,6 +69,7 @@ export default function RoomCreateModal({
   const handleCreateRoom = async () => {
     setNameError("");
     setRoomError("");
+    setPasswordError("");
 
     if (!user) {
       setNameError("ルームを作成するにはユーザー名が必要です。");
@@ -83,9 +86,14 @@ export default function RoomCreateModal({
       return;
     }
 
+    if (password && !/^\d{4}$/.test(password)) {
+      setPasswordError("パスワードは数字4桁で入力してください。");
+      return;
+    }
+
     setLoading(true);
     try {
-      const res = await createRoomByUsername(createRoomData);
+      const res = await createRoomByUsername({ ...createRoomData, password: password || undefined });
       if (res.success && res.data) {
         const roomId = res.data.id;
         setLocalRoom(roomId);
@@ -143,6 +151,28 @@ export default function RoomCreateModal({
         className="mt-4"
         setRoomData={setSettingData}
       />
+
+      <div className="mt-4">
+        <label htmlFor="roomPassword" className="font-semibold text-gray-700 text-sm">
+          入室パスワード（任意・数字4桁）
+        </label>
+        <div className="my-2">
+          <Input
+            name="roomPassword"
+            type="password"
+            value={password}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              setPassword(e.target.value.replace(/\D/g, "").slice(0, 4));
+              setPasswordError("");
+            }}
+            placeholder="未設定の場合は誰でも入室できます"
+            className={`w-full ${passwordError ? "border-red-500 border-2" : ""}`}
+          />
+        </div>
+        {passwordError && (
+          <p className="text-red-500 font-semibold text-sm">{passwordError}</p>
+        )}
+      </div>
 
       <div className="flex space-x-2 mt-6 justify-end">
         <Button

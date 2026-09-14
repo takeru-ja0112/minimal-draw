@@ -26,6 +26,7 @@ export interface CreateRoom {
   roomName: string;
   level: string;
   genre: string;
+  password?: string; // 数字4桁。未入力ならオープンな部屋になる
 }
 
 export interface RoomSettingType {

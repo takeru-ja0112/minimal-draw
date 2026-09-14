@@ -1,8 +1,15 @@
 import RoomPage from '@/components/pages/RoomPage';
-import { getInfoRoom, getRoomScores } from './action';
+import RoomPasswordGate from '@/components/organisms/room/RoomPasswordGate';
+import { checkRoomAccess, getInfoRoom, getRoomScores } from './action';
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id: roomId } = await params;
+
+  const { requiresPassword, granted } = await checkRoomAccess(roomId);
+  if (requiresPassword && !granted) {
+    return <RoomPasswordGate roomId={roomId} />;
+  }
+
   const scoresRes = await getRoomScores(roomId);
   const scores = scoresRes.success && scoresRes.data ? scoresRes.data : [];
   const sordScores = scores.sort((a, b) => b.point - a.point);

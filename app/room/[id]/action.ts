@@ -3,6 +3,10 @@
 import { prisma } from '@/lib/prisma';
 import type { RoomSettingType, Theme } from '@/type/roomType';
 import { ensureUser } from '@/app/user/action';
+import { omitRoomPasswordHash } from '@/lib/room';
+import { verifyRoomPassword as verifyRoomPasswordHash } from '@/lib/roomPassword';
+import { grantRoomAccess, hasRoomAccess } from '@/lib/roomAccess';
+import { isRateLimited, recordFailedAttempt, clearAttempts } from '@/lib/rateLimit';
 
 /**  ルームのステータスを変更
  *
@@ -35,10 +39,68 @@ export async function getInfoRoom(roomId: string) {
       return { success: false, error: 'Failed to fetch room status', data: null };
     }
 
-    return { success: true, error: null, data: data };
+    return { success: true, error: null, data: omitRoomPasswordHash(data) };
   } catch (error) {
     console.error('Unexpected error:', error);
     return { success: false, error: 'Failed to fetch room status', data: null };
+  }
+}
+
+/**
+ * このブラウザが指定ルームに入室済み（パスワード検証済み、またはパスワード未設定）かを判定する
+ *
+ * password_hashはここでのみ読み取り、呼び出し元には真偽値しか返さない
+ */
+export async function checkRoomAccess(roomId: string): Promise<{ requiresPassword: boolean; granted: boolean }> {
+  try {
+    const room = await prisma.room.findUnique({ where: { id: roomId }, select: { password_hash: true } });
+
+    if (!room || !room.password_hash) {
+      return { requiresPassword: false, granted: true };
+    }
+
+    const granted = await hasRoomAccess(roomId, room.password_hash);
+    return { requiresPassword: true, granted };
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    // 確認できない場合は未入室として扱う（フェイルセーフ）
+    return { requiresPassword: true, granted: false };
+  }
+}
+
+/**
+ * 入室パスワードを検証し、成功したらこのブラウザに入室済みを記録する
+ *
+ * 4桁数字は総当たりが容易なため、ルーム単位で一定時間内の失敗回数を制限する
+ */
+export async function verifyRoomPassword(roomId: string, password: string) {
+  try {
+    if (isRateLimited(roomId)) {
+      return { success: false, error: '試行回数が上限に達しました。しばらくしてから再度お試しください。' };
+    }
+
+    const room = await prisma.room.findUnique({ where: { id: roomId }, select: { password_hash: true } });
+
+    if (!room) {
+      return { success: false, error: 'ルームが見つかりません。' };
+    }
+
+    if (!room.password_hash) {
+      return { success: true, error: null };
+    }
+
+    const isValid = await verifyRoomPasswordHash(password, room.password_hash);
+    if (!isValid) {
+      recordFailedAttempt(roomId);
+      return { success: false, error: 'パスワードが正しくありません。' };
+    }
+
+    clearAttempts(roomId);
+    await grantRoomAccess(roomId, room.password_hash);
+    return { success: true, error: null };
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return { success: false, error: '検証に失敗しました。' };
   }
 }
 

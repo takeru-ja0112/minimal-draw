@@ -35,6 +35,7 @@ export default function CreateRoomModal({
         level: 'normal',
         genre: 'ランダム',
     });
+    const [passwordError, setPasswordError] = useState('');
 
     useEffect(() => {
         setCreateRoomData(prev => ({
@@ -71,6 +72,30 @@ export default function CreateRoomModal({
                     className="mt-6"
                     setRoomData={setSettingData}
                 />
+                <div className="mt-4">
+                    <label htmlFor="roomPassword" className="font-semibold text-gray-700 text-sm">
+                        入室パスワード（任意・数字4桁）
+                    </label>
+                    <div className="my-2">
+                        <Input
+                            name="roomPassword"
+                            type="password"
+                            value={createRoomData.password ?? ''}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                setPasswordError('');
+                                setCreateRoomData(prev => ({
+                                    ...prev,
+                                    password: e.target.value.replace(/\D/g, '').slice(0, 4),
+                                }));
+                            }}
+                            placeholder="未設定の場合は誰でも入室できます"
+                            className={`w-full ${passwordError ? 'border-red-500 border-2' : ''}`}
+                        />
+                    </div>
+                    {passwordError && (
+                        <p className="text-red-500 font-semibold text-sm">{passwordError}</p>
+                    )}
+                </div>
                 <div className='flex space-x-2 mt-6 justify-end'>
                     <Button
                         value='キャンセル'
@@ -81,6 +106,11 @@ export default function CreateRoomModal({
                         value='作成'
                         icon={loading ? <Loading /> : null}
                         onClick={()=>{
+                            const password = createRoomData.password;
+                            if (password && !/^\d{4}$/.test(password)) {
+                                setPasswordError('パスワードは数字4桁で入力してください。');
+                                return;
+                            }
                             createRoom();
                         }}
                         disabled={loading}
