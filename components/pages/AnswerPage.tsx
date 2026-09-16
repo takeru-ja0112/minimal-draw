@@ -89,7 +89,7 @@ export default function AnswerPage({ roomId, drawings, initialTheme }: AnswerPag
   const isNoti = Boolean(sub);
   const isAnswerRoleChecked = checkedAnswerRoleRoomId === roomId;
   const previousStatusRef = useRef(status);
-  const shouldRedirectToDrawingRef = useRef(false);
+  const pendingRedirectRef = useRef<'drawing' | 'room' | null>(null);
 
   const tutorialSteps = useMemo(() => buildAnswerTutorialSteps({ isAnswerRole }), [isAnswerRole]);
   useTutorial({ key: 'answer', steps: tutorialSteps });
@@ -270,15 +270,24 @@ export default function AnswerPage({ roomId, drawings, initialTheme }: AnswerPag
 
   useEffect(() => {
     if (previousStatusRef.current === 'ANSWERING' && status === 'DRAWING') {
-      shouldRedirectToDrawingRef.current = true;
+      pendingRedirectRef.current = 'drawing';
+    } else if (
+      previousStatusRef.current === 'ANSWERING' &&
+      (status === 'FINISHED' || status === 'WAITING')
+    ) {
+      pendingRedirectRef.current = 'room';
     }
     previousStatusRef.current = status;
 
-    if (!shouldRedirectToDrawingRef.current || !isAnswerRoleChecked) return;
+    if (!pendingRedirectRef.current || !isAnswerRoleChecked || isAnswerRole) return;
 
-    shouldRedirectToDrawingRef.current = false;
-    if (!isAnswerRole) {
+    const redirectDestination = pendingRedirectRef.current;
+    pendingRedirectRef.current = null;
+
+    if (redirectDestination === 'drawing') {
       router.replace(`/room/${roomId}/drawing`);
+    } else {
+      router.replace(`/room/${roomId}`);
     }
   }, [isAnswerRole, isAnswerRoleChecked, roomId, router, status]);
 
