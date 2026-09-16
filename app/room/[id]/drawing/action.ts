@@ -44,42 +44,54 @@ export async function saveDrawing(
 
     await ensureUser(userId, userName);
 
-    // 既存のデータをチェック（room_idとuser_idで検索）
-    const existing = await prisma.drawing.findFirst({
-      where: { room_id: roomId, user_id: userId },
-      select: { id: true },
-    });
-
-    let data;
-
-    if (existing) {
-      // 既存データがあれば更新
-      data = await prisma.drawing.update({
-        where: { id: existing.id },
-        data: {
-          user_id: userId,
-          canvas_data: canvasData,
-          element_count: elementCount,
-          theme: theme,
-        },
+    const result = await prisma.$transaction(async (tx) => {
+      const room = await tx.room.findUnique({
+        where: { id: roomId },
+        select: { status: true },
       });
-    } else {
-      // 既存データがなければ新規挿入
-      data = await prisma.drawing.create({
+
+      if (!room || room.status !== 'DRAWING') {
+        throw new Error('DRAWING_PHASE_CLOSED');
+      }
+
+      // 既存のデータをチェック（room_idとuser_idで検索）
+      const existing = await tx.drawing.findFirst({
+        where: { room_id: roomId, user_id: userId },
+        select: { id: true },
+      });
+
+      if (existing) {
+        const data = await tx.drawing.update({
+          where: { id: existing.id },
+          data: {
+            user_id: userId,
+            canvas_data: canvasData,
+            element_count: elementCount,
+            theme,
+          },
+        });
+        return { data, isUpdate: true };
+      }
+
+      const data = await tx.drawing.create({
         data: {
           room_id: roomId,
           user_id: userId,
           canvas_data: canvasData,
           element_count: elementCount,
-          theme: theme,
+          theme,
         },
       });
-    }
+      return { data, isUpdate: false };
+    }, { isolationLevel: 'Serializable' });
 
-    return { success: true, error: null, data, isUpdate: !!existing };
+    return { success: true, error: null, data: result.data, isUpdate: result.isUpdate };
   } catch (error) {
     console.error('Unexpected error:', error);
-    return { success: false, error: 'Failed to save drawing', data: null };
+    const message = error instanceof Error && error.message === 'DRAWING_PHASE_CLOSED'
+      ? 'Drawing phase is closed'
+      : 'Failed to save drawing';
+    return { success: false, error: message, data: null };
   }
 }
 

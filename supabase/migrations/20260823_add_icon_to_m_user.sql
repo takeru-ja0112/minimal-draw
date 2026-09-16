@@ -1,3 +1,7 @@
 -- m_userテーブルにアイコン設定用カラムを追加（デフォルト: TbBallBowling / 黒色）
-ALTER TABLE m_user ADD COLUMN IF NOT EXISTS icon_name TEXT DEFAULT 'TbBallBowling';
-ALTER TABLE m_user ADD COLUMN IF NOT EXISTS icon_color TEXT DEFAULT '#000000';
+-- NOTE(2026-08-29): このマイグレーション実行時点ではm_userテーブル作成SQLが
+-- リポジトリのマイグレーション履歴に存在せず(本番へはPrisma db push等で直接反映されていた)、
+-- ローカル環境でこのファイルを実行するとテーブル不在エラーになるため無害化した。
+-- icon_name/icon_colorカラムの追加は 20260829093000_remote_schema_sync.sql の
+-- m_userテーブル作成に統合済み。本番の適用済みマイグレーション履歴(タイムスタンプ)との
+-- 整合性を保つため、ファイル自体は削除せず残す。

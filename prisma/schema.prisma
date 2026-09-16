@@ -38,6 +38,7 @@ model Room {
   status            String    @default("WAITING")
   current_theme     String?
   current_theme_id  Int?
+  current_drawing_index Int @default(0)
   answer_id         String?   @db.Uuid
   created_by_userId String?   @db.Uuid
   room_name         String?

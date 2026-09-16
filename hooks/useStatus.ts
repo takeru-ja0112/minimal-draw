@@ -8,6 +8,7 @@ interface UseStatusType {
     status: string;
     theme:string;
     answerId: string;
+    currentDrawingIndex: number;
 }
 
 /**
@@ -19,7 +20,12 @@ interface UseStatusType {
  * 
  */
 export default function useStatus(roomId: string) {
-    const [ roomData , setRoomData ] = useState<UseStatusType>({ status: 'WAITING' , theme: '', answerId: '' });
+    const [ roomData , setRoomData ] = useState<UseStatusType>({
+        status: 'WAITING',
+        theme: '',
+        answerId: '',
+        currentDrawingIndex: 0,
+    });
 
 
     // ステータス変更を検知した処理
@@ -33,7 +39,12 @@ export default function useStatus(roomId: string) {
                 }
 
                 if (data) {
-                    setRoomData({ status: data.status, theme: data.current_theme ?? '', answerId: data.answer_id ?? '' } );
+                    setRoomData({
+                        status: data.status,
+                        theme: data.current_theme ?? '',
+                        answerId: data.answer_id ?? '',
+                        currentDrawingIndex: data.current_drawing_index ?? 0,
+                    });
                 }
             };
     
@@ -45,8 +56,12 @@ export default function useStatus(roomId: string) {
                     'postgres_changes',
                     { event: 'UPDATE', schema: 'public', table: 'rooms', filter: `id=eq.${roomId}` },
                     (payload) => {
-                        const newStatus = payload.new.status;
-                        setRoomData({ status: newStatus , theme: payload.new.current_theme, answerId: payload.new.answer_id });
+                        setRoomData({
+                            status: payload.new.status,
+                            theme: payload.new.current_theme ?? '',
+                            answerId: payload.new.answer_id ?? '',
+                            currentDrawingIndex: payload.new.current_drawing_index ?? 0,
+                        });
                     }
                 )
                 .subscribe();
@@ -59,6 +74,7 @@ export default function useStatus(roomId: string) {
     return { 
         status : roomData.status,
         currentTheme: roomData.theme,
-        answerId: roomData.answerId
+        answerId: roomData.answerId,
+        currentDrawingIndex: roomData.currentDrawingIndex,
      };
 }

@@ -65,7 +65,7 @@ export async function setdbAnswer(roomId: string, userId: string) {
     // 回答者を設定
     const data = await prisma.room.update({
       where: { id: roomId },
-      data: { answer_id: userId },
+      data: { answer_id: userId, current_drawing_index: 0 },
     });
 
     return {
@@ -89,7 +89,11 @@ export async function getDrawingsByRoom(roomId: string) {
     const data = await prisma.drawing.findMany({
       where: { room_id: roomId },
       include: { user: true },
-      orderBy: { element_count: 'asc' },
+      orderBy: [
+        { element_count: 'asc' },
+        { created_at: 'asc' },
+        { id: 'asc' },
+      ],
     });
 
     return {

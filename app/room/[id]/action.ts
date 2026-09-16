@@ -1,8 +1,8 @@
 'use server';
 
+import { ensureUser } from '@/app/user/action';
 import { prisma } from '@/lib/prisma';
 import type { RoomSettingType, Theme } from '@/type/roomType';
-import { ensureUser } from '@/app/user/action';
 
 /**  ルームのステータスを変更
  *
@@ -16,7 +16,10 @@ export async function setStatusRoom(
   try {
     const data = await prisma.room.update({
       where: { id: roomId },
-      data: { status },
+      data: {
+        status,
+        ...(status === 'DRAWING' ? { current_drawing_index: 0 } : {}),
+      },
     });
 
     return { success: true, error: null, data };
@@ -109,6 +112,7 @@ export async function resetRoomSettings(roomId: string) {
       data: {
         answer_id: null,
         status: 'WAITING',
+        current_drawing_index: 0,
         current_theme: newTheme?.theme || null,
         current_theme_id: newTheme?.id || null,
       },
@@ -260,7 +264,13 @@ export async function getThreeThemes({ level, genre }: { level: string; genre: s
  */
 export async function resetDrawingData(roomId: string) {
   try {
-    await prisma.drawing.deleteMany({ where: { room_id: roomId } });
+    await prisma.$transaction(async (tx) => {
+      await tx.drawing.deleteMany({ where: { room_id: roomId } });
+      await tx.room.update({
+        where: { id: roomId },
+        data: { current_drawing_index: 0 },
+      });
+    });
 
     return { success: true, error: null };
   } catch (error) {
@@ -291,7 +301,7 @@ export async function startQuickGame(roomId: string, answererId: string, roomSet
       });
       return tx.room.update({
         where: { id: roomId },
-        data: { answer_id: answererId, status: 'DRAWING' },
+        data: { answer_id: answererId, status: 'DRAWING', current_drawing_index: 0 },
       });
     });
 
@@ -299,6 +309,94 @@ export async function startQuickGame(roomId: string, answererId: string, roomSet
   } catch (error) {
     console.error('Unexpected error during quick start:', error);
     return { success: false, error: 'Failed to start quick game', data: null };
+  }
+}
+
+/**
+ * 回答者が描画受付を締め切り、共有位置を先頭に戻して回答を開始する。
+ */
+export async function startAnswering(roomId: string, userId: string) {
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      const drawingCount = await tx.drawing.count({ where: { room_id: roomId } });
+      if (drawingCount === 0) {
+        return { success: false as const, error: 'NO_DRAWINGS', data: null };
+      }
+
+      const updated = await tx.room.updateMany({
+        where: {
+          id: roomId,
+          answer_id: userId,
+          status: 'DRAWING',
+        },
+        data: {
+          status: 'ANSWERING',
+          current_drawing_index: 0,
+        },
+      });
+
+      if (updated.count !== 1) {
+        return { success: false as const, error: 'NOT_ANSWERER_OR_INVALID_STATUS', data: null };
+      }
+
+      const room = await tx.room.findUnique({ where: { id: roomId } });
+      return { success: true as const, error: null, data: room };
+    }, { isolationLevel: 'Serializable' });
+
+    return result;
+  } catch (error) {
+    console.error('Unexpected error while starting answer phase:', error);
+    return { success: false as const, error: 'FAILED_TO_START_ANSWERING', data: null };
+  }
+}
+
+/**
+ * 不正解確定後、回答者だけが共有中のイラスト位置を1つ進める。
+ * expectedIndexを更新条件に含め、二重送信による複数進行を防ぐ。
+ */
+export async function advanceAnswerDrawing(
+  roomId: string,
+  userId: string,
+  expectedIndex: number,
+) {
+  if (!Number.isInteger(expectedIndex) || expectedIndex < 0) {
+    return { success: false as const, error: 'INVALID_INDEX', data: null };
+  }
+
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      const drawingCount = await tx.drawing.count({ where: { room_id: roomId } });
+      if (expectedIndex >= drawingCount - 1) {
+        return { success: false as const, error: 'LAST_DRAWING', data: null };
+      }
+
+      const updated = await tx.room.updateMany({
+        where: {
+          id: roomId,
+          answer_id: userId,
+          status: 'ANSWERING',
+          current_drawing_index: expectedIndex,
+        },
+        data: { current_drawing_index: { increment: 1 } },
+      });
+
+      if (updated.count !== 1) {
+        return { success: false as const, error: 'PROGRESS_CONFLICT', data: null };
+      }
+
+      await tx.answerInput.upsert({
+        where: { room_id: roomId },
+        create: { room_id: roomId, text: '', result: '' },
+        update: { text: '', result: '' },
+      });
+
+      return { success: true as const, error: null, data: expectedIndex + 1 };
+    });
+
+    return result;
+  } catch (error) {
+    console.error('Unexpected error while advancing answer drawing:', error);
+    return { success: false as const, error: 'FAILED_TO_ADVANCE_DRAWING', data: null };
   }
 }
 

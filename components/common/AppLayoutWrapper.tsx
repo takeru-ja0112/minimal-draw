@@ -1,9 +1,8 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import BgObject from "@/components/organisms/BgObject";
-import Header from "@/components/organisms/Header";
 import Footer from "@/components/organisms/Footer";
+import Header from "@/components/organisms/Header";
+import { usePathname } from "next/navigation";
 
 export default function AppLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -15,12 +14,14 @@ export default function AppLayoutWrapper({ children }: { children: React.ReactNo
 
   return (
     <>
-      <BgObject />
-      <Header />
-      <div className="pt-14">{children}</div>
-      <footer className="text-center p-4 text-gray-500 text-sm">
-      </footer>
-      <Footer />
+      <div className="bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen w-full">
+        {/* <BgObject /> */}
+        <Header />
+        <div className="pt-14">{children}</div>
+        <footer className="text-center p-4 text-gray-500 text-sm">
+        </footer>
+        <Footer />
+      </div>
     </>
   );
 }

@@ -1,13 +1,33 @@
-import Modal from '@/components/organisms/Modal';
+import { startAnswering } from '@/app/room/[id]/action';
 import Button from '@/components/atoms/Button';
+import { showToast } from '@/components/common/toast';
+import Modal from '@/components/organisms/Modal';
 import { useModalContext } from '@/hooks/useModalContext';
-import { setStatusRoom } from '@/app/room/[id]/action';
+import { useState } from 'react';
 
 export default function AnswerCloseModal({ roomId, dataLength }: { roomId: string, dataLength: number }) {
     const { modalType, close } = useModalContext();
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleStatusAnswering = async () => {
-        await setStatusRoom(roomId, 'ANSWERING');
+        if (isSubmitting) return;
+
+        const userId = localStorage.getItem('drawing_app_user_id');
+        if (!userId) {
+            showToast('ユーザー情報を確認できませんでした。', { variant: 'error' });
+            return;
+        }
+
+        setIsSubmitting(true);
+        const result = await startAnswering(roomId, userId);
+        // console.log('startAnswering result:', result);
+        setIsSubmitting(false);
+
+        if (!result.success) {
+            showToast('回答フェーズを開始できませんでした。', { variant: 'error' });
+            return;
+        }
+
         close();
     };
 
@@ -29,7 +49,8 @@ export default function AnswerCloseModal({ roomId, dataLength }: { roomId: strin
                             />
                             <Button
                                 onClick={handleStatusAnswering}
-                                value="OK"
+                                value={isSubmitting ? "開始中..." : "OK"}
+                                disabled={isSubmitting}
                             />
                         </div>
                     </>

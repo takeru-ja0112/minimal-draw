@@ -4,7 +4,7 @@ import {
     unsubscribePush,
 } from "@/app/room/[id]/answer/action";
 import { urlBase64ToUint8Array } from "@/lib/urlBase64ToUnit8Array";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const SUBSCRIBE =
     "3hkmvpw-faawd-hjyuievsa";
@@ -15,37 +15,41 @@ const SUBSCRIBE =
 export default function usePushControl(
     roomId: string,
 ) {
-    const localSubscription =
-        localStorage.getItem(SUBSCRIBE);
-
-    const roomSubscription =
-        localSubscription
-            ? JSON.parse(
-                  localSubscription,
-              ).roomId === roomId
-                ? localSubscription
-                : null
-            : null;
-
-    const localUserId =
-        localStorage.getItem(
-            "drawing_app_user_id",
-        );
-
     const [sub, setSub] =
-        useState<PushSubscription | null>(
-            roomSubscription
-                ? JSON.parse(
-                      roomSubscription,
-                  )
-                : null,
-        );
+        useState<PushSubscription | PushSubscriptionJSON | null>(null);
+
+    useEffect(() => {
+        const localSubscription = localStorage.getItem(SUBSCRIBE);
+        if (!localSubscription) return;
+
+        try {
+            const parsed = JSON.parse(localSubscription) as {
+                roomId?: string;
+                sub?: PushSubscriptionJSON;
+            };
+            if (parsed.roomId === roomId && parsed.sub) {
+                // localStorageはマウント後に読み、SSR中のbrowser API参照を避ける。
+                // eslint-disable-next-line react-hooks/set-state-in-effect
+                setSub(parsed.sub);
+            }
+        } catch {
+            localStorage.removeItem(SUBSCRIBE);
+        }
+    }, [roomId]);
 
     /**
      * プッシュ通知の購読
      */
     const handleSubscribe =
         async () => {
+            const localUserId = localStorage.getItem("drawing_app_user_id");
+            if (!localUserId) {
+                return {
+                    success: false,
+                    error: "User ID not found",
+                };
+            }
+
             if (
                 !(
                     "Notification" in
@@ -113,7 +117,7 @@ export default function usePushControl(
                 }),
             );
             await subscribePush(
-                localUserId!,
+                localUserId,
                 roomId,
                 subscription,
             );
@@ -122,6 +126,9 @@ export default function usePushControl(
 
     const handleDeleteSubscription =
         async () => {
+            const localUserId = localStorage.getItem("drawing_app_user_id");
+            if (!localUserId) return;
+
             const registration =
                 await navigator
                     .serviceWorker
@@ -135,7 +142,7 @@ export default function usePushControl(
                     SUBSCRIBE,
                 );
                 await unsubscribePush(
-                    localUserId!,
+                    localUserId,
                 );
                 return {
                     success: true,
