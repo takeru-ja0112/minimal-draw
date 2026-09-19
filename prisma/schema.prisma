@@ -44,14 +44,29 @@ model Room {
   room_name         String?
   level             String?
   genre             String?
+  has_password      Boolean   @default(false)
   created_at        DateTime  @default(now()) @db.Timestamptz(6)
   deleted_at        DateTime? @db.Timestamptz(6)
 
-  creator  MUser? @relation("RoomCreator", fields: [created_by_userId], references: [id], onDelete: SetNull)
-  answerer MUser? @relation("RoomAnswerer", fields: [answer_id], references: [id], onDelete: SetNull)
+  creator  MUser?       @relation("RoomCreator", fields: [created_by_userId], references: [id], onDelete: SetNull)
+  answerer MUser?       @relation("RoomAnswerer", fields: [answer_id], references: [id], onDelete: SetNull)
+  secret   RoomSecret?
 
   @@index([deleted_at])
   @@map("rooms")
+}
+
+// パスワード(ハッシュ)と位置は anon から読めない別テーブルに保持する
+model RoomSecret {
+  room_id       String   @id @db.Uuid
+  password_hash String?  @db.Text
+  geohash       String?  @db.VarChar(7)
+  created_at    DateTime @default(now()) @db.Timestamptz(6)
+
+  room Room @relation(fields: [room_id], references: [id], onDelete: Cascade)
+
+  @@index([geohash])
+  @@map("room_secrets")
 }
 
 model Drawing {

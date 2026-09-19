@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from '@/lib/prisma';
+import { requireRoomAccess } from '@/lib/server/roomAccess';
 import { ensureUser } from '@/app/user/action';
 
 export type CanvasData = {
@@ -14,6 +15,7 @@ export type CanvasData = {
  * ルームIDとユーザーIDでフィルタリングし、該当する描画データを返す
  */
 export async function getDrawingByRoomAndUser(roomId: string , userId : string){
+  await requireRoomAccess(roomId);
   try {
     const data = await prisma.drawing.findFirst({
       where: { room_id: roomId, user_id: userId },
@@ -38,6 +40,7 @@ export async function saveDrawing(
   userName : string,
   theme: string
 ) {
+  await requireRoomAccess(roomId);
   try {
     // 要素数を計算
     const elementCount = canvasData.lines.length + canvasData.circles.length + canvasData.rects.length;
@@ -99,6 +102,7 @@ export async function saveDrawing(
 
 // ルームのお題を取得
 export async function getTheme(roomId: string) {
+  await requireRoomAccess(roomId);
   try{
     const data = await prisma.room.findUnique({
       where: { id: roomId },
@@ -113,6 +117,7 @@ export async function getTheme(roomId: string) {
 }
 
 export async function getFurigana(roomId: string) {
+  await requireRoomAccess(roomId);
   let current_theme_id: number | null = null;
   try{
     const data = await prisma.room.findUnique({

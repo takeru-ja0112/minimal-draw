@@ -20,7 +20,7 @@ export default function Input({
     <>
       <label htmlFor={name} className="sr-only">{value}</label>
       <motion.input
-        className={`bg-white border rounded-xl border-gray-300 px-4 py-2 ${className}`}
+        className={`bg-input rounded-full px-4 py-2 font-semibold ${className}`}
         onClick={onClick}
         onChange={onChange}
         onBlur={onBlur}

@@ -2,6 +2,7 @@
 
 import { ensureUser } from '@/app/user/action';
 import { prisma } from '@/lib/prisma';
+import { requireRoomAccess } from '@/lib/server/roomAccess';
 import type { RoomSettingType, Theme } from '@/type/roomType';
 
 /**  ルームのステータスを変更
@@ -13,6 +14,7 @@ export async function setStatusRoom(
   roomId: string,
   status: 'WATING' | 'DRAWING' | 'ANSWERING' | 'FINISHED' | 'RESETTING',
 ) {
+  await requireRoomAccess(roomId);
   try {
     const data = await prisma.room.update({
       where: { id: roomId },
@@ -31,6 +33,7 @@ export async function setStatusRoom(
 
 // ルームのを情報を取得
 export async function getInfoRoom(roomId: string) {
+  await requireRoomAccess(roomId);
   try {
     const data = await prisma.room.findUnique({ where: { id: roomId } });
 
@@ -96,6 +99,7 @@ async function getRandomTheme(roomId?: string) {
  * その際にお題を再取得する
  */
 export async function resetRoomSettings(roomId: string) {
+  await requireRoomAccess(roomId);
   const themeResult = await getRandomTheme(roomId);
   const newTheme = themeResult.success && themeResult.data ? themeResult.data : null;
 
@@ -134,6 +138,7 @@ export async function resetRoomSettings(roomId: string) {
  * @returns
  */
 export async function resetRoomAnswer(roomId: string) {
+  await requireRoomAccess(roomId);
   try {
     const data = await prisma.room.update({
       where: { id: roomId },
@@ -159,6 +164,7 @@ export async function changeRoomTheme(
   roomSettingParam?: RoomSettingType,
 ) {
   const roomId = typeof roomIdOrParams === 'object' ? roomIdOrParams.roomId : roomIdOrParams;
+  await requireRoomAccess(roomId);
   const roomSetting = typeof roomIdOrParams === 'object' ? roomIdOrParams.roomSetting : roomSettingParam;
 
   if (!roomSetting) {
@@ -203,6 +209,7 @@ export async function changeRoomTheme(
  * 指定のお題をルームに設定する関数
  */
 export async function setRoomTheme(roomId: string, roomSetting: RoomSettingType, themeId: string) {
+  await requireRoomAccess(roomId);
   try {
     const themeData = await prisma.theme.findUnique({
       where: { id: Number(themeId) },
@@ -263,6 +270,7 @@ export async function getThreeThemes({ level, genre }: { level: string; genre: s
  * 描画データをリセットする関数
  */
 export async function resetDrawingData(roomId: string) {
+  await requireRoomAccess(roomId);
   try {
     await prisma.$transaction(async (tx) => {
       await tx.drawing.deleteMany({ where: { room_id: roomId } });
@@ -285,6 +293,7 @@ export async function resetDrawingData(roomId: string) {
  * answer_id・statusの更新と、前回分の描画・回答データのクリアを1つのトランザクションで行う
  */
 export async function startQuickGame(roomId: string, answererId: string, roomSetting?: RoomSettingType) {
+  await requireRoomAccess(roomId);
   try {
     await ensureUser(answererId);
 
@@ -316,6 +325,7 @@ export async function startQuickGame(roomId: string, answererId: string, roomSet
  * 回答者が描画受付を締め切り、共有位置を先頭に戻して回答を開始する。
  */
 export async function startAnswering(roomId: string, userId: string) {
+  await requireRoomAccess(roomId);
   try {
     const result = await prisma.$transaction(async (tx) => {
       const drawingCount = await tx.drawing.count({ where: { room_id: roomId } });
@@ -359,6 +369,7 @@ export async function advanceAnswerDrawing(
   userId: string,
   expectedIndex: number,
 ) {
+  await requireRoomAccess(roomId);
   if (!Number.isInteger(expectedIndex) || expectedIndex < 0) {
     return { success: false as const, error: 'INVALID_INDEX', data: null };
   }
@@ -404,6 +415,7 @@ export async function advanceAnswerDrawing(
  * ルームIDでそのルームの得点を取得する関数
  */
 export async function getRoomScores(roomId: string) {
+  await requireRoomAccess(roomId);
   try {
     const data = await prisma.point.findMany({ where: { room_id: roomId }, include: { user: true } });
 
@@ -418,6 +430,7 @@ export async function getRoomScores(roomId: string) {
  * 部屋に入った時に参加者得点をDBに登録する関数
  */
 export async function registerParticipantScore(roomId: string, userId: string, userName: string) {
+  await requireRoomAccess(roomId);
   try {
     const existing = await prisma.point.findMany({
       where: { room_id: roomId, user_id: userId },

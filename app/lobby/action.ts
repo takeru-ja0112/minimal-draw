@@ -1,8 +1,13 @@
 'use server';
-import { prisma } from '@/lib/prisma';
-import type { CreateRoom } from '@/type/roomType';
-import { Prisma } from '@/lib/generated/prisma/client';
 import { ensureUser } from '@/app/user/action';
+import { coordinatesSchema } from '@/lib/geohash';
+import { Prisma } from '@/lib/generated/prisma/client';
+import { prisma } from '@/lib/prisma';
+import { roomPasswordSchema } from '@/lib/roomPassword';
+import { grantRoomAccess } from '@/lib/server/roomAccess';
+import { findNearbyRooms } from '@/lib/server/nearbyRooms';
+import { buildRoomSecretCreate } from '@/lib/server/roomSecrets';
+import type { CreateRoom } from '@/type/roomType';
 
 // ルーム一覧を取得
 export async function getRooms() {
@@ -150,7 +155,24 @@ export async function createRoomByUsername(createRoomData: CreateRoom) {
   const sanitizedLevel = createRoomData.level;
   const sanitizedGenre = createRoomData.genre;
   const userId = createRoomData.userId || null;
+  const password = createRoomData.password ?? '';
   let randomTheme;
+
+  if (password !== '') {
+    const parsedPassword = roomPasswordSchema.safeParse(password);
+    if (!parsedPassword.success) {
+      return { success: false, error: parsedPassword.error.issues[0].message, data: null };
+    }
+  }
+
+  let location;
+  if (createRoomData.location) {
+    const parsedLocation = coordinatesSchema.safeParse(createRoomData.location);
+    if (!parsedLocation.success) {
+      return { success: false, error: '位置情報が不正です。', data: null };
+    }
+    location = parsedLocation.data;
+  }
 
   try {
     const data = await prisma.theme.findMany({
@@ -186,6 +208,7 @@ export async function createRoomByUsername(createRoomData: CreateRoom) {
 
     // 短いルームIDを生成
     const shortId = generateShortId();
+    const secret = await buildRoomSecretCreate({ password, location });
 
     const data = await prisma.room.create({
       data: {
@@ -196,8 +219,15 @@ export async function createRoomByUsername(createRoomData: CreateRoom) {
         current_theme_id: randomTheme.id,
         level: sanitizedLevel,
         genre: sanitizedGenre,
+        has_password: password !== '',
+        ...(secret ? { secret: { create: secret } } : {}),
       },
     });
+
+    // 作成者はパスワードを入力せずに入室できるようにする
+    if (password !== '') {
+      await grantRoomAccess(data.id);
+    }
 
     return {
       success: true,
@@ -318,5 +348,21 @@ export async function getRoomByShortId(shortId: string) {
       error: 'Failed to fetch room by short ID',
       data: null,
     };
+  }
+}
+
+// 近くのルームを検索する関数
+export async function fetchNearbyRooms(coordinates: { latitude: number; longitude: number }) {
+  const parsed = coordinatesSchema.safeParse(coordinates);
+  if (!parsed.success) {
+    return { success: false, error: '位置情報が不正です。', data: [] };
+  }
+
+  try {
+    const data = await findNearbyRooms(parsed.data);
+    return { success: true, error: null, data };
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return { success: false, error: '近くのルームの取得に失敗しました。', data: [] };
   }
 }

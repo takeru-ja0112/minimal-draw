@@ -1,10 +1,12 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
+import { requireRoomAccess } from '@/lib/server/roomAccess';
 import { ensureUser } from '@/app/user/action';
 
 // 回答内容の取得（回答者の入力・正誤結果）
 export async function getAnswerInput(roomId: string) {
+  await requireRoomAccess(roomId);
   try {
     const data = await prisma.answerInput.findUnique({ where: { room_id: roomId } });
 
@@ -21,6 +23,7 @@ export async function getAnswerInput(roomId: string) {
 
 // 回答者が決定しているか確認
 export async function isCheckAnswer(roomId: string) {
+  await requireRoomAccess(roomId);
   try {
     const data = await prisma.room.findUnique({
       where: { id: roomId },
@@ -45,6 +48,7 @@ export async function isCheckAnswer(roomId: string) {
 
 // 回答者の登録
 export async function setdbAnswer(roomId: string, userId: string) {
+  await requireRoomAccess(roomId);
   try {
     // 既に回答者が設定されているか確認
     const roomData = await prisma.room.findUnique({
@@ -85,6 +89,7 @@ export async function setdbAnswer(roomId: string, userId: string) {
 
 // 特定ルームの描画データを取得（要素数昇順）
 export async function getDrawingsByRoom(roomId: string) {
+  await requireRoomAccess(roomId);
   try {
     const data = await prisma.drawing.findMany({
       where: { room_id: roomId },
@@ -113,6 +118,7 @@ export async function getDrawingsByRoom(roomId: string) {
 
 // 画面を見ているユーザーに解答権限があるかどうか確認
 export async function checkAnswerRole(roomId: string, userId: string) {
+  await requireRoomAccess(roomId);
   try {
     const roomData = await prisma.room.findUnique({
       where: { id: roomId },
@@ -137,6 +143,7 @@ export async function checkAnswerRole(roomId: string, userId: string) {
 
 // お題を取得
 export async function getTheme(roomId: string) {
+  await requireRoomAccess(roomId);
   try {
     const roomData = await prisma.room.findUnique({
       where: { id: roomId },
@@ -160,6 +167,7 @@ export async function getTheme(roomId: string) {
 
 // お題の正誤判定のため複数パターンを取得
 export async function getThemePatternByRoomId(roomId: string) {
+  await requireRoomAccess(roomId);
   const id = roomId;
   let themeId: number;
 
@@ -217,6 +225,7 @@ export async function getThemePatternByRoomId(roomId: string) {
  * 回答の登録
  */
 export async function setdbAnswerInput(roomId: string, answer: string) {
+  await requireRoomAccess(roomId);
   try {
     const data = await prisma.answerInput.upsert({
       where: { room_id: roomId },
@@ -242,6 +251,7 @@ export async function setdbAnswerInput(roomId: string, answer: string) {
  * 回答結果の記録
  */
 export async function setdbAnswerResult(roomId: string, result: string) {
+  await requireRoomAccess(roomId);
   try {
     const data = await prisma.answerInput.upsert({
       where: { room_id: roomId },
@@ -268,6 +278,7 @@ export async function setdbAnswerResult(roomId: string, result: string) {
  * サブスクリプションテーブルに登録
  */
 export async function subscribePush(userId: string, room_id: string, subscription: any) {
+  await requireRoomAccess(room_id);
   try {
     await ensureUser(userId);
 
@@ -319,6 +330,7 @@ export async function unsubscribePush(userId: string) {
  * 指定のuserIdに対してポイントを加算する関数
  */
 export async function addPointsToUser(roomId: string, userId: string, pointsToAdd: number) {
+  await requireRoomAccess(roomId);
   try {
     // 現在のポイントを取得
     const existingPointData = await prisma.point.findFirst({

@@ -1,17 +1,17 @@
 "use client";
 
-import { useState, useEffect, useActionState } from "react";
-import Card from "@/components/atoms/Card";
-import Input from "@/components/atoms/Input";
-import Button from "@/components/atoms/Button";
-import Loading from "@/components/atoms/Loading";
 import { getRoomByPageSearch, RoomSearchFilters } from "@/app/lobby/action";
-import historyLocalRoom from "@/lib/hitoryLocalRoom";
-import { motion } from "motion/react";
-import { TbGhost2, TbPlus } from "react-icons/tb";
-import { useRouter } from "next/navigation";
-import { Room } from "@/type/roomType";
+import Button from "@/components/atoms/Button";
+import Input from "@/components/atoms/Input";
+import Loading from "@/components/atoms/Loading";
+import RoomLockIcon from "@/components/atoms/RoomLockIcon";
 import RoomCreateModal from "@/components/organisms/top/RoomCreateModal";
+import historyLocalRoom from "@/lib/hitoryLocalRoom";
+import { Room } from "@/type/roomType";
+import { motion } from "motion/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { TbGhost2, TbPlus } from "react-icons/tb";
 
 const getTodayString = () => {
   const d = new Date();
@@ -133,7 +133,8 @@ export default function RoomSearchSection({
   };
 
   return (
-    <Card id={id} className="mb-4">
+    <>
+     {/* <Card id={id} className="mb-4"> */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold text-gray-700">ルームをさがす</h2>
         <button
@@ -223,7 +224,10 @@ export default function RoomSearchSection({
             >
               <div className="relative p-3 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden text-left bg-white">
                 <div className="w-full font-bold">
-                  <h3 className="text-base text-gray-800">{room.room_name}</h3>
+                  <h3 className="flex items-center gap-1 text-base text-gray-800">
+                    {room.room_name}
+                    {room.has_password && <RoomLockIcon />}
+                  </h3>
                   <div className="text-xs text-gray-500">
                     ID: <span className="font-semibold">{room.short_id}</span>
                   </div>
@@ -277,6 +281,7 @@ export default function RoomSearchSection({
           setNameError={setNameError}
         />
       )}
-    </Card>
+     {/* </Card> */}
+    </>
   );
 }

@@ -1,3 +1,4 @@
+import type { Coordinates } from '@/lib/geohash';
 import type { Prisma } from '@/lib/generated/prisma/client';
 
 /**
@@ -18,7 +19,13 @@ export interface Room {
   creator: { username: string | null } | null;
   room_name: string | null;
   short_id: string;
+  has_password: boolean;
 }
+
+/**
+ * 近くのルーム検索の結果(一覧表示に必要な公開情報のみ)
+ */
+export type NearbyRoom = Pick<Room, 'id' | 'short_id' | 'room_name' | 'has_password'>;
 
 export interface CreateRoom {
   username: string;
@@ -26,6 +33,10 @@ export interface CreateRoom {
   roomName: string;
   level: string;
   genre: string;
+  /** 4桁の数字。未指定ならパスワードなし */
+  password?: string;
+  /** 指定時のみ、サーバー側でgeohash化して保存する(近くの検索に表示される) */
+  location?: Coordinates;
 }
 
 export interface RoomSettingType {

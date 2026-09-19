@@ -2,29 +2,35 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
-  --primary: #f0ab16;
+  --foreground: #0f0c01;
+  --primary: #ffffff;
   --primary-text: #1f1001;
   --primary-title: #e0a500;
+  --input: #fdefd8;
+  --input-value: #1f1001;
 }
 
 @theme inline {
+  --color-primary: var(--primary);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-input: var(--input);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ffffff;
+    --foreground: #0f0c01;
+    --input: #e9e9e9;
+    --input-value: #ffffff;
   }
 }
 
 header {
   /* Dynamic Island やステータスバーを避けるためのパディング */
-  padding-top: env(safe-area-inset-top, 100px);
+  /* padding-top: env(safe-area-inset-top, 100px); */
 }
 
 body {

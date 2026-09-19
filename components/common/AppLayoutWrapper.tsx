@@ -14,7 +14,7 @@ export default function AppLayoutWrapper({ children }: { children: React.ReactNo
 
   return (
     <>
-      <div className="bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen w-full">
+      <div className="bg-background min-h-screen w-full">
         {/* <BgObject /> */}
         <Header />
         <div className="pt-14">{children}</div>

@@ -1,27 +1,17 @@
-"use client";
+import RoomClientLayout from '@/components/organisms/room/RoomClientLayout';
+import RoomPasswordGate from '@/components/organisms/room/RoomPasswordGate';
+import { getRoomAccess } from '@/lib/server/roomAccess';
 
-import { ModalProvider } from "@/hooks/useModalContext";
-import { useEffect } from "react";
+export default async function Layout({
+  children,
+  params,
+}: Readonly<{ children: React.ReactNode; params: Promise<{ id: string }> }>) {
+  const { id } = await params;
 
-export default function Layout(
-  {
-    children,
-  }:
-    Readonly<{ children: React.ReactNode; }>
-) {
+  // 未確認のパスワード付きルームは、本体(children)を描画せずゲートだけを返す
+  if ((await getRoomAccess(id)) === 'locked') {
+    return <RoomPasswordGate roomId={id} />;
+  }
 
-  useEffect(() => {
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker
-        .register("/custom-sw.js")
-        .then((reg) => { console.log("SW registered!", reg); })
-        .catch((err) => { console.error("SW registration failed!", err); alert("Service Worker登録に失敗しました。プッシュ通知は利用できません。"); });
-    }
-  }, []);
-
-  return (
-    <ModalProvider>
-      {children}
-    </ModalProvider>
-  );
+  return <RoomClientLayout>{children}</RoomClientLayout>;
 }

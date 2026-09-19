@@ -8,6 +8,7 @@ import {
 import Button from "@/components/atoms/Button";
 import Card from "@/components/atoms/Card";
 import Input from "@/components/atoms/Input";
+import RoomLockIcon from "@/components/atoms/RoomLockIcon";
 import CreateRoomModal from "@/components/organisms/lobby/CreateRoomModal";
 import SearchRoomModal from "@/components/organisms/lobby/SearchRoomModal";
 import SetUserModal from "@/components/organisms/lobby/SetUserModal";
@@ -221,7 +222,10 @@ export default function LobbyPage() {
                 <div className="relative p-3 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
                   <span className="absolute -right-8 -top-8 w-15 h-15 bg-yellow-500 rotate-45"></span>
                   <div className="w-full font-bold">
-                    <h3 className="text-lg">{latestRoom.room_name}</h3>
+                    <h3 className="flex items-center gap-1 text-lg">
+                      {latestRoom.room_name}
+                      {latestRoom.has_password && <RoomLockIcon />}
+                    </h3>
                     <div className="text-sm text-gray-500">
                       ID:{" "}
                       <span className="font-semibold">
@@ -265,7 +269,10 @@ export default function LobbyPage() {
                   <div className="relative p-3 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
                     <span className="absolute -right-8 -top-8 w-15 h-15 bg-blue-500 rotate-45"></span>
                     <div className="w-full font-bold">
-                      <h3 className="text-lg">{room.room_name}</h3>
+                      <h3 className="flex items-center gap-1 text-lg">
+                        {room.room_name}
+                        {room.has_password && <RoomLockIcon />}
+                      </h3>
                       <div className="text-sm text-gray-500">
                         ID:{" "}
                         <span className="font-semibold">{room.short_id}</span>
