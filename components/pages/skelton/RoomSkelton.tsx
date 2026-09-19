@@ -4,7 +4,6 @@ import Link from "next/link";
 import {
   TbArrowLeft,
   TbBallBowling,
-  TbCopy,
   TbCrown,
   TbDice5,
   TbPencil,
@@ -112,14 +111,10 @@ export default function RoomSkelton() {
           {/* お題変更ボタン */}
           <Button value="お題を変更する" className="w-full" />
 
-          {/* ルーム情報 (RoomIdCard) */}
+          {/* ルーム情報 (RoomNameCard) */}
           <div className="my-6 text-center">
             <h2 className="text-md text-gray-500 font-semibold mb-1">ルーム名</h2>
-            <div className="h-6 w-36 bg-gray-300 rounded mx-auto mb-2 animate-pulse" />
-            <div className="flex items-center justify-center gap-1">
-              <div className="h-5 w-20 bg-gray-300 rounded animate-pulse" />
-              <TbCopy className="text-gray-400" />
-            </div>
+            <div className="h-6 w-36 bg-gray-300 rounded mx-auto animate-pulse" />
           </div>
 
           {/* ステータスバー (StatusBar) */}

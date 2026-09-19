@@ -24,6 +24,19 @@ function getSecret(): string {
   return secret;
 }
 
+/**
+ * 署名鍵が使えるか。パスワード付きルームを作る前に確認し、
+ * 設定不備のときにルームだけが作られて入室Cookieを発行できない状態を避ける。
+ */
+export function isRoomAccessConfigured(): boolean {
+  try {
+    getSecret();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function sign(payload: string): string {
   return createHmac('sha256', getSecret()).update(payload).digest('base64url');
 }

@@ -3,8 +3,8 @@ import Button from "@/components/atoms/Button";
 import { useState } from "react";
 import Loading from "@/components/atoms/Loading";
 import Input from "@/components/atoms/Input";
-import { searchRoomSchema } from "@/lib/room";
-import { getRoomByShortId } from "@/app/lobby/action";
+import { SEARCH_CODE_LENGTH, searchRoomSchema } from "@/lib/room";
+import { getRoomBySearchCode } from "@/app/lobby/action";
 import historyLocalRoom from '@/lib/hitoryLocalRoom';
 
 export default function SearchRoomModal({
@@ -25,20 +25,16 @@ export default function SearchRoomModal({
      * @param e 
      */
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const result = searchRoomSchema(e.target.value);
+        // IDは数字のみ。数字以外は入力時点で取り除く
+        const value = e.target.value.replace(/\D/g, '');
+        const result = searchRoomSchema(value);
 
-        if (!result) return;
-        if (!result.success) {
-            setError(result.error);
-        } else {
-            setError(null);
-        }
-        setRoomId(e.target.value);
+        setError(result.success ? null : result.error);
+        setRoomId(value);
     }
 
     const submitSearch = async () => {
         const result = searchRoomSchema(roomId);
-        if (!result) return;
         if (!result.success) {
             setError(result.error);
             return;
@@ -47,8 +43,7 @@ export default function SearchRoomModal({
         setLoading(true);
         setError(null);
         // 検索処理
-        const dbResult = await getRoomByShortId(roomId);
-        if (!dbResult) return;
+        const dbResult = await getRoomBySearchCode(roomId);
         if (!dbResult.success || !dbResult.data) {
             setError(dbResult.error || 'ルームの検索に失敗しました。');
         } else {
@@ -65,12 +60,13 @@ export default function SearchRoomModal({
             onClose={onClose}
         >
             <p className="font-semibold mb-2 text-gray-700">ルームIDの入力</p>
-            <p className="font-semibold text-gray-700 text-sm">英数字の6桁でIDを入力してください。</p>
-            <p className="font-semibold mb-4 text-gray-400 text-sm">※大文字でも小文字でも構いません。</p>
+            <p className="font-semibold mb-4 text-gray-700 text-sm">数字{SEARCH_CODE_LENGTH}桁でIDを入力してください。</p>
 
             <div className="h-15">
                 <Input
                     value={roomId}
+                    inputMode="numeric"
+                    maxLength={SEARCH_CODE_LENGTH}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleSearch(e)}
                     className="w-full"
                 />

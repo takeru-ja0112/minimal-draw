@@ -19,13 +19,15 @@ export interface Room {
   creator: { username: string | null } | null;
   room_name: string | null;
   short_id: string;
+  /** 検索用の5桁数字ID(直近24時間の検索で使う) */
+  search_code: string;
   has_password: boolean;
 }
 
 /**
  * 近くのルーム検索の結果(一覧表示に必要な公開情報のみ)
  */
-export type NearbyRoom = Pick<Room, 'id' | 'short_id' | 'room_name' | 'has_password'>;
+export type NearbyRoom = Pick<Room, 'id' | 'short_id' | 'search_code' | 'room_name' | 'has_password'>;
 
 export interface CreateRoom {
   username: string;

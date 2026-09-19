@@ -3,9 +3,11 @@ import { ensureUser } from '@/app/user/action';
 import { coordinatesSchema } from '@/lib/geohash';
 import { Prisma } from '@/lib/generated/prisma/client';
 import { prisma } from '@/lib/prisma';
+import { searchRoomSchema } from '@/lib/room';
 import { roomPasswordSchema } from '@/lib/roomPassword';
-import { grantRoomAccess } from '@/lib/server/roomAccess';
+import { grantRoomAccess, isRoomAccessConfigured } from '@/lib/server/roomAccess';
 import { findNearbyRooms } from '@/lib/server/nearbyRooms';
+import { findRoomBySearchCode } from '@/lib/server/roomSearch';
 import { buildRoomSecretCreate } from '@/lib/server/roomSecrets';
 import type { CreateRoom } from '@/type/roomType';
 
@@ -162,6 +164,10 @@ export async function createRoomByUsername(createRoomData: CreateRoom) {
     const parsedPassword = roomPasswordSchema.safeParse(password);
     if (!parsedPassword.success) {
       return { success: false, error: parsedPassword.error.issues[0].message, data: null };
+    }
+    if (!isRoomAccessConfigured()) {
+      console.error('ROOM_ACCESS_SECRET が未設定、または32文字未満のため、パスワード付きルームを作成できません。');
+      return { success: false, error: 'パスワード付きルームを作成できません(サーバー設定エラー)。', data: null };
     }
   }
 
@@ -321,17 +327,25 @@ function generateShortId(length = 6): string {
   return result;
 }
 
-//ショートIDにて検索
-export async function getRoomByShortId(shortId: string) {
-  const upperShortId = shortId.toUpperCase();
+// 検索用ID(search_code)にて検索(直近24時間に作成されたルームのみ)
+export async function getRoomBySearchCode(searchCode: string) {
+  // クライアント側の検証は回避できるため、サーバー側でも必ず検証する
+  const validation = searchRoomSchema(searchCode);
+  if (!validation.success) {
+    return {
+      success: false,
+      error: validation.error,
+      data: null,
+    };
+  }
 
   try {
-    const data = await prisma.room.findFirst({ where: { short_id: upperShortId } });
+    const data = await findRoomBySearchCode(searchCode);
 
     if (!data) {
       return {
         success: false,
-        error: 'ルームが見つかりません。',
+        error: 'ルームが存在しません',
         data: null,
       };
     }
@@ -345,7 +359,7 @@ export async function getRoomByShortId(shortId: string) {
     console.error('Unexpected error:', error);
     return {
       success: false,
-      error: 'Failed to fetch room by short ID',
+      error: 'ルームの検索に失敗しました。',
       data: null,
     };
   }

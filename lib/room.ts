@@ -49,35 +49,33 @@ export function setRoomSchema({
 }
 
 /**
- * ショートIDのバリデーションスキーマ
+ * 検索用ID(search_code)のバリデーションスキーマ
+ * 5桁の半角数字のみ。先頭ゼロ(00123等)を保持するため、数値ではなく文字列として扱う。
  */
-const allowedShortIdChars = /^[A-Za-z0-9]+$/;
-const shortIdSchema =
+export const SEARCH_CODE_LENGTH = 5;
+const searchCodeSchema =
   z
     .string()
-    .length(6, "IDは6文字で入力してください。")
-    .refine((val) => allowedShortIdChars.test(val), {
-      message: 'IDは半角大文字英字と数字のみ使用できます。',
-    });
+    .regex(/^[0-9]*$/, "IDは数字のみ入力できます。")
+    .length(SEARCH_CODE_LENGTH, `IDは${SEARCH_CODE_LENGTH}桁の数字で入力してください。`);
 
-export function validateShortId(id: string) {
-  const parseResult = shortIdSchema.safeParse(id);
-  return parseResult as { success: boolean; error?: z.ZodError };
+export function validateSearchCode(id: string) {
+  return searchCodeSchema.safeParse(id);
 }
 
-export function searchRoomSchema(id: string) {
-  const result = validateShortId(id);
+/**
+ * ID検索の入力チェック。クライアント・サーバー双方で同じ判定を使う。
+ * 失敗時は画面に出すメッセージを error に入れて返す。
+ */
+export function searchRoomSchema(id: string): { success: true; error: null } | { success: false; error: string } {
+  if (id.length === 0) {
+    return { success: false, error: 'IDは必須です。' };
+  }
+  const result = validateSearchCode(id);
   if (result.success) {
     return { success: true, error: null };
-  } else {
-    // IDが空の場合処理
-    if (id.length === 0) {
-      return { success: false, error: 'IDは必須です。' };
-    }
-    if (id.length <= 6) {
-      return { success: false, error: 'IDは6文字で入力してください。' };
-    }
   }
+  return { success: false, error: result.error.issues[0].message };
 }
 
 /**

@@ -10,6 +10,7 @@ import WhatsMinimal from '@/components/molecules/illust/top/WhatsMinimal';
 import TutorialHelpButton from '@/components/molecules/TutorialHelpButton';
 import IconSettingModal from '@/components/organisms/top/IconSettingModal';
 import RoomCreateSection from '@/components/organisms/top/RoomCreateSection';
+import RoomIdSearchSection from '@/components/organisms/top/RoomIdSearchSection';
 import RoomNearbySection from '@/components/organisms/top/RoomNearbySection';
 import { topTutorialSteps } from '@/hooks/tutorial/steps/top';
 import { useTutorial } from '@/hooks/tutorial/useTutorial';
@@ -116,6 +117,9 @@ export default function Top() {
 
           {/* 近くにいるルームの検索ボタン */}
           <RoomNearbySection user={user} userId={userId} setNameError={setNameError} />
+
+          {/* ルームIDで検索するボタン */}
+          <RoomIdSearchSection user={user} setNameError={setNameError} />
 
           {/* ルーム検索セクション */}
           {/* <RoomSearchSection id="tutorial-room-setting" user={user} userId={userId} setNameError={setNameError} /> */}

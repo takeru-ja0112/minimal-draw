@@ -38,8 +38,8 @@ export const roomTutorialSteps: TutorialStep[] = [
     {
         element: '#tutorial-room-info',
         popover: {
-            title: 'ルーム情報',
-            description: 'ルーム名とルームIDです。IDをタップするとコピーできます。',
+            title: 'ルームID',
+            description: 'このルームの5桁のIDです。タップするとコピーできます。友達に伝えれば、ロビーの検索から入れます。',
         },
     },
     {

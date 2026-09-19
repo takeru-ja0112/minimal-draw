@@ -37,6 +37,7 @@ export default async function AdminRoomsPage() {
             <tr className="border-b border-gray-200 bg-amber-500/10 text-gray-700 text-xs font-semibold uppercase tracking-wider">
               <th className="px-6 py-4">ルームID (UUID)</th>
               <th className="px-6 py-4">Short ID</th>
+              <th className="px-6 py-4">検索ID</th>
               <th className="px-6 py-4">ルーム名</th>
               <th className="px-6 py-4">ステータス</th>
               <th className="px-6 py-4">お題 / レベル / ジャンル</th>
@@ -50,7 +51,7 @@ export default async function AdminRoomsPage() {
           <tbody className="divide-y divide-gray-200 text-sm text-gray-700">
             {rooms.length === 0 ? (
               <tr>
-                <td colSpan={10} className="px-6 py-10 text-center text-gray-500">
+                <td colSpan={11} className="px-6 py-10 text-center text-gray-500">
                   ルームが見つかりません。
                 </td>
               </tr>
@@ -69,6 +70,9 @@ export default async function AdminRoomsPage() {
                     </td>
                     <td className="px-6 py-4 font-mono font-bold text-gray-900">
                       {room.short_id}
+                    </td>
+                    <td className="px-6 py-4 font-mono font-bold text-gray-900">
+                      {room.search_code}
                     </td>
                     <td className="px-6 py-4 font-medium text-gray-900">
                       {room.room_name || <span className="text-gray-400 italic">未設定</span>}

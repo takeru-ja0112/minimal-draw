@@ -229,7 +229,7 @@ export default function RoomSearchSection({
                     {room.has_password && <RoomLockIcon />}
                   </h3>
                   <div className="text-xs text-gray-500">
-                    ID: <span className="font-semibold">{room.short_id}</span>
+                    ID: <span className="font-semibold">{room.search_code}</span>
                   </div>
                 </div>
                 <hr className="border-gray-200 my-2" />

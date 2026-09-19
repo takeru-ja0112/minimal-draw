@@ -229,7 +229,7 @@ export default function LobbyPage() {
                     <div className="text-sm text-gray-500">
                       ID:{" "}
                       <span className="font-semibold">
-                        {latestRoom.short_id}
+                        {latestRoom.search_code}
                       </span>
                     </div>
                   </div>
@@ -275,7 +275,7 @@ export default function LobbyPage() {
                       </h3>
                       <div className="text-sm text-gray-500">
                         ID:{" "}
-                        <span className="font-semibold">{room.short_id}</span>
+                        <span className="font-semibold">{room.search_code}</span>
                       </div>
                     </div>
                     <hr className="border-gray-300" />

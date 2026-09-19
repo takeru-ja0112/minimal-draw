@@ -1,8 +1,8 @@
 import { getNearbyGeohashes, type Coordinates } from '@/lib/geohash';
 import { prisma } from '@/lib/prisma';
+import { ROOM_SEARCH_WINDOW_MS } from '@/lib/roomConstants';
 import type { NearbyRoom } from '@/type/roomType';
 
-const NEARBY_WINDOW_MS = 24 * 60 * 60 * 1000;
 const MAX_RESULTS = 30;
 
 /**
@@ -11,10 +11,10 @@ const MAX_RESULTS = 30;
  */
 export function findNearbyRooms(coordinates: Coordinates): Promise<NearbyRoom[]> {
   return prisma.room.findMany({
-    select: { id: true, short_id: true, room_name: true, has_password: true },
+    select: { id: true, short_id: true, search_code: true, room_name: true, has_password: true },
     where: {
       status: 'WAITING',
-      created_at: { gte: new Date(Date.now() - NEARBY_WINDOW_MS) },
+      created_at: { gte: new Date(Date.now() - ROOM_SEARCH_WINDOW_MS) },
       secret: { is: { geohash: { in: getNearbyGeohashes(coordinates) } } },
     },
     orderBy: { created_at: 'desc' },

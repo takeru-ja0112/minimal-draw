@@ -35,6 +35,8 @@ model MUser {
 model Room {
   id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   short_id          String
+  // 検索用の5桁数字コード。UNIQUEではなく「一致 + 直近24時間」で絞る(DBのDEFAULTで採番)
+  search_code       String    @default(dbgenerated("lpad(floor(random() * 100000)::int::text, 5, '0')")) @db.VarChar(5)
   status            String    @default("WAITING")
   current_theme     String?
   current_theme_id  Int?
@@ -53,6 +55,7 @@ model Room {
   secret   RoomSecret?
 
   @@index([deleted_at])
+  @@index([search_code, created_at])
   @@map("rooms")
 }
 

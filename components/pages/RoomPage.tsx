@@ -8,7 +8,8 @@ import AnswerConfirmModal from '@/components/organisms/room/AnswerConfirmModal';
 import AnswererGuideCard from '@/components/organisms/room/AnswererGuideCard';
 import DrawerGuideCard from '@/components/organisms/room/DrawerGuideCard';
 import GameStartedModal from '@/components/organisms/room/GameStartedModal';
-import RoomIdCard from '@/components/organisms/room/RoomIdCard';
+import RoomNameCard from '@/components/organisms/room/RoomNameCard';
+import RoomSearchCodeBadge from '@/components/organisms/room/RoomSearchCodeBadge';
 import RoomSettingModal from '@/components/organisms/room/RoomSettingModal';
 import UserScoreBoard from '@/components/organisms/room/UserScoreBoard';
 import StatusBar from '@/components/organisms/StatusBat';
@@ -28,7 +29,7 @@ import { roomTutorialSteps } from '@/hooks/tutorial/steps/room';
 import Link from 'next/link';
 import AutoGuideCard from '../organisms/room/AutoGuideCard';
 
-export default function RoomPage({ title, shortId, scores, creatorId }: { title: string, shortId: string, scores: ScoreEntry[], creatorId: string }) {
+export default function RoomPage({ title, searchCode, scores, creatorId }: { title: string, searchCode: string, scores: ScoreEntry[], creatorId: string }) {
   const params = useParams();
   const router = useRouter();
   const roomId = params.id as string;
@@ -81,6 +82,7 @@ export default function RoomPage({ title, shortId, scores, creatorId }: { title:
         tutorialKey="room"
         className="z-50 fixed bottom-4 right-3"
       />
+      <RoomSearchCodeBadge searchCode={searchCode} />
       <UserScoreBoard scores={scores} users={users} />
       <div className="w-full p-8">
         <div className="max-w-lg mx-auto">
@@ -101,7 +103,7 @@ export default function RoomPage({ title, shortId, scores, creatorId }: { title:
             value='お題を変更する'
             className='w-full'
           />
-          <RoomIdCard title={title} shortId={shortId} />
+          <RoomNameCard title={title} />
           {/* </Card> */}
           <div id="tutorial-room-status" className='mt-5'>
             <StatusBar status={status}></StatusBar>

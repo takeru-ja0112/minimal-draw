@@ -100,7 +100,7 @@ export default function RoomNearbySection({ user, setNameError }: RoomNearbySect
                 >
                   <span className="text-gray-800">
                     {room.room_name || '名前なし'}
-                    <span className="ml-2 text-sm text-gray-500">ID: {room.short_id}</span>
+                    <span className="ml-2 text-sm text-gray-500">ID: {room.search_code}</span>
                   </span>
                   {room.has_password && <RoomLockIcon />}
                 </button>
