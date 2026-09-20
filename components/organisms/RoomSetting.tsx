@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 // RoomSettingTypeのimportは不要になるので削除
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 type RoomSettingProps<T> = {
   className?: string;
@@ -14,6 +14,13 @@ export default function RoomSetting<T>({
   const levels = ['easy', 'normal', 'hard'];
   const genres = ['動物', '料理', '雑貨', 'ランダム', '食べ物', '自然', '施設', '乗り物', '道具', '遊び', 'スポーツ', '学校', '楽器', '家電', 'ファッション', '武器', '文化', '文房具', '家具', '果物', '野菜', '植物', '宇宙', 'キャラクター', 'イベント', '建物', '人間', '職業', '伝説', '動作', '図形', 'ダンス', '鳥', '虫', '魚', '宝石', '抽象', '科学', 'メディア', 'お金', '芸術', 'SF', '行事', 'ゲーム', '大阪', '東京', '任天堂', 'カプコン', '化粧品ブランド'];
   const [selectedLevel, setSelectedLevel] = useState<string>('normal');
+  const [selectedGenre, setSelectedGenre] = useState<string>(genres[0]);
+
+  // selectの初期表示（先頭のジャンル）と、実際に送信される値を一致させる
+  useEffect(() => {
+    setRoomData(prev => ({ ...prev, genre: selectedGenre }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className={className}>
@@ -70,7 +77,11 @@ export default function RoomSetting<T>({
           id="genre"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onChange={(e) => setRoomData(prev => ({ ...prev, genre: e.target.value }))}
+          value={selectedGenre}
+          onChange={(e) => {
+            setSelectedGenre(e.target.value);
+            setRoomData(prev => ({ ...prev, genre: e.target.value }));
+          }}
           className="w-full col-span-3 p-3 bg-yellow-400 font-bold rounded-full hover:bg-amber-500 transition-colors cursor-pointer"
         >
           {genres.map((genre) => (
