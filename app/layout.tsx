@@ -1,26 +1,27 @@
 // "use client";
 // import { useEffect } from "react";
 
-import AppLayoutWrapper from "@/components/common/AppLayoutWrapper";
-import Toaster from "@/components/common/toast";
-import type { Metadata, Viewport } from "next";
+import AppLayoutWrapper from '@/components/common/AppLayoutWrapper';
+import Background from '@/components/common/Background';
+import Toaster from '@/components/common/toast';
+import type { Metadata, Viewport } from 'next';
 import { ViewTransitions } from 'next-view-transitions';
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import { Geist, Geist_Mono } from 'next/font/google';
+import './globals.css';
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-  title: "Minimal Draw",
-  description: "Mini app",
+  title: 'Minimal Draw',
+  description: 'Mini app',
   // appleWebApp: {
   //   capable: true,
   //   statusBarStyle: 'black-translucent',
@@ -37,7 +38,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   // useEffect(() => {
   //   if ("serviceWorker" in navigator) {
   //     navigator.serviceWorker
@@ -67,6 +67,7 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen`}
         >
           <Toaster maxVisible={3} />
+          <Background />
           <AppLayoutWrapper>{children}</AppLayoutWrapper>
         </body>
       </html>

@@ -9,12 +9,12 @@ export default function AppLayoutWrapper({ children }: { children: React.ReactNo
   const isAdmin = pathname.startsWith("/admin");
 
   if (isAdmin) {
-    return <div className="min-h-screen w-full">{children}</div>;
+    return <div className="relative z-10 min-h-screen w-full">{children}</div>;
   }
 
   return (
     <>
-      <div className="bg-background min-h-screen w-full">
+      <div className="relative z-10 min-h-screen w-full">
         {/* <BgObject /> */}
         <Header />
         <div className="pt-14">{children}</div>
