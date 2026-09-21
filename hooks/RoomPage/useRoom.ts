@@ -1,6 +1,6 @@
 'use client';
 
-import { getThreeThemes, registerParticipantScore, resetDrawingData, setRoomTheme, startQuickGame, setStatusRoom } from '@/app/room/[id]/action';
+import { getThreeThemes, registerParticipantScore, resetDrawingData, setRoomTheme, setStatusRoom, startQuickGame } from '@/app/room/[id]/action';
 import { isCheckAnswer, setdbAnswer, setdbAnswerInput, setdbAnswerResult } from '@/app/room/[id]/answer/action';
 import { showToast } from '@/components/common/toast';
 import type { PresenceUser } from '@/hooks/usePresence';
@@ -14,7 +14,7 @@ import { useEffect, useState } from 'react';
 export default function useRoom(roomId: string) {
   const router = useRouter();
   const [isAnswerModalOpen, setIsAnswerModalOpen] = useState(false);
-  const [roomSetting, setRoomSetting] = useState<RoomSettingType>({ level: 'normal', genre: 'ランダム' });
+  const [roomSetting, setRoomSetting] = useState<RoomSettingType>({ level: 'normal', genre: '動物' });
   const [threeThemes, setThreeThemes] = useState<Theme[]>([]);
   const [isStarting, setIsStarting] = useState(false);
 

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import Button from '@/components/atoms/Button';
 import Modal from '@/components/organisms/Modal';
@@ -17,28 +17,19 @@ export default function SaveControl({ isSaving, saveMessage, hasShapes, onConfir
 
   return (
     <>
-      <motion.div
-        className="px-8 w-80 bottom-5 fixed left-1/2 transform -translate-x-1/2"
-      >
+      <motion.div className="px-8 w-80 bottom-5 fixed left-1/2 transform -translate-x-1/2">
         <Button
           onClick={() => setIsSaveOpen(!isSaveOpen)}
           disabled={isSaving || !hasShapes}
           className="w-full disabled:opacity-50 disabled:cursor-not-allowed"
-          value={isSaving ? '保存中...' : '保存'}
+          value={isSaving ? '終了中...' : '終了する！'}
         />
       </motion.div>
-      {saveMessage && (
-        <div className="mb-4 p-2 bg-gray-100 rounded">
-          {saveMessage}
-        </div>
-      )}
+      {saveMessage && <div className="mb-4 p-2 bg-gray-100 rounded">{saveMessage}</div>}
       {isSaveOpen && (
-        <Modal
-          isOpen={true}
-          onClose={() => setIsSaveOpen(false)}
-        >
-          <h2 className="text-xl font-semibold mb-4">保存しますか？</h2>
-          <p>保存が完了次第、自動で回答ページに移動します。</p>
+        <Modal isOpen={true} onClose={() => setIsSaveOpen(false)}>
+          <h2 className="text-xl font-semibold mb-4">終了しますか？</h2>
+          <p>自動で回答ページに移動します。</p>
           <div className="flex justify-end gap-4">
             <Button
               onClick={() => setIsSaveOpen(false)}
@@ -50,7 +41,7 @@ export default function SaveControl({ isSaving, saveMessage, hasShapes, onConfir
                 onConfirmSave();
                 setIsSaveOpen(false);
               }}
-              value={isSaving ? '保存中...' : '保存する'}
+              value={isSaving ? '終了中...' : '終了する'}
               disabled={isSaving}
             />
           </div>
